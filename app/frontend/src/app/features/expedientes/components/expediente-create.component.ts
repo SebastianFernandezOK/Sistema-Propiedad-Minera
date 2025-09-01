@@ -17,7 +17,7 @@ import { ExpedienteFormComponent } from './expediente-form.component';
 // Los archivos y componentes deben ser renombrados y movidos a sus carpetas correspondientes siguiendo la convención en inglés.
 
 @Component({
-  selector: 'app-expediente-crear',
+  selector: 'app-expediente-create',
   standalone: true,
   imports: [CommonModule, ExpedienteFormComponent],
   template: `
@@ -27,7 +27,7 @@ import { ExpedienteFormComponent } from './expediente-form.component';
     <div *ngIf="error" style="color: red; margin-top: 1rem;">Ocurrió un error al crear el expediente.</div>
   `
 })
-export class ExpedienteCrearComponent {
+export class ExpedienteCreateComponent {
   success = false;
   error = false;
 

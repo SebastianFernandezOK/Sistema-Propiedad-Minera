@@ -117,7 +117,7 @@ import { MatMenuModule } from '@angular/material/menu';
     }
 
     .sidenav-header {
-      padding: 20px 16px;
+      padding: 8px 8px 10px 8px;
       background: linear-gradient(135deg, #416759 0%, #335248 100%);
       color: white;
       text-align: center;
@@ -245,10 +245,10 @@ import { MatMenuModule } from '@angular/material/menu';
 
     .sidebar-logo {
       display: block;
-      margin: 0 auto 12px auto;
-      max-width: 95%;
-      max-height: 160px;
-      width: 95%;
+      margin: 0 auto;
+      max-width: 98%;
+      max-height: 110px;
+      width: 100%;
       height: auto;
       object-fit: contain;
       border-radius: 6px;

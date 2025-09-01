@@ -1,6 +1,12 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+
+import { Component, EventEmitter, Output, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { Observable, of } from 'rxjs';
+import { debounceTime, switchMap, startWith, map } from 'rxjs/operators';
+import { PropiedadMinera } from '../../propiedades/models/propiedad-minera.model';
+import { PropiedadMineraService } from '../../propiedades/services/propiedad-minera.service';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
@@ -13,7 +19,7 @@ import { ExpedienteCreate } from '../models/expediente.model';
 @Component({
   selector: 'app-expediente-form',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatSelectModule, MatCardModule, MatDatepickerModule, MatNativeDateModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatSelectModule, MatCardModule, MatDatepickerModule, MatNativeDateModule, MatAutocompleteModule],
   template: `
     <mat-card class="expediente-form-card">
       <mat-card-title class="form-title">Datos del Expediente</mat-card-title>
@@ -58,16 +64,17 @@ import { ExpedienteCreate } from '../models/expediente.model';
           <mat-datepicker #pickerFin></mat-datepicker>
         </mat-form-field>
         <mat-form-field appearance="fill">
-          <mat-label>ID Propiedad Minera</mat-label>
-          <input matInput type="number" formControlName="IdPropiedadMinera" min="1">
+          <mat-label>Propiedad Minera</mat-label>
+          <mat-select formControlName="IdPropiedadMinera">
+            <mat-option *ngFor="let propiedad of propiedadesMineraLista" [value]="propiedad.IdPropiedadMinera">
+              {{propiedad.Nombre}}
+            </mat-option>
+          </mat-select>
         </mat-form-field>
         <!-- Fila 4 -->
         <mat-form-field appearance="fill">
-          <mat-label>ID Tipo de Expediente *</mat-label>
-          <input matInput type="number" formControlName="IdTipoExpediente" required min="1">
-          <mat-error *ngIf="form.get('IdTipoExpediente')?.hasError('required') && form.get('IdTipoExpediente')?.touched">
-            Este campo es obligatorio
-          </mat-error>
+          <mat-label>ID Tipo de Expediente</mat-label>
+          <input matInput type="number" formControlName="IdTipoExpediente" min="1">
         </mat-form-field>
         <!-- Fila 5 (full width) -->
         <mat-form-field appearance="fill" class="full-width">
@@ -187,11 +194,13 @@ import { ExpedienteCreate } from '../models/expediente.model';
     }
   `]
 })
-export class ExpedienteFormComponent {
+export class ExpedienteFormComponent implements OnInit {
   @Output() create = new EventEmitter<ExpedienteCreate>();
   form: FormGroup;
+  propiedadesMineraLista: PropiedadMinera[] = [];
 
-  constructor(private fb: FormBuilder) {
+  constructor(private fb: FormBuilder, private propiedadMineraService: PropiedadMineraService) {
+
     this.form = this.fb.group({
       CodigoExpediente: [''],
       PrimerDueno: [''],
@@ -204,14 +213,22 @@ export class ExpedienteFormComponent {
       Descripcion: [''],
       Observaciones: [''],
       IdPropiedadMinera: [null],
-      IdTipoExpediente: [null, Validators.required],
+      IdTipoExpediente: [null],
     });
   }
-
-  onSubmit() {
-    if (this.form.valid) {
-      this.create.emit(this.form.value);
-      this.form.reset();
+  
+    ngOnInit(): void {
+      this.propiedadMineraService.getPropiedades({}).subscribe(res => {
+        this.propiedadesMineraLista = res.data;
+      });
     }
-  }
+  
+    onSubmit() {
+      if (this.form.valid) {
+        this.create.emit(this.form.value);
+        this.form.reset();
+      }
+    }
+
+
 }

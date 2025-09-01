@@ -15,6 +15,7 @@ export interface Expediente {
   IdTransaccion?: number;
   alertas?: Alerta[];
   actas?: Acta[];
+  observaciones?: import('../../observaciones/models/observacion.model').Observacion[];
 }
 
 export interface ExpedienteCreate {

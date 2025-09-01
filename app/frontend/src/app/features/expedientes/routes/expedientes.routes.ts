@@ -10,7 +10,7 @@ export const EXPEDIENTES_ROUTES: Routes = [
   },
   {
     path: 'nuevo',
-    loadComponent: () => import('../components/expediente-create.component').then(m => m.ExpedienteCrearComponent)
+  loadComponent: () => import('../components/expediente-create.component').then(m => m.ExpedienteCreateComponent)
   },
   {
     path: ':id',

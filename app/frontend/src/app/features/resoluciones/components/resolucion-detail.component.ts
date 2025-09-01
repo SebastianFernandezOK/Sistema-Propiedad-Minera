@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ViewChildren, QueryList, ElementRef } from '@angular/core';
+import { trigger, transition, style, animate } from '@angular/animations';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
@@ -14,7 +15,7 @@ import { ResolucionService, ResolucionDetalleResponse } from '../services/resolu
 @Component({
   selector: 'app-resolucion-detalle',
   standalone: true,
-  imports: [CommonModule, MatCardModule, MatButtonModule, MatChipsModule, MatProgressSpinnerModule, MatTabsModule, MatListModule, MatIconModule, MatDividerModule],
+  imports: [CommonModule, MatCardModule, MatButtonModule, MatChipsModule, MatProgressSpinnerModule, MatListModule, MatIconModule, MatDividerModule],
   template: `
     <div class="resolucion-detail-container">
       <div *ngIf="loading" class="loading-container">
@@ -28,66 +29,92 @@ import { ResolucionService, ResolucionDetalleResponse } from '../services/resolu
           </button>
           <h1>{{ resolucion.Titulo || 'Resolución' }}</h1>
         </div>
-        <mat-tab-group>
-          <mat-tab label="Información General">
-            <div class="tab-content">
-              <mat-card>
-                <mat-card-header>
-                  <mat-card-title>Datos Básicos</mat-card-title>
-                </mat-card-header>
-                <mat-card-content>
-                  <div class="info-grid">
-                    <div class="info-item"><label>ID Resolución:</label><span>{{ resolucion.IdResolucion }}</span></div>
-                    <div class="info-item"><label>Número:</label><span>{{ resolucion.Numero || 'Sin número' }}</span></div>
-                    <div class="info-item"><label>Título:</label><span>{{ resolucion.Titulo || 'Sin título' }}</span></div>
-                    <div class="info-item"><label>Fecha Emisión:</label><span>{{ resolucion.Fecha_emision ? (resolucion.Fecha_emision | date:'dd/MM/yyyy') : 'Sin fecha' }}</span></div>
-                    <div class="info-item"><label>Fecha Publicación:</label><span>{{ resolucion.Fecha_publicacion ? (resolucion.Fecha_publicacion | date:'dd/MM/yyyy') : 'Sin fecha' }}</span></div>
-                    <div class="info-item"><label>Estado:</label><span>{{ resolucion.Estado || 'Sin estado' }}</span></div>
-                    <div class="info-item"><label>Organismo Emisor:</label><span>{{ resolucion.Organismo_emisor || 'Sin organismo' }}</span></div>
-                    <div class="info-item"><label>Descripción:</label><span>{{ resolucion.Descripcion || 'Sin descripción' }}</span></div>
+        <!-- Custom Tabs Header (fixed) -->
+        <div class="custom-tab-header-wrapper">
+          <div class="custom-tab-header">
+            <div *ngFor="let tab of tabs; let i = index"
+                 #tabLabel
+                 class="custom-tab-label"
+                 [class.active]="selectedTabIndex === i"
+                 (click)="selectTab(i)">
+              <mat-icon *ngIf="tab.icon">{{tab.icon}}</mat-icon>
+              {{tab.label}}
+              <mat-chip *ngIf="tab.chip && tab.chipValue" class="count-chip">{{tab.chipValue}}</mat-chip>
+            </div>
+            <div class="custom-tab-underline" [style.width.px]="underlineWidth" [style.transform]="'translateX(' + underlineLeft + 'px)'">
+            </div>
+          </div>
+        </div>
+
+        <!-- Custom Tabs Content (animated) -->
+        <div class="custom-tab-content-wrapper">
+          <div [@slideContent]="selectedTabIndex">
+            <ng-container [ngSwitch]="selectedTabIndex">
+              <!-- Información General -->
+              <ng-container *ngSwitchCase="0">
+                <div class="tab-content">
+                  <mat-card>
+                    <mat-card-header>
+                      <mat-card-title>Datos Básicos</mat-card-title>
+                    </mat-card-header>
+                    <mat-card-content>
+                      <div class="info-grid">
+                        <div class="info-item"><label>ID Resolución:</label><span>{{ resolucion.IdResolucion }}</span></div>
+                        <div class="info-item"><label>Número:</label><span>{{ resolucion.Numero || 'Sin número' }}</span></div>
+                        <div class="info-item"><label>Título:</label><span>{{ resolucion.Titulo || 'Sin título' }}</span></div>
+                        <div class="info-item"><label>Fecha Emisión:</label><span>{{ resolucion.Fecha_emision ? (resolucion.Fecha_emision | date:'dd/MM/yyyy') : 'Sin fecha' }}</span></div>
+                        <div class="info-item"><label>Fecha Publicación:</label><span>{{ resolucion.Fecha_publicacion ? (resolucion.Fecha_publicacion | date:'dd/MM/yyyy') : 'Sin fecha' }}</span></div>
+                        <div class="info-item"><label>Estado:</label><span>{{ resolucion.Estado || 'Sin estado' }}</span></div>
+                        <div class="info-item"><label>Organismo Emisor:</label><span>{{ resolucion.Organismo_emisor || 'Sin organismo' }}</span></div>
+                        <div class="info-item"><label>Descripción:</label><span>{{ resolucion.Descripcion || 'Sin descripción' }}</span></div>
+                      </div>
+                    </mat-card-content>
+                  </mat-card>
+                </div>
+              </ng-container>
+              <!-- Alertas -->
+              <ng-container *ngSwitchCase="1">
+                <div class="tab-content">
+                  <div *ngIf="resolucion.alertas && resolucion.alertas.length > 0" class="alertas-section">
+                    <mat-list>
+                      <mat-list-item *ngFor="let alerta of resolucion.alertas">
+                        <mat-icon matListIcon color="primary">warning</mat-icon>
+                        <div matLine><b>{{ alerta.Asunto || 'Alerta' }}</b></div>
+                        <div matLine>{{ alerta.Mensaje }}</div>
+                        <mat-chip color="primary" *ngIf="alerta.Estado">{{ alerta.Estado }}</mat-chip>
+                      </mat-list-item>
+                    </mat-list>
                   </div>
-                </mat-card-content>
-              </mat-card>
-            </div>
-          </mat-tab>
-          <mat-tab label="Alertas">
-            <div class="tab-content">
-              <div *ngIf="resolucion.alertas && resolucion.alertas.length > 0" class="alertas-section">
-                <mat-list>
-                  <mat-list-item *ngFor="let alerta of resolucion.alertas">
-                    <mat-icon matListIcon color="primary">warning</mat-icon>
-                    <div matLine><b>{{ alerta.Asunto || 'Alerta' }}</b></div>
-                    <div matLine>{{ alerta.Mensaje }}</div>
-                    <mat-chip color="primary" *ngIf="alerta.Estado">{{ alerta.Estado }}</mat-chip>
-                  </mat-list-item>
-                </mat-list>
-              </div>
-              <div *ngIf="!resolucion.alertas || resolucion.alertas.length === 0" class="alertas-section">
-                <em>No hay alertas asociadas a esta resolución.</em>
-              </div>
-            </div>
-          </mat-tab>
-          <mat-tab label="Observaciones">
-            <div class="tab-content">
-              <mat-card>
-                <mat-card-content>
-                  <div><b>Observaciones:</b></div>
-                  <div>{{ resolucion.Observaciones || 'Sin observaciones' }}</div>
-                </mat-card-content>
-              </mat-card>
-            </div>
-          </mat-tab>
-          <mat-tab label="Archivos">
-            <div class="tab-content">
-              <mat-card>
-                <mat-card-content>
-                  <div><b>Archivos:</b></div>
-                  <div><em>(Aquí va el listado o integración de archivos asociados a la resolución)</em></div>
-                </mat-card-content>
-              </mat-card>
-            </div>
-          </mat-tab>
-        </mat-tab-group>
+                  <div *ngIf="!resolucion.alertas || resolucion.alertas.length === 0" class="alertas-section">
+                    <em>No hay alertas asociadas a esta resolución.</em>
+                  </div>
+                </div>
+              </ng-container>
+              <!-- Observaciones -->
+              <ng-container *ngSwitchCase="2">
+                <div class="tab-content">
+                  <mat-card>
+                    <mat-card-content>
+                      <div><b>Observaciones:</b></div>
+                      <div>{{ resolucion.Observaciones || 'Sin observaciones' }}</div>
+                    </mat-card-content>
+                  </mat-card>
+                </div>
+              </ng-container>
+              <!-- Archivos -->
+              <ng-container *ngSwitchCase="3">
+                <div class="tab-content">
+                  <mat-card>
+                    <mat-card-content>
+                      <div><b>Archivos:</b></div>
+                      <div><em>(Aquí va el listado o integración de archivos asociados a la resolución)</em></div>
+                    </mat-card-content>
+                  </mat-card>
+                </div>
+              </ng-container>
+            </ng-container>
+          </div>
+        </div>
       </div>
     </div>
   `,
@@ -96,6 +123,14 @@ import { ResolucionService, ResolucionDetalleResponse } from '../services/resolu
     .detail-header { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid #e0e0e0; }
     .detail-header h1 { flex: 1; margin: 0; font-size: 28px; font-weight: 500; }
     .back-button { color: #666; }
+    .custom-tab-header-wrapper { overflow: hidden; margin-bottom: 0.5rem; }
+    .custom-tab-header { display: flex; background: #f5f7f6; border-radius: 8px 8px 0 0; box-shadow: 0 2px 8px rgba(0,0,0,0.03); transition: box-shadow 0.3s; position: relative; }
+    .custom-tab-label { padding: 14px 32px 12px 32px; cursor: pointer; font-weight: 500; color: #416759; font-size: 16px; display: flex; align-items: center; gap: 8px; border-bottom: 3px solid transparent; transition: background 0.2s, color 0.2s; position: relative; }
+    .custom-tab-label.active { background: #fff; color: #416759; z-index: 2; }
+    .custom-tab-label:not(.active):hover { background: #e8f0ec; }
+    .custom-tab-underline { position: absolute; left: 0; bottom: 0; height: 3px; background: #416759; transition: transform 0.4s cubic-bezier(.35,0,.25,1), width 0.4s cubic-bezier(.35,0,.25,1); will-change: transform, width; z-index: 3; }
+    .custom-tab-content-wrapper { min-height: 200px; background: #fff; border-radius: 0 0 8px 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); overflow: hidden; position: relative; }
+    .custom-tab-content-wrapper > div { width: 100%; height: 100%; }
     .tab-content { padding: 24px 0; }
     .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; margin-top: 16px; }
     .info-item { display: flex; flex-direction: column; gap: 4px; }
@@ -103,11 +138,33 @@ import { ResolucionService, ResolucionDetalleResponse } from '../services/resolu
     mat-chip { margin-left: 8px; background: #416759; color: #fff; }
     mat-list-item { margin-bottom: 8px; }
     em { color: #888; }
-  `]
+  `],
+  animations: [
+    trigger('slideContent', [
+      transition(':increment', [
+        style({ transform: 'translateX(100%)', opacity: 0 }),
+        animate('400ms cubic-bezier(.35,0,.25,1)', style({ transform: 'translateX(0%)', opacity: 1 }))
+      ]),
+      transition(':decrement', [
+        style({ transform: 'translateX(-100%)', opacity: 0 }),
+        animate('400ms cubic-bezier(.35,0,.25,1)', style({ transform: 'translateX(0%)', opacity: 1 }))
+      ])
+    ])
+  ]
 })
-export class ResolucionDetalleComponent implements OnInit {
+export class ResolucionDetalleComponent implements OnInit, AfterViewInit {
+  @ViewChildren('tabLabel', { read: ElementRef }) tabLabels!: QueryList<ElementRef>;
+  underlineWidth = 0;
+  underlineLeft = 0;
   resolucion: ResolucionDetalleResponse | null = null;
   loading = true;
+  tabs = [
+    { label: 'Información General', icon: 'info', chip: false },
+    { label: 'Alertas', icon: 'warning', chip: true, chipValue: 0 },
+    { label: 'Observaciones', icon: 'comment', chip: false },
+    { label: 'Archivos', icon: 'attach_file', chip: false }
+  ];
+  selectedTabIndex = 0;
 
   constructor(
     private route: ActivatedRoute,
@@ -119,9 +176,11 @@ export class ResolucionDetalleComponent implements OnInit {
     const id = Number(this.route.snapshot.paramMap.get('resolucionId'));
     if (id) {
       this.resolucionService.getResolucionById(id).subscribe({
-        next: (resp) => {
+        next: (resp: ResolucionDetalleResponse) => {
           this.resolucion = resp;
+          this.tabs[1].chipValue = resp.alertas?.length || 0;
           this.loading = false;
+          setTimeout(() => this.updateUnderline(), 10);
         },
         error: () => {
           this.resolucion = null;
@@ -129,6 +188,25 @@ export class ResolucionDetalleComponent implements OnInit {
         }
       });
     }
+  }
+
+  ngAfterViewInit(): void {
+    setTimeout(() => this.updateUnderline(), 10);
+    this.tabLabels.changes.subscribe(() => {
+      setTimeout(() => this.updateUnderline(), 10);
+    });
+  }
+
+  selectTab(index: number): void {
+    this.selectedTabIndex = index;
+    setTimeout(() => this.updateUnderline(), 10);
+  }
+
+  updateUnderline() {
+    if (!this.tabLabels || !this.tabLabels.toArray()[this.selectedTabIndex]) return;
+    const el = this.tabLabels.toArray()[this.selectedTabIndex].nativeElement as HTMLElement;
+    this.underlineWidth = el.offsetWidth;
+    this.underlineLeft = el.offsetLeft;
   }
 
   goBack() {
