@@ -4,6 +4,7 @@ from backend.services.expediente_service import ExpedienteService
 from backend.schemas.expediente_schema import ExpedienteRead, ExpedienteCreate
 from backend.schemas.alerta_schema import AlertaOut
 from backend.models.alerta_model import Alerta
+from backend.models.acta_model import Acta
 from backend.database.connection import get_db
 from typing import List
 from fastapi import Query
