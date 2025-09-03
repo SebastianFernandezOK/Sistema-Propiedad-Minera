@@ -18,27 +18,32 @@ import { Expediente } from '../models/expediente.model';
 import { ActasComponent } from '../../actas/components/actas.component';
 import { ResolucionesListComponent } from '../../resoluciones/components/resoluciones-list.component';
 import { ObservacionesTabComponent } from '../../observaciones/components/observaciones-tab.component';
+import { AlertaCreateComponent } from '../../alertas/components/alerta-create.component';
+import { AlertasListComponent } from '../../alertas/components/alertas-list.component';
+import { ReactiveFormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-expediente-detail',
   standalone: true,
   imports: [
-    CommonModule,
-    RouterModule,
-    MatCardModule,
-    MatButtonModule,
-    MatIconModule,
-    MatDividerModule,
-    MatChipsModule,
-    MatProgressSpinnerModule,
-    MatTabsModule,
-    MatListModule,
-    MatTableModule,
-    MatTooltipModule,
-    DatePipe,
-    ActasComponent,
-    ResolucionesListComponent,
-    ObservacionesTabComponent
+  CommonModule,
+  RouterModule,
+  MatCardModule,
+  MatButtonModule,
+  MatIconModule,
+  MatDividerModule,
+  MatChipsModule,
+  MatProgressSpinnerModule,
+  MatTabsModule,
+  MatListModule,
+  MatTableModule,
+  MatTooltipModule,
+  DatePipe,
+  ActasComponent,
+  ResolucionesListComponent,
+  ObservacionesTabComponent,
+  AlertasListComponent,
+  ReactiveFormsModule
   ],
   templateUrl: './expediente-detail.component.html',
   styleUrls: ['./expediente-detail.component.scss'],
@@ -56,6 +61,16 @@ import { ObservacionesTabComponent } from '../../observaciones/components/observ
   ]
 })
 export class ExpedienteDetailComponent implements OnInit {
+  mostrarFormularioAlerta = false;
+  onCrearAlerta(alerta: any) {
+    console.log('[ExpedienteDetail] Recibido evento create alerta:', alerta);
+    if (this.expediente) {
+      if (!this.expediente.alertas) this.expediente.alertas = [];
+      this.expediente.alertas.push({ ...alerta, idAlerta: Math.floor(Math.random() * 100000) });
+      this.tabs[3].chipValue = this.expediente.alertas.length;
+    }
+    this.mostrarFormularioAlerta = false;
+  }
   expediente: Expediente | null = null;
   loading = false;
   error: string | null = null;

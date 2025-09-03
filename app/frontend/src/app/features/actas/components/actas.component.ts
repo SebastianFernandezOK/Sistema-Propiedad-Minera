@@ -9,20 +9,21 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { ActaService, Acta } from '../services/acta.service';
 import { HttpResponse } from '@angular/common/http';
-import { MatDialog } from '@angular/material/dialog';
+import { ActaCreateComponent } from './acta-create.component';
+import { ActaEditComponent } from './acta-edit.component';
 import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-actas',
   standalone: true,
-  imports: [CommonModule, MatTableModule, MatButtonModule, MatIconModule, MatChipsModule, MatTooltipModule, MatProgressSpinnerModule, MatPaginatorModule],
+  imports: [CommonModule, MatTableModule, MatButtonModule, MatIconModule, MatChipsModule, MatTooltipModule, MatProgressSpinnerModule, MatPaginatorModule, ActaCreateComponent, ActaEditComponent],
   template: `
     <div>
       <div class="header-row">
         <span class="section-title">Actas Asociadas</span>
         <mat-chip *ngIf="totalActas > 0" class="count-chip">{{ totalActas }}</mat-chip>
         <span class="spacer"></span>
-        <button mat-raised-button color="primary" (click)="crearActa()">
+        <button *ngIf="!mostrarFormulario" mat-raised-button color="primary" (click)="mostrarFormulario = true; editando = false; actaEdit = null;">
           <mat-icon>add</mat-icon> Nueva Acta
         </button>
       </div>
@@ -30,7 +31,13 @@ import { Router } from '@angular/router';
         <mat-spinner diameter="32"></mat-spinner>
         <p>Cargando actas...</p>
       </div>
-      <div class="table-container" *ngIf="actas && actas.length > 0 && !loadingActas">
+      <div *ngIf="mostrarFormulario && !editando">
+        <app-acta-create [idExpediente]="idExpediente" (create)="onCrearActa($event)"></app-acta-create>
+      </div>
+      <div *ngIf="mostrarFormulario && editando">
+        <app-acta-edit [acta]="actaEdit" (update)="onActualizarActa($event)"></app-acta-edit>
+      </div>
+  <div class="table-container" *ngIf="actas && actas.length > 0 && !loadingActas && !mostrarFormulario">
         <table mat-table [dataSource]="actas" class="actas-table mat-elevation-4">
           <!-- Columnas -->
           <ng-container matColumnDef="IdActa">
@@ -40,10 +47,6 @@ import { Router } from '@angular/router';
           <ng-container matColumnDef="Fecha">
             <th mat-header-cell *matHeaderCellDef>Fecha</th>
             <td mat-cell *matCellDef="let acta">{{ acta.Fecha | date:'dd/MM/yyyy' }}</td>
-          </ng-container>
-          <ng-container matColumnDef="Tipo">
-            <th mat-header-cell *matHeaderCellDef>Tipo</th>
-            <td mat-cell *matCellDef="let acta">{{ acta.Tipo }}</td>
           </ng-container>
           <ng-container matColumnDef="Descripcion">
             <th mat-header-cell *matHeaderCellDef>Descripción</th>
@@ -55,7 +58,7 @@ import { Router } from '@angular/router';
               <button mat-icon-button color="primary" matTooltip="Ver" (click)="verActa(acta)">
                 <mat-icon>visibility</mat-icon>
               </button>
-              <button mat-icon-button color="primary" matTooltip="Editar" (click)="editarActa(acta)">
+              <button mat-icon-button color="primary" matTooltip="Editar" (click)="$event.stopPropagation(); onEditarActa(acta)">
                 <mat-icon>edit</mat-icon>
               </button>
             </td>
@@ -87,12 +90,15 @@ export class ActasComponent implements OnInit {
   @Input() idExpediente!: number;
   actas: Acta[] = [];
   loadingActas = false;
-  displayedColumns = ['IdActa', 'Fecha', 'Tipo', 'Descripcion', 'actions'];
+  displayedColumns = ['IdActa', 'Fecha', 'Descripcion', 'actions'];
   totalActas = 0;
   pageSize = 10;
   pageIndex = 0;
+  mostrarFormulario = false;
+  editando = false;
+  actaEdit: Acta | null = null;
 
-  constructor(private actaService: ActaService, private dialog: MatDialog, private router: Router) {}
+  constructor(private actaService: ActaService, private router: Router) {}
 
   ngOnInit() {
     if (this.idExpediente) {
@@ -129,16 +135,36 @@ export class ActasComponent implements OnInit {
     this.cargarActas();
   }
 
-  crearActa() {
-    // Lógica para crear acta
+  onCrearActa(acta: Acta) {
+    this.actaService.create(acta).subscribe({
+      next: () => {
+        this.cargarActas();
+        this.mostrarFormulario = false;
+      }
+    });
   }
+
+  onEditarActa(acta: Acta) {
+    this.actaEdit = { ...acta };
+    this.editando = true;
+    this.mostrarFormulario = true;
+  }
+
+  onActualizarActa(acta: Acta) {
+    this.actaService.update(acta.IdActa, acta).subscribe({
+      next: () => {
+        this.cargarActas();
+        this.editando = false;
+        this.actaEdit = null;
+        this.mostrarFormulario = false;
+      }
+    });
+  }
+
   verActa(acta: Acta, event?: MouseEvent) {
     if (event) {
       event.stopPropagation();
     }
     this.router.navigate(['/expedientes', this.idExpediente, 'acta', acta.IdActa]);
-  }
-  editarActa(acta: Acta) {
-    // Lógica para editar acta
   }
 }

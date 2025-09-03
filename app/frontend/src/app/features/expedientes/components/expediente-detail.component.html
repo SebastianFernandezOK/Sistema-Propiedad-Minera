@@ -87,41 +87,16 @@
           <!-- Alertas -->
           <ng-container *ngSwitchCase="3">
             <div class="tab-content">
-              <mat-card>
-                <mat-card-header>
-                  <mat-card-title>
-                    Alertas Asociadas
-                    <mat-chip *ngIf="expediente.alertas?.length" class="count-chip">
-                      {{ expediente.alertas?.length }}
-                    </mat-chip>
-                  </mat-card-title>
-                </mat-card-header>
-                <mat-card-content>
-                  <mat-list *ngIf="expediente.alertas && expediente.alertas.length > 0">
-                    <mat-list-item *ngFor="let alerta of expediente.alertas">
-                      <div class="alerta-item">
-                        <div class="alerta-info">
-                          <span class="alerta-id">Alerta #{{ alerta.idAlerta }}</span>
-                          <span class="alerta-transaccion">Transacción: {{ alerta.IdTransaccion }}</span>
-                        </div>
-                        <mat-chip [ngClass]="'estado-' + (alerta.Estado || 'sin-estado').toLowerCase()">
-                          {{ alerta.Estado || 'Sin estado' }}
-                        </mat-chip>
-                      </div>
-                    </mat-list-item>
-                  </mat-list>
-                  <div *ngIf="!expediente.alertas || expediente.alertas.length === 0" class="no-data">
-                    <mat-icon>info</mat-icon>
-                    <p>No hay alertas asociadas a este expediente.</p>
-                  </div>
-                </mat-card-content>
-              </mat-card>
+              <app-alertas-list [alertas]="expediente.alertas" [idTransaccion]="expediente.IdTransaccion ?? null"></app-alertas-list>
             </div>
           </ng-container>
           <!-- Observaciones (nuevo tab modularizado) -->
           <ng-container *ngSwitchCase="4">
             <div class="tab-content">
-              <app-observaciones-tab [observaciones]="expediente && expediente.observaciones ? expediente.observaciones : []"></app-observaciones-tab>
+              <app-observaciones-tab 
+                [observaciones]="expediente && expediente.observaciones ? expediente.observaciones : []"
+                [idTransaccion]="expediente.IdTransaccion ?? null"
+              ></app-observaciones-tab>
             </div>
           </ng-container>
         </ng-container>

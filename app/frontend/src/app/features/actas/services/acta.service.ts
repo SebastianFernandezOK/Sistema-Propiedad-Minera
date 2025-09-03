@@ -11,6 +11,7 @@ export interface Alerta {
 
 export interface Acta {
   IdActa: number;
+  IdExpediente: number;
   Fecha: string;
   IdTipoActa: string;
   Descripcion: string;
@@ -18,7 +19,7 @@ export interface Acta {
   IdAutoridad: string;
   Obs?: string;
   AudFecha?: string;
-  AudUsuario?: string;
+  AudUsuario?: number;
   RepresentanteLegal?: string;
 }
 
