@@ -210,6 +210,10 @@ export class ResolucionDetalleComponent implements OnInit, AfterViewInit {
   }
 
   goBack() {
-    this.router.navigate(['/expedientes']);
+    if (this.resolucion && this.resolucion.IdExpediente) {
+      this.router.navigate(['/expedientes', this.resolucion.IdExpediente]);
+    } else {
+      this.router.navigate(['/expedientes']);
+    }
   }
 }

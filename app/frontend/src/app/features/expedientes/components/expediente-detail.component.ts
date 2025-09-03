@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChildren, QueryList, ElementRef, AfterViewInit } from '@angular/core';
 import { trigger, state, style, animate, transition } from '@angular/animations';
 import { CommonModule, DatePipe } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
@@ -49,18 +49,19 @@ import { ReactiveFormsModule } from '@angular/forms';
   styleUrls: ['./expediente-detail.component.scss'],
   animations: [
     trigger('slideContent', [
-      state('void', style({ transform: 'translateY(-20px)', opacity: 0 })),
-      state('*', style({ transform: 'translateY(0)', opacity: 1 })),
-      transition('void => *', [
-        animate('300ms ease-out')
+      transition(':increment', [
+        style({ transform: 'translateX(100%)', opacity: 0 }),
+        animate('400ms cubic-bezier(.35,0,.25,1)', style({ transform: 'translateX(0%)', opacity: 1 }))
       ]),
-      transition('* => void', [
-        animate('200ms ease-in')
+      transition(':decrement', [
+        style({ transform: 'translateX(-100%)', opacity: 0 }),
+        animate('400ms cubic-bezier(.35,0,.25,1)', style({ transform: 'translateX(0%)', opacity: 1 }))
       ])
     ])
   ]
 })
-export class ExpedienteDetailComponent implements OnInit {
+export class ExpedienteDetailComponent implements OnInit, AfterViewInit {
+  @ViewChildren('tabLabel', { read: ElementRef }) tabLabels!: QueryList<ElementRef>;
   mostrarFormularioAlerta = false;
   onCrearAlerta(alerta: any) {
     console.log('[ExpedienteDetail] Recibido evento create alerta:', alerta);
@@ -75,6 +76,8 @@ export class ExpedienteDetailComponent implements OnInit {
   loading = false;
   error: string | null = null;
   expedienteId: number | null = null;
+  underlineWidth = 0;
+  underlineLeft = 0;
 
   tabs = [
     { label: 'Información General', icon: 'info', chip: false },
@@ -100,6 +103,13 @@ export class ExpedienteDetailComponent implements OnInit {
     });
   }
 
+  ngAfterViewInit(): void {
+    setTimeout(() => this.updateUnderline(), 10);
+    this.tabLabels.changes.subscribe(() => {
+      setTimeout(() => this.updateUnderline(), 10);
+    });
+  }
+
   loadExpediente(): void {
     if (!this.expedienteId) return;
 
@@ -122,6 +132,14 @@ export class ExpedienteDetailComponent implements OnInit {
 
   selectTab(index: number): void {
     this.selectedTabIndex = index;
+    setTimeout(() => this.updateUnderline(), 10);
+  }
+
+  updateUnderline() {
+    if (!this.tabLabels || !this.tabLabels.toArray()[this.selectedTabIndex]) return;
+    const el = this.tabLabels.toArray()[this.selectedTabIndex].nativeElement as HTMLElement;
+    this.underlineWidth = el.offsetWidth;
+    this.underlineLeft = el.offsetLeft;
   }
 
   goBack(): void {

@@ -6,11 +6,15 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { ReactiveFormsModule } from '@angular/forms';
 import { Acta } from '../services/acta.service';
+import { Location } from '@angular/common';
+import { MatIconModule } from '@angular/material/icon';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
 
 @Component({
   selector: 'app-acta-edit',
   standalone: true,
-  imports: [CommonModule, MatFormFieldModule, MatInputModule, MatButtonModule, ReactiveFormsModule],
+  imports: [CommonModule, MatFormFieldModule, MatInputModule, MatButtonModule, ReactiveFormsModule, MatDatepickerModule, MatNativeDateModule, MatIconModule],
   template: `
     <form [formGroup]="form" (ngSubmit)="onSubmit()" class="acta-form">
       <mat-form-field appearance="fill" class="full-width">
@@ -24,7 +28,9 @@ import { Acta } from '../services/acta.service';
       <div class="row-fields">
         <mat-form-field appearance="fill" class="half-width">
           <mat-label>Fecha*</mat-label>
-          <input matInput formControlName="Fecha" type="date" required>
+          <input matInput [matDatepicker]="picker" formControlName="Fecha" required>
+          <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+          <mat-datepicker #picker></mat-datepicker>
         </mat-form-field>
         <mat-form-field appearance="fill" class="half-width">
           <mat-label>Tipo de Acta*</mat-label>
@@ -47,16 +53,21 @@ import { Acta } from '../services/acta.service';
     </form>
   `,
   styles: [`
-    .acta-form { display: flex; flex-direction: column; gap: 1.5rem; max-width: 500px; margin: 0 auto; }
+    .acta-form { display: flex; flex-direction: column; gap: 1.5rem; max-width: 500px; margin: 0 auto; position: relative; }
     .full-width { width: 100%; }
     .row-fields { display: flex; gap: 1rem; }
     .half-width { width: 100%; }
     .button-row { display: flex; justify-content: center; margin-top: 2rem; }
+    .close-btn { display: block; margin: 1.5rem auto 1.5rem auto; position: static; background: #fff; border-radius: 6px; z-index: 2; }
+    ::ng-deep .mat-datepicker-content {
+      background: #fff !important;
+    }
   `]
 })
 export class ActaEditComponent {
   form: FormGroup;
   @Output() update = new EventEmitter<Acta>();
+  @Output() cancelar = new EventEmitter<void>();
   @Input() acta: Acta | null = null;
 
   ngOnChanges(changes: SimpleChanges) {
@@ -72,7 +83,7 @@ export class ActaEditComponent {
     }
   }
 
-  constructor(private fb: FormBuilder) {
+  constructor(private fb: FormBuilder, private location: Location) {
     this.form = this.fb.group({
       Descripcion: ['', Validators.required],
       Obs: [''],
@@ -91,5 +102,9 @@ export class ActaEditComponent {
     };
     this.update.emit(value);
     this.form.reset();
+  }
+
+  volver() {
+    this.cancelar.emit();
   }
 }

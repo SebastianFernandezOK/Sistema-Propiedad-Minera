@@ -24,15 +24,15 @@ import { AlertaCreate } from '../models/alerta.model';
         <button mat-raised-button color="primary" *ngIf="!mostrarFormulario" (click)="mostrarFormulario = true">
           <mat-icon>add_alert</mat-icon> Nueva Alerta
         </button>
-        <button mat-raised-button color="accent" *ngIf="mostrarFormulario" (click)="mostrarFormulario = false">
-          <mat-icon>arrow_back</mat-icon> Volver
-        </button>
       </div>
+      <button *ngIf="mostrarFormulario" mat-stroked-button class="close-btn" (click)="mostrarFormulario = false; editando = false; alertaEdit = null;" aria-label="Cerrar">
+        Cerrar
+      </button>
       <div *ngIf="mostrarFormulario && !editando">
-        <app-alerta-create [idTransaccion]="idTransaccion" (create)="onCrearAlerta($event)"></app-alerta-create>
+        <app-alerta-create [idTransaccion]="idTransaccion" (create)="onCrearAlerta($event)" (cancelar)="mostrarFormulario = false; editando = false; alertaEdit = null;"></app-alerta-create>
       </div>
       <div *ngIf="mostrarFormulario && editando">
-        <app-alerta-edit [idTransaccion]="idTransaccion" [alerta]="alertaEdit" (update)="onActualizarAlerta($event)"></app-alerta-edit>
+        <app-alerta-edit [idTransaccion]="idTransaccion" [alerta]="alertaEdit" (update)="onActualizarAlerta($event)" (cancelar)="mostrarFormulario = false; editando = false; alertaEdit = null;"></app-alerta-edit>
       </div>
       <div *ngIf="!mostrarFormulario">
         <div *ngIf="loading" class="loading-container">
@@ -80,12 +80,17 @@ import { AlertaCreate } from '../models/alerta.model';
     </div>
   `,
   styles: [`
-    .header-row { display: flex; align-items: center; margin-bottom: 1rem; }
-    .section-title { font-size: 1.2rem; font-weight: 600; }
+    .header-row { display: flex; align-items: center; margin-bottom: 12px; }
+    .section-title { font-size: 1.1rem; font-weight: 600; color: #333; }
     .spacer { flex: 1 1 auto; }
-    .count-chip { margin-left: 0.5rem; }
-    .table-container { margin-top: 1rem; }
-    .no-data { color: #888; text-align: center; margin-top: 2rem; }
+    .count-chip { background: #416759; color: #fff; margin-left: 8px; }
+    .close-btn { display: block; margin: 0 0 1.5rem 0; position: relative; left: 0; top: 0; background: #fff; border-radius: 6px; z-index: 2; }
+    .table-container { overflow-x: auto; }
+    .alertas-table th, .alertas-table td { color: #333; }
+    .no-data { color: #888; font-style: italic; margin-top: 16px; }
+    .loading-container { display: flex; align-items: center; gap: 12px; margin: 16px 0; }
+    .clickable-row { cursor: pointer; transition: background 0.2s; }
+    .clickable-row:hover { background: #e6f2ed; }
   `]
 })
 export class AlertasListComponent {

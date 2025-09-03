@@ -18,59 +18,72 @@ import { TipoAlertaService } from '../services/tipo-alerta.service';
   imports: [CommonModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatDatepickerModule, MatSelectModule, MatNativeDateModule, ReactiveFormsModule],
   template: `
     <form [formGroup]="form" (ngSubmit)="onSubmit()" class="alerta-form">
-      <mat-form-field appearance="fill">
-        <mat-label>Tipo de Alerta</mat-label>
-        <mat-select formControlName="IdTipoAlerta" required>
-          <mat-option *ngFor="let tipo of tiposAlerta" [value]="tipo.id">{{ tipo.nombre }}</mat-option>
-        </mat-select>
-      </mat-form-field>
-      <mat-form-field appearance="fill">
-        <mat-label>Asunto</mat-label>
-        <input matInput formControlName="Asunto" required>
-      </mat-form-field>
-      <mat-form-field appearance="fill">
-        <mat-label>Mensaje</mat-label>
-        <textarea matInput formControlName="Mensaje" required></textarea>
-      </mat-form-field>
-      <mat-form-field appearance="fill">
-        <mat-label>Estado</mat-label>
-        <input matInput formControlName="Estado">
-      </mat-form-field>
-      <mat-form-field appearance="fill">
-        <mat-label>Medio</mat-label>
-        <input matInput formControlName="Medio">
-      </mat-form-field>
-      <mat-form-field appearance="fill">
-        <mat-label>Periodicidad</mat-label>
-        <input matInput formControlName="Periodicidad">
-      </mat-form-field>
-      <mat-form-field appearance="fill">
-        <mat-label>Fecha Inicio</mat-label>
-        <input matInput [matDatepicker]="pickerInicio" formControlName="FechaInicio">
-        <mat-datepicker-toggle matSuffix [for]="pickerInicio"></mat-datepicker-toggle>
-        <mat-datepicker #pickerInicio></mat-datepicker>
-      </mat-form-field>
-      <mat-form-field appearance="fill">
-        <mat-label>Fecha Fin</mat-label>
-        <input matInput [matDatepicker]="pickerFin" formControlName="FechaFin">
-        <mat-datepicker-toggle matSuffix [for]="pickerFin"></mat-datepicker-toggle>
-        <mat-datepicker #pickerFin></mat-datepicker>
-      </mat-form-field>
-      <mat-form-field appearance="fill">
-        <mat-label>Observaciones</mat-label>
-        <textarea matInput formControlName="Obs"></textarea>
-      </mat-form-field>
-      <button mat-raised-button color="primary" type="submit">Guardar Cambios</button>
+      <div class="row-fields">
+        <mat-form-field appearance="fill" class="third-width">
+          <mat-label>Tipo de Alerta</mat-label>
+          <mat-select formControlName="IdTipoAlerta" required>
+            <mat-option *ngFor="let tipo of tiposAlerta" [value]="tipo.id">{{ tipo.nombre }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="fill" class="third-width">
+          <mat-label>Asunto</mat-label>
+          <input matInput formControlName="Asunto" required>
+        </mat-form-field>
+        <mat-form-field appearance="fill" class="third-width">
+          <mat-label>Mensaje</mat-label>
+          <textarea matInput formControlName="Mensaje" required></textarea>
+        </mat-form-field>
+      </div>
+      <div class="row-fields">
+        <mat-form-field appearance="fill" class="third-width">
+          <mat-label>Estado</mat-label>
+          <input matInput formControlName="Estado">
+        </mat-form-field>
+        <mat-form-field appearance="fill" class="third-width">
+          <mat-label>Medio</mat-label>
+          <input matInput formControlName="Medio">
+        </mat-form-field>
+        <mat-form-field appearance="fill" class="third-width">
+          <mat-label>Periodicidad</mat-label>
+          <input matInput formControlName="Periodicidad">
+        </mat-form-field>
+      </div>
+      <div class="row-fields">
+        <mat-form-field appearance="fill" class="third-width">
+          <mat-label>Fecha Inicio</mat-label>
+          <input matInput [matDatepicker]="pickerInicio" formControlName="FechaInicio">
+          <mat-datepicker-toggle matSuffix [for]="pickerInicio"></mat-datepicker-toggle>
+          <mat-datepicker #pickerInicio></mat-datepicker>
+        </mat-form-field>
+        <mat-form-field appearance="fill" class="third-width">
+          <mat-label>Fecha Fin</mat-label>
+          <input matInput [matDatepicker]="pickerFin" formControlName="FechaFin">
+          <mat-datepicker-toggle matSuffix [for]="pickerFin"></mat-datepicker-toggle>
+          <mat-datepicker #pickerFin></mat-datepicker>
+        </mat-form-field>
+        <mat-form-field appearance="fill" class="third-width">
+          <mat-label>Observaciones</mat-label>
+          <textarea matInput formControlName="Obs"></textarea>
+        </mat-form-field>
+      </div>
+      <div class="button-row">
+        <button mat-raised-button color="primary" type="submit">Guardar Cambios</button>
+      </div>
     </form>
   `,
   styles: [`
-    .alerta-form { display: flex; flex-direction: column; gap: 1rem; max-width: 500px; margin: 0 auto; }
+    .alerta-form { display: flex; flex-direction: column; gap: 1.5rem; max-width: 900px; margin: 0 auto; position: relative; }
+    .row-fields { display: flex; gap: 1rem; }
+    .third-width { width: 33%; min-width: 180px; }
+    .button-row { display: flex; justify-content: center; margin-top: 2rem; }
+    .close-btn { display: block; margin: 1.5rem auto 1.5rem auto; position: static; background: #fff; border-radius: 6px; z-index: 2; }
   `]
 })
 export class AlertaEditComponent {
   @Input() idTransaccion: number | null = null;
   @Input() alerta: any = null;
   @Output() update = new EventEmitter<any>();
+  @Output() cancelar = new EventEmitter<void>();
   form: FormGroup;
   tiposAlerta: any[] = [];
 

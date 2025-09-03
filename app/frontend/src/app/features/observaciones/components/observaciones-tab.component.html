@@ -6,15 +6,15 @@
     <button mat-raised-button color="primary" *ngIf="!mostrarFormulario" (click)="onNuevaObservacion()">
       <mat-icon>add_comment</mat-icon> Nueva Observación
     </button>
-    <button mat-raised-button color="accent" *ngIf="mostrarFormulario" (click)="mostrarFormulario = false">
-      <mat-icon>arrow_back</mat-icon> Volver
-    </button>
   </div>
+  <button *ngIf="mostrarFormulario" mat-stroked-button class="close-btn" (click)="mostrarFormulario = false; editando = false; observacionEdit = null;" aria-label="Cerrar">
+    Cerrar
+  </button>
   <div *ngIf="mostrarFormulario && !editando">
-    <app-observacion-create [idTransaccion]="idTransaccion" (create)="onCrearObservacion($event)"></app-observacion-create>
+    <app-observacion-create [idTransaccion]="idTransaccion" (create)="onCrearObservacion($event)" (cancelar)="mostrarFormulario = false; editando = false; observacionEdit = null;"></app-observacion-create>
   </div>
   <div *ngIf="mostrarFormulario && editando">
-    <app-observacion-edit [observacion]="observacionEdit" (update)="onActualizarObservacion($event)"></app-observacion-edit>
+    <app-observacion-edit [observacion]="observacionEdit" (update)="onActualizarObservacion($event)" (cancelar)="mostrarFormulario = false; editando = false; observacionEdit = null;"></app-observacion-edit>
   </div>
   <div *ngIf="!mostrarFormulario">
     <div *ngIf="loading" class="loading-container">

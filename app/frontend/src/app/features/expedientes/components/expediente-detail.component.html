@@ -27,14 +27,17 @@
 
     <!-- Custom Tabs Header (fixed) -->
     <div class="custom-tab-header-wrapper">
-      <div class="custom-tab-header classic">
+      <div class="custom-tab-header">
         <div *ngFor="let tab of tabs; let i = index"
-             class="custom-tab-label classic"
+             #tabLabel
+             class="custom-tab-label"
              [class.active]="selectedTabIndex === i"
              (click)="selectTab(i)">
           <mat-icon *ngIf="tab.icon">{{tab.icon}}</mat-icon>
           {{tab.label}}
           <mat-chip *ngIf="tab.chip && tab.chipValue" class="count-chip">{{tab.chipValue}}</mat-chip>
+        </div>
+        <div class="custom-tab-underline" [style.width.px]="underlineWidth" [style.transform]="'translateX(' + underlineLeft + 'px)'">
         </div>
       </div>
     </div>

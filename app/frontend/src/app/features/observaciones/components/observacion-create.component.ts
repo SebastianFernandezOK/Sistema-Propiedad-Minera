@@ -25,12 +25,14 @@ import { Observacion } from '../models/observacion.model';
     </form>
   `,
   styles: [`
-    .observacion-form { display: flex; flex-direction: column; gap: 1rem; max-width: 500px; margin: 0 auto; }
+    .observacion-form { display: flex; flex-direction: column; gap: 1.5rem; max-width: 500px; margin: 0 auto; position: relative; }
+    .close-btn { display: block; margin: 1.5rem auto 1.5rem auto; position: static; background: #fff; border-radius: 6px; z-index: 2; }
   `]
 })
 export class ObservacionCreateComponent {
   @Input() idTransaccion: number | null = null;
   @Output() create = new EventEmitter<Observacion>();
+  @Output() cancelar = new EventEmitter<void>();
   form: FormGroup;
 
   constructor(private fb: FormBuilder) {
@@ -48,5 +50,9 @@ export class ObservacionCreateComponent {
     };
     this.create.emit(value);
     this.form.reset();
+  }
+
+  volver() {
+    this.cancelar.emit();
   }
 }

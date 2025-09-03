@@ -10,7 +10,7 @@ export class ObservacionesService {
   constructor(private http: HttpClient) {}
 
   getByTransaccion(idTransaccion: number): Observable<Observacion[]> {
-    return this.http.get<Observacion[]>(`${this.apiUrl}?idTransaccion=${idTransaccion}`);
+    return this.http.get<Observacion[]>(`${this.apiUrl}/${idTransaccion}`);
   }
 
   createObservacion(observacion: Observacion) {

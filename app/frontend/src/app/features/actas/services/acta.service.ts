@@ -25,6 +25,7 @@ export interface Acta {
 
 export interface ActaDetalleResponse extends Acta {
   alertas?: Alerta[];
+  IdTransaccion?: number; // Para evitar errores de tipado, agregamos IdTransaccion como opcional en ActaDetalleResponse
 }
 
 @Injectable({ providedIn: 'root' })

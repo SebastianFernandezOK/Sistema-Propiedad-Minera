@@ -16,4 +16,8 @@ export class AlertaService {
   updateAlerta(id: number, alerta: Partial<AlertaCreate>): Observable<any> {
     return this.http.put<any>(`${this.baseUrl}/${id}`, alerta);
   }
+
+  getByActaId(idActa: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/by-parent?tipo_padre=acta&id_padre=${idActa}`);
+  }
 }

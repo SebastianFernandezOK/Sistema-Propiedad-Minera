@@ -27,15 +27,18 @@ import { Router } from '@angular/router';
           <mat-icon>add</mat-icon> Nueva Acta
         </button>
       </div>
+      <button *ngIf="mostrarFormulario" mat-stroked-button class="close-btn" (click)="onCancelarActa()" aria-label="Cerrar">
+        Cerrar
+      </button>
       <div *ngIf="loadingActas" class="loading-container">
         <mat-spinner diameter="32"></mat-spinner>
         <p>Cargando actas...</p>
       </div>
       <div *ngIf="mostrarFormulario && !editando">
-        <app-acta-create [idExpediente]="idExpediente" (create)="onCrearActa($event)"></app-acta-create>
+        <app-acta-create [idExpediente]="idExpediente" (create)="onCrearActa($event)" (cancelar)="onCancelarActa()"></app-acta-create>
       </div>
       <div *ngIf="mostrarFormulario && editando">
-        <app-acta-edit [acta]="actaEdit" (update)="onActualizarActa($event)"></app-acta-edit>
+        <app-acta-edit [acta]="actaEdit" (update)="onActualizarActa($event)" (cancelar)="onCancelarActa()"></app-acta-edit>
       </div>
   <div class="table-container" *ngIf="actas && actas.length > 0 && !loadingActas && !mostrarFormulario">
         <table mat-table [dataSource]="actas" class="actas-table mat-elevation-4">
@@ -84,6 +87,7 @@ import { Router } from '@angular/router';
     .loading-container { display: flex; align-items: center; gap: 12px; margin: 16px 0; }
     .clickable-row { cursor: pointer; transition: background 0.2s; }
     .clickable-row:hover { background: #e6f2ed; }
+    .close-btn { display: block; margin: 0 0 1.5rem 0; position: relative; left: 0; top: 0; background: #fff; border-radius: 6px; z-index: 2; }
   `]
 })
 export class ActasComponent implements OnInit {
@@ -159,6 +163,12 @@ export class ActasComponent implements OnInit {
         this.mostrarFormulario = false;
       }
     });
+  }
+
+  onCancelarActa() {
+    this.mostrarFormulario = false;
+    this.editando = false;
+    this.actaEdit = null;
   }
 
   verActa(acta: Acta, event?: MouseEvent) {
