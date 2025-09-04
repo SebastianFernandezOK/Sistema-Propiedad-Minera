@@ -6,13 +6,14 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { ReactiveFormsModule } from '@angular/forms';
 import { Observacion } from '../models/observacion.model';
+import { trigger, transition, style, animate } from '@angular/animations';
 
 @Component({
   selector: 'app-observacion-edit',
   standalone: true,
   imports: [CommonModule, MatFormFieldModule, MatInputModule, MatButtonModule, ReactiveFormsModule],
   template: `
-    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="observacion-form">
+    <form [@fadeInUp] [formGroup]="form" (ngSubmit)="onSubmit()" class="observacion-form">
       <mat-form-field appearance="fill">
         <mat-label>Descripción</mat-label>
         <input matInput formControlName="Descripcion" required>
@@ -27,7 +28,15 @@ import { Observacion } from '../models/observacion.model';
   styles: [`
     .observacion-form { display: flex; flex-direction: column; gap: 1.5rem; max-width: 500px; margin: 0 auto; position: relative; }
     .close-btn { display: block; margin: 1.5rem auto 1.5rem auto; position: static; background: #fff; border-radius: 6px; z-index: 2; }
-  `]
+  `],
+  animations: [
+    trigger('fadeInUp', [
+      transition(':enter', [
+        style({ opacity: 0, transform: 'translateY(30px)' }),
+        animate('400ms cubic-bezier(.35,0,.25,1)', style({ opacity: 1, transform: 'none' }))
+      ])
+    ])
+  ]
 })
 export class ObservacionEditComponent {
   @Input() observacion: Observacion | null = null;

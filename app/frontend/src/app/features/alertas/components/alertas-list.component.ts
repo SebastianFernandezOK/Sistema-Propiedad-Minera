@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
@@ -6,10 +6,10 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { AlertaCreateComponent } from '../components/alerta-create.component';
 import { AlertaEditComponent } from '../components/alerta-edit.component';
-import { AlertaCreate } from '../models/alerta.model';
+import { AlertaService } from '../services/alerta.service';
 
 @Component({
   selector: 'app-alertas-list',
@@ -76,6 +76,8 @@ import { AlertaCreate } from '../models/alerta.model';
           <mat-icon>info</mat-icon>
           <p>No hay alertas asociadas a este expediente.</p>
         </div>
+        <mat-paginator *ngIf="totalAlertas > 0" [length]="totalAlertas" [pageSize]="pageSize" [pageSizeOptions]="[5, 10, 25]" (page)="onPageChange($event)">
+        </mat-paginator>
       </div>
     </div>
   `,
@@ -93,34 +95,67 @@ import { AlertaCreate } from '../models/alerta.model';
     .clickable-row:hover { background: #e6f2ed; }
   `]
 })
-export class AlertasListComponent {
-  private _alertas: any[] = [];
-  @Input() set alertas(value: any[] | undefined) {
-    this._alertas = value ?? [];
-  }
-  get alertas(): any[] {
-    return this._alertas ?? [];
-  }
+export class AlertasListComponent implements OnInit, OnChanges {
+  alertas: any[] = [];
+  totalAlertas = 0;
+  pageSize = 5;
+  currentPage = 0;
+  loading = false;
   @Input() idTransaccion: number | null = null;
-  @Input() loading = false;
+  @Input() tipoPadre: string = 'acta'; // Por defecto 'acta', pero puede ser 'expediente', 'resolucion', etc.
   mostrarFormulario = false;
   editando = false;
   alertaEdit: any = null;
   displayedColumns: string[] = ['idAlerta', 'Estado', 'Asunto', 'Mensaje', 'actions'];
 
+  constructor(private alertaService: AlertaService) {}
+
+  ngOnInit() {
+    if (this.idTransaccion) {
+      this.loadAlertas();
+    }
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['idTransaccion'] && changes['idTransaccion'].currentValue) {
+      this.currentPage = 0;
+      this.loadAlertas(0, this.pageSize);
+    }
+  }
+
+  loadAlertas(page: number = 0, size: number = this.pageSize) {
+    if (!this.idTransaccion) return;
+    this.loading = true;
+    this.alertaService.getByTransaccion(this.idTransaccion, page, size).subscribe({
+      next: (resp) => {
+        this.alertas = resp.data;
+        this.totalAlertas = resp.total;
+        this.loading = false;
+      },
+      error: () => {
+        this.alertas = [];
+        this.totalAlertas = 0;
+        this.loading = false;
+      }
+    });
+  }
+
+  onPageChange(event: PageEvent) {
+    this.currentPage = event.pageIndex;
+    this.pageSize = event.pageSize;
+    this.loadAlertas(this.currentPage, this.pageSize);
+  }
+
   onCrearAlerta(alerta: any) {
-    this._alertas.push(alerta);
+    this.loadAlertas(this.currentPage, this.pageSize);
     this.mostrarFormulario = false;
   }
 
   onActualizarAlerta(alerta: any) {
-    if (this.editando && this.alertaEdit) {
-      const idx = this._alertas.findIndex(a => a.idAlerta === this.alertaEdit.idAlerta);
-      if (idx !== -1) this._alertas[idx] = alerta;
-      this.editando = false;
-      this.alertaEdit = null;
-      this.mostrarFormulario = false;
-    }
+    this.loadAlertas(this.currentPage, this.pageSize);
+    this.editando = false;
+    this.alertaEdit = null;
+    this.mostrarFormulario = false;
   }
 
   onEditarAlerta(alerta: any) {

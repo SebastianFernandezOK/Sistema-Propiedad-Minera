@@ -46,6 +46,14 @@
         <tr mat-header-row *matHeaderRowDef="['IdTransaccion', 'Descripcion', 'Observaciones', 'actions']"></tr>
         <tr mat-row *matRowDef="let row; columns: ['IdTransaccion', 'Descripcion', 'Observaciones', 'actions']"></tr>
       </table>
+      <mat-paginator
+        [length]="totalObservaciones"
+        [pageSize]="pageSize"
+        [pageIndex]="currentPage"
+        [pageSizeOptions]="[5, 10, 25, 50]"
+        (page)="onPageChange($event)"
+        showFirstLastButtons>
+      </mat-paginator>
     </div>
     <div *ngIf="observaciones.length === 0 && !loading" class="no-data">
       <mat-icon>info</mat-icon>

@@ -98,13 +98,13 @@ import { ObservacionesTabComponent } from '../../observaciones/components/observ
               <!-- Alertas -->
               <ng-container *ngSwitchCase="1">
                 <div class="tab-content">
-                  <app-alertas-list [alertas]="alertas" [idTransaccion]="acta.IdTransaccion ?? null"></app-alertas-list>
+                  <app-alertas-list [idTransaccion]="acta.IdTransaccion ?? null"></app-alertas-list>
                 </div>
               </ng-container>
               <!-- Observaciones -->
               <ng-container *ngSwitchCase="2">
                 <div class="tab-content">
-                  <app-observaciones-tab [observaciones]="observaciones" [idTransaccion]="acta.IdTransaccion ?? null"></app-observaciones-tab>
+                  <app-observaciones-tab [idTransaccion]="acta.IdTransaccion ?? null"></app-observaciones-tab>
                 </div>
               </ng-container>
               <!-- Archivos -->
@@ -135,7 +135,7 @@ import { ObservacionesTabComponent } from '../../observaciones/components/observ
     .custom-tab-label.active { background: #fff; color: #416759; z-index: 2; }
     .custom-tab-label:not(.active):hover { background: #e8f0ec; }
     .custom-tab-underline { position: absolute; left: 0; bottom: 0; height: 3px; background: #416759; transition: transform 0.4s cubic-bezier(.35,0,.25,1), width 0.4s cubic-bezier(.35,0,.25,1); will-change: transform, width; z-index: 3; }
-    .custom-tab-content-wrapper { min-height: 200px; background: #fff; border-radius: 0 0 8px 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); overflow: hidden; position: relative; }
+    .custom-tab-content-wrapper { min-height: 300px; background: #fff; border-radius: 0 0 8px 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); position: relative; }
     .custom-tab-content-wrapper > div { width: 100%; height: 100%; }
     .tab-content { padding: 24px 0; }
     .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; margin-top: 16px; }
@@ -186,6 +186,7 @@ export class ActaDetalleComponent implements OnInit, AfterViewInit {
   acta: ActaDetalleResponse | null = null;
   loading = true;
   alertas: any[] = [];
+  totalAlertas = 0;
   observaciones: any[] = [];
   tabs = [
     { label: 'Información General', icon: 'info', chip: false },
@@ -211,7 +212,6 @@ export class ActaDetalleComponent implements OnInit, AfterViewInit {
           this.acta = resp;
           this.loading = false;
           setTimeout(() => this.updateUnderline(), 10);
-          // Obtener alertas y observaciones por IdTransaccion
           if (resp && (resp as any).IdTransaccion) {
             this.loadAlertas(id); // Usar id de acta para alertas
             this.loadObservaciones((resp as any).IdTransaccion);
@@ -226,9 +226,10 @@ export class ActaDetalleComponent implements OnInit, AfterViewInit {
   }
 
   loadAlertas(idActa: number) {
-    this.alertaService.getByActaId(idActa).subscribe(alertas => {
-      this.alertas = alertas || [];
-      this.tabs[1].chipValue = this.alertas.length;
+    this.alertaService.getByActaId(idActa, 0, 5).subscribe(resp => {
+      this.alertas = resp.data || [];
+      this.totalAlertas = resp.total || 0;
+      this.tabs[1].chipValue = this.totalAlertas;
     });
   }
 

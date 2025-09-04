@@ -13,6 +13,7 @@ from backend.controllers.alerta_controller import router as alerta_router
 from backend.controllers.auditoria_controller import router as auditoria_router
 from backend.controllers.transaccion_controller import router as transaccion_router
 from backend.controllers.observaciones_controller import router as observaciones_router
+from backend.controllers.tipo_alerta_controller import router as tipo_alerta_router
 from fastapi.middleware.cors import CORSMiddleware
 
 
@@ -41,3 +42,4 @@ app.include_router(alerta_router)
 app.include_router(auditoria_router)
 app.include_router(transaccion_router)
 app.include_router(observaciones_router)
+app.include_router(tipo_alerta_router)

@@ -1,12 +1,14 @@
-class TipoAlerta:
-    def __init__(self, id_tipo_alerta: int, nombre: str, descripcion: str = ""):
-        self.id_tipo_alerta = id_tipo_alerta
-        self.nombre = nombre
-        self.descripcion = descripcion
+from sqlalchemy import Column, Integer, String, SmallInteger, DateTime
+from backend.database.connection import Base
 
-    def to_dict(self):
-        return {
-            "id_tipo_alerta": self.id_tipo_alerta,
-            "nombre": self.nombre,
-            "descripcion": self.descripcion
-        }
+class TipoAlerta(Base):
+    __tablename__ = "TipoAlerta"
+
+    IdTipoAlerta = Column(Integer, primary_key=True, index=True, autoincrement=False)
+    Descripcion = Column(String(45), nullable=False)
+    IdArea = Column(SmallInteger, nullable=True)
+    Asunto = Column(String(50), nullable=True)
+    Mensaje = Column(String(5000), nullable=True)
+    Obs = Column(String(5000), nullable=True)
+    AudFecha = Column(DateTime, nullable=True)
+    AudUsuario = Column(SmallInteger, nullable=True)

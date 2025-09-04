@@ -229,7 +229,9 @@ import { TipoExpedienteService, TipoExpediente } from '../services/tipo-expedien
 })
 export class ExpedienteFormComponent implements OnInit {
   @Output() create = new EventEmitter<ExpedienteCreate>();
+  @Output() edit = new EventEmitter<any>();
   @Input() form!: FormGroup;
+  @Input() expediente: any = null;
   @Input() modo: 'crear' | 'editar' = 'crear';
   propiedadesMineraLista: PropiedadMinera[] = [];
   tiposExpedienteLista: TipoExpediente[] = [];
@@ -265,20 +267,57 @@ export class ExpedienteFormComponent implements OnInit {
     this.tipoExpedienteService.getTipos().subscribe((res: any) => {
       this.tiposExpedienteLista = res ?? [];
     });
+    if (this.modo === 'editar' && this.expediente) {
+      const patch = { ...this.expediente };
+      // Corrige fechas: si viene string, pásala a Date; si viene número, ignora
+      if (patch.FechaInicio && typeof patch.FechaInicio === 'string') {
+        patch.FechaInicio = this.parseDateString(patch.FechaInicio);
+      }
+      if (patch.FechaFin && typeof patch.FechaFin === 'string') {
+        patch.FechaFin = this.parseDateString(patch.FechaFin);
+      }
+      // Corrige año: si viene string o número, pásalo a número
+      if (patch.Ano) {
+        patch.Ano = Number(patch.Ano) || '';
+      }
+      this.form.patchValue(patch);
+    }
+  }
+
+  // Parsea string tipo 'YYYY-MM-DD' o 'YYYY-MM-DDTHH:mm:ss' a Date
+  private parseDateString(dateStr: string): Date | null {
+    if (!dateStr) return null;
+    // Solo toma la parte de fecha si viene con hora
+    const clean = dateStr.split('T')[0];
+    const [year, month, day] = clean.split('-').map(Number);
+    if (!year || !month || !day) return null;
+    return new Date(year, month - 1, day);
+  }
+
+  private formatDateToISO(date: any): string {
+    if (!date) return '';
+    if (typeof date === 'string' && date.match(/^\d{4}-\d{2}-\d{2}$/)) return date;
+    const d = new Date(date);
+    if (isNaN(d.getTime())) return '';
+    return d.toISOString().slice(0, 10);
   }
 
   onSubmit(): void {
     const value = { ...this.form.value };
-    console.log('[ExpedienteForm] onSubmit ejecutado, datos:', value);
-    // Formatear fechas y año a string ISO si existen
-    if (value.Ano) {
-      value.Ano = parseInt(value.Ano, 10);
-    }
+    // Formatear fechas a ISO antes de emitir
     if (value.FechaInicio) {
-      value.FechaInicio = typeof value.FechaInicio === 'string' ? value.FechaInicio : (value.FechaInicio instanceof Date ? value.FechaInicio.toISOString().slice(0, 10) : '');
+      value.FechaInicio = this.formatDateToISO(value.FechaInicio);
     }
     if (value.FechaFin) {
-      value.FechaFin = typeof value.FechaFin === 'string' ? value.FechaFin : (value.FechaFin instanceof Date ? value.FechaFin.toISOString().slice(0, 10) : '');
+      value.FechaFin = this.formatDateToISO(value.FechaFin);
+    }
+    // Asegura que el año sea número
+    if (value.Ano) {
+      value.Ano = Number(value.Ano) || null;
+    }
+    if (this.modo === 'editar') {
+      this.edit.emit(value);
+      return;
     }
     this.create.emit(value);
     if (this.modo === 'crear') {

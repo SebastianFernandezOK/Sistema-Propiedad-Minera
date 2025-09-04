@@ -12,6 +12,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatListModule } from '@angular/material/list';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 import { ExpedienteService } from '../services/expediente.service';
 import { Expediente } from '../models/expediente.model';
@@ -21,6 +22,7 @@ import { ObservacionesTabComponent } from '../../observaciones/components/observ
 import { AlertaCreateComponent } from '../../alertas/components/alerta-create.component';
 import { AlertasListComponent } from '../../alertas/components/alertas-list.component';
 import { ReactiveFormsModule } from '@angular/forms';
+import { ExpedienteFormComponent } from './expediente-form.component';
 
 @Component({
   selector: 'app-expediente-detail',
@@ -43,7 +45,8 @@ import { ReactiveFormsModule } from '@angular/forms';
   ResolucionesListComponent,
   ObservacionesTabComponent,
   AlertasListComponent,
-  ReactiveFormsModule
+  ReactiveFormsModule,
+  ExpedienteFormComponent
   ],
   templateUrl: './expediente-detail.component.html',
   styleUrls: ['./expediente-detail.component.scss'],
@@ -78,6 +81,8 @@ export class ExpedienteDetailComponent implements OnInit, AfterViewInit {
   expedienteId: number | null = null;
   underlineWidth = 0;
   underlineLeft = 0;
+  editando: boolean = false;
+  eliminando: boolean = false;
 
   tabs = [
     { label: 'Información General', icon: 'info', chip: false },
@@ -91,7 +96,8 @@ export class ExpedienteDetailComponent implements OnInit, AfterViewInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private expedienteService: ExpedienteService
+    private expedienteService: ExpedienteService,
+    private snackBar: MatSnackBar
   ) {}
 
   ngOnInit(): void {
@@ -143,28 +149,56 @@ export class ExpedienteDetailComponent implements OnInit, AfterViewInit {
   }
 
   goBack(): void {
-    this.router.navigate(['/expedientes']);
+    if (this.editando) {
+      this.cancelarEdicion();
+    } else {
+      this.router.navigate(['/expedientes']);
+    }
   }
 
   editarExpediente(): void {
-    if (this.expedienteId) {
-      this.router.navigate(['/expedientes', this.expedienteId, 'editar']);
-    }
+    this.editando = true;
+  }
+  cancelarEdicion() {
+    this.editando = false;
+    this.loadExpediente();
+  }
+  onExpedienteEditado(datos: any) {
+    if (!this.expedienteId) return;
+    this.expedienteService.updateExpediente(this.expedienteId, datos).subscribe({
+      next: () => {
+        this.editando = false;
+        this.loadExpediente();
+        this.snackBar.open('Expediente actualizado correctamente', 'Cerrar', {
+          duration: 3000,
+          panelClass: ['snackbar-success']
+        });
+      },
+      error: () => {
+        this.snackBar.open('Error al guardar los cambios', 'Cerrar', {
+          duration: 4000,
+          panelClass: ['snackbar-error']
+        });
+      }
+    });
   }
 
   eliminarExpediente(): void {
+    this.eliminando = true;
+  }
+  confirmarEliminar() {
     if (!this.expedienteId || !this.expediente) return;
-
-  const mensaje = 'Esta seguro que desea eliminar el expediente ' + (this.expediente.CodigoExpediente || ('#' + this.expediente.IdExpediente)) + '?';
-  if (confirm(mensaje)) {
-      this.expedienteService.deleteExpediente(this.expedienteId).subscribe({
-        next: () => {
-          this.router.navigate(['/expedientes']);
-        },
-        error: (error) => {
-          alert('Error al eliminar el expediente. Intente nuevamente.');
-        }
-      });
-    }
+    this.expedienteService.deleteExpediente(this.expedienteId).subscribe({
+      next: () => {
+        this.router.navigate(['/expedientes']);
+      },
+      error: () => {
+        alert('Error al eliminar el expediente. Intente nuevamente.');
+        this.eliminando = false;
+      }
+    });
+  }
+  cancelarEliminar() {
+    this.eliminando = false;
   }
 }

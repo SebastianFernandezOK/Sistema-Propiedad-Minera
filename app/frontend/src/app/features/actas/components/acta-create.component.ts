@@ -11,6 +11,7 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { Location } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { Router } from '@angular/router';
+import { trigger, transition, style, animate } from '@angular/animations';
 
 // Usar la interfaz Acta del servicio
 
@@ -19,7 +20,7 @@ import { Router } from '@angular/router';
   standalone: true,
   imports: [CommonModule, MatFormFieldModule, MatInputModule, MatButtonModule, ReactiveFormsModule, MatDatepickerModule, MatNativeDateModule, MatIconModule],
   template: `
-    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="acta-form">
+    <form [@fadeInUp] [formGroup]="form" (ngSubmit)="onSubmit()" class="acta-form">
       <mat-form-field appearance="fill" class="full-width">
         <mat-label>Descripción*</mat-label>
         <input matInput formControlName="Descripcion" required>
@@ -62,10 +63,16 @@ import { Router } from '@angular/router';
     .half-width { width: 100%; }
     .button-row { display: flex; justify-content: center; margin-top: 2rem; }
     .close-btn { display: block; margin: 1.5rem auto 1.5rem auto; position: static; background: #fff; border-radius: 6px; z-index: 2; }
-    ::ng-deep .mat-datepicker-content {
-      background: #fff !important;
-    }
-  `]
+    ::ng-deep .mat-datepicker-content { background: #fff !important; }
+  `],
+  animations: [
+    trigger('fadeInUp', [
+      transition(':enter', [
+        style({ opacity: 0, transform: 'translateY(30px)' }),
+        animate('400ms cubic-bezier(.35,0,.25,1)', style({ opacity: 1, transform: 'none' }))
+      ])
+    ])
+  ]
 })
 export class ActaCreateComponent {
   form: FormGroup;

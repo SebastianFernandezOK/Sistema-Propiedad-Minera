@@ -8,13 +8,14 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { Resolucion } from '../services/resolucion.service';
+import { trigger, transition, style, animate } from '@angular/animations';
 
 @Component({
   selector: 'app-resolucion-edit',
   standalone: true,
   imports: [CommonModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatDatepickerModule, MatNativeDateModule, ReactiveFormsModule],
   template: `
-    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="resolucion-form">
+    <form [@fadeInUp] [formGroup]="form" (ngSubmit)="onSubmit()" class="resolucion-form">
       <div class="row-fields">
         <mat-form-field appearance="fill" class="third-width">
           <mat-label>Número</mat-label>
@@ -71,7 +72,15 @@ import { Resolucion } from '../services/resolucion.service';
     .third-width { width: 33%; min-width: 180px; }
     .button-row { display: flex; justify-content: center; margin-top: 2rem; }
     ::ng-deep .mat-datepicker-content { background: #fff !important; }
-  `]
+  `],
+  animations: [
+    trigger('fadeInUp', [
+      transition(':enter', [
+        style({ opacity: 0, transform: 'translateY(30px)' }),
+        animate('400ms cubic-bezier(.35,0,.25,1)', style({ opacity: 1, transform: 'none' }))
+      ])
+    ])
+  ]
 })
 export class ResolucionEditComponent implements OnChanges {
   @Input() resolucion: Resolucion | null = null;

@@ -11,18 +11,19 @@ import { AlertaCreate } from '../models/alerta.model';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatNativeDateModule } from '@angular/material/core';
 import { TipoAlertaService } from '../services/tipo-alerta.service';
+import { trigger, transition, style, animate } from '@angular/animations';
 
 @Component({
   selector: 'app-alerta-create',
   standalone: true,
   imports: [CommonModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatDatepickerModule, MatSelectModule, MatNativeDateModule, ReactiveFormsModule],
   template: `
-    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="alerta-form">
+    <form [@fadeInUp] [formGroup]="form" (ngSubmit)="onSubmit()" class="alerta-form">
       <div class="row-fields">
         <mat-form-field appearance="fill" class="third-width">
           <mat-label>Tipo de Alerta</mat-label>
           <mat-select formControlName="IdTipoAlerta" required>
-            <mat-option *ngFor="let tipo of tiposAlerta" [value]="tipo.id">{{ tipo.nombre }}</mat-option>
+            <mat-option *ngFor="let tipo of tiposAlerta" [value]="tipo.IdTipoAlerta">{{ tipo.Descripcion }}</mat-option>
           </mat-select>
         </mat-form-field>
         <mat-form-field appearance="fill" class="third-width">
@@ -79,7 +80,16 @@ import { TipoAlertaService } from '../services/tipo-alerta.service';
     .third-width { width: 33%; min-width: 180px; }
     .button-row { display: flex; justify-content: center; margin-top: 2rem; }
     .close-btn { display: block; margin: 1.5rem auto 1.5rem auto; position: static; background: #fff; border-radius: 6px; z-index: 2; }
-  `]
+    ::ng-deep .mat-datepicker-content { background: #fff !important; }
+  `],
+  animations: [
+    trigger('fadeInUp', [
+      transition(':enter', [
+        style({ opacity: 0, transform: 'translateY(30px)' }),
+        animate('400ms cubic-bezier(.35,0,.25,1)', style({ opacity: 1, transform: 'none' }))
+      ])
+    ])
+  ]
 })
 export class AlertaCreateComponent {
   @Input() idTransaccion: number | null = null;

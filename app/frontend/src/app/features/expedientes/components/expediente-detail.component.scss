@@ -299,6 +299,18 @@ mat-chip {
   stroke: #416759 !important;
 }
 
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+.info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
 @media (max-width: 768px) {
   .detail-header {
     flex-direction: column;
