@@ -8,13 +8,24 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { AlertaCreateComponent } from '../components/alerta-create.component';
-import { AlertaEditComponent } from '../components/alerta-edit.component';
+import { AlertaEditComponent } from './alerta-edit.component';
 import { AlertaService } from '../services/alerta.service';
 
 @Component({
   selector: 'app-alertas-list',
   standalone: true,
-  imports: [CommonModule, MatTableModule, MatButtonModule, MatIconModule, MatChipsModule, MatTooltipModule, MatProgressSpinnerModule, MatPaginatorModule, AlertaCreateComponent, AlertaEditComponent],
+  imports: [
+    CommonModule,
+    MatTableModule,
+    MatButtonModule,
+    MatIconModule,
+    MatChipsModule,
+    MatTooltipModule,
+    MatProgressSpinnerModule,
+    MatPaginatorModule,
+    AlertaCreateComponent,
+    AlertaEditComponent
+  ],
   template: `
     <div>
       <div class="header-row">

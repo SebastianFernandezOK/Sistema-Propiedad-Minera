@@ -1,9 +1,23 @@
+@use '@angular/material' as mat;
+.cdk-overlay-pane .mat-select-panel,
+.cdk-overlay-pane .mat-option {
+  background: #fff !important;
+  opacity: 1 !important;
+  color: #222 !important;
+}
+/* Angular Material overlay and select panel fix for dropdown superposition */
+.cdk-overlay-pane, .cdk-overlay-container {
+  z-index: 9999 !important;
+}
+.cdk-overlay-pane .mat-select-panel {
+  background: #fff !important;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+}
 // Include theming for Angular Material with `mat.theme()`.
 // This Sass mixin will define CSS variables that are used for styling Angular Material
 // components according to the Material 3 design spec.
 // Learn more about theming and how to use it for your application's
 // custom components at https://material.angular.dev/guide/theming
-@use '@angular/material' as mat;
 
 // Define custom corporate color palette
 $corporate-green: (

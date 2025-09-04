@@ -22,10 +22,10 @@ import { AlertaGlobalService } from '../services/alerta-global.service';
             <th mat-header-cell *matHeaderCellDef>ID</th>
             <td mat-cell *matCellDef="let alerta">{{ alerta.idAlerta }}</td>
           </ng-container>
-          <ng-container matColumnDef="Estado">
-            <th mat-header-cell *matHeaderCellDef>Estado</th>
-            <td mat-cell *matCellDef="let alerta">{{ alerta.Estado }}</td>
-          </ng-container>
+            <ng-container matColumnDef="Estado">
+              <th mat-header-cell *matHeaderCellDef>Estado</th>
+              <td mat-cell *matCellDef="let alerta">{{ alerta.estado_nombre }}</td>
+            </ng-container>
           <ng-container matColumnDef="Asunto">
             <th mat-header-cell *matHeaderCellDef>Asunto</th>
             <td mat-cell *matCellDef="let alerta">{{ alerta.Asunto }}</td>
@@ -34,6 +34,7 @@ import { AlertaGlobalService } from '../services/alerta-global.service';
             <th mat-header-cell *matHeaderCellDef>Mensaje</th>
             <td mat-cell *matCellDef="let alerta">{{ alerta.Mensaje }}</td>
           </ng-container>
+  displayedColumns: string[] = ['idAlerta', 'Estado', 'Asunto', 'Mensaje'];
           <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
           <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
         </table>
@@ -45,6 +46,13 @@ import { AlertaGlobalService } from '../services/alerta-global.service';
     </div>
   `,
   styles: [`
+    :host {
+      display: block;
+      background: #fff;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      border-radius: 8px;
+      padding: 24px;
+    }
     .loading-container { display: flex; align-items: center; gap: 12px; margin: 16px 0; }
     .table-container { overflow-x: auto; margin-top: 1rem; }
     .no-data { color: #888; font-style: italic; margin-top: 16px; }

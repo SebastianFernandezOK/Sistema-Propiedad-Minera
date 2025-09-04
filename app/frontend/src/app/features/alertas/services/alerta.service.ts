@@ -18,10 +18,13 @@ export class AlertaService {
     return this.http.put<any>(`${this.baseUrl}/${id}`, alerta);
   }
 
-  getByActaId(idActa: number, page: number = 0, size: number = 10): Observable<{ data: any[]; total: number }> {
+  getByActaId(idActa: number, page: number = 0, size: number = 10, idEstado?: number): Observable<{ data: any[]; total: number }> {
     const start = page * size;
     const end = start + size - 1;
     let params = new HttpParams().set('range', `[${start},${end}]`);
+    if (idEstado !== undefined) {
+      params = params.set('id_estado', idEstado.toString());
+    }
     return this.http
       .get<any[]>(`${this.baseUrl}/by-parent?tipo_padre=acta&id_padre=${idActa}`, { params, observe: 'response' })
       .pipe(

@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from backend.controllers.propiedad_minera_controller import router as propiedad_minera_router
+from backend.controllers.estado_alerta_controller import router as estado_alerta_router
 from backend.controllers.expediente_controller import router as expediente_router
 from backend.controllers.tipo_expediente_controller import router as tipo_expediente_router
 from backend.controllers.titular_minero_controller import router as titular_minero_router
@@ -38,6 +39,7 @@ app.include_router(autoridad_router)
 app.include_router(area_router)
 app.include_router(archivo_router)
 app.include_router(notificacion_router)
+app.include_router(estado_alerta_router)
 app.include_router(alerta_router)
 app.include_router(auditoria_router)
 app.include_router(transaccion_router)

@@ -65,11 +65,12 @@ import { TipoExpedienteService, TipoExpediente } from '../services/tipo-expedien
         </mat-form-field>
         <mat-form-field appearance="fill">
           <mat-label>Propiedad Minera</mat-label>
-          <mat-select formControlName="IdPropiedadMinera">
-            <mat-option *ngFor="let propiedad of propiedadesMineraLista" [value]="propiedad.IdPropiedadMinera">
+          <input matInput type="text" [formControl]="propiedadMineraControl" [matAutocomplete]="auto" [ngStyle]="{background:'#fff'}">
+          <mat-autocomplete #auto="matAutocomplete" (optionSelected)="onPropiedadMineraSelected($event)">
+            <mat-option *ngFor="let propiedad of propiedadesMineraFiltradas$ | async" [value]="propiedad.Nombre">
               {{propiedad.Nombre}}
             </mat-option>
-          </mat-select>
+          </mat-autocomplete>
         </mat-form-field>
         <!-- Fila 4: ID Tipo de Expediente -->
           <mat-form-field appearance="fill">
@@ -228,6 +229,20 @@ import { TipoExpedienteService, TipoExpediente } from '../services/tipo-expedien
   `]
 })
 export class ExpedienteFormComponent implements OnInit {
+  onPropiedadMineraSelected(event: any) {
+    const nombre = event?.option?.value;
+    if (!nombre) return;
+    this.propiedadMineraService.getPropiedades({ Nombre: nombre }).subscribe(res => {
+      const propiedad = res.data.find((p: PropiedadMinera) => p.Nombre === nombre);
+      this.selectedPropiedadMinera = propiedad ? propiedad : null;
+      if (propiedad) {
+        this.form.patchValue({ IdPropiedadMinera: propiedad.IdPropiedadMinera });
+      }
+    });
+  }
+  propiedadMineraControl: FormControl = new FormControl('');
+  propiedadesMineraFiltradas$: Observable<PropiedadMinera[]> = of([]);
+  selectedPropiedadMinera: PropiedadMinera | null = null;
   @Output() create = new EventEmitter<ExpedienteCreate>();
   @Output() edit = new EventEmitter<any>();
   @Input() form!: FormGroup;
@@ -261,9 +276,23 @@ export class ExpedienteFormComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.propiedadMineraService.getPropiedades({}).subscribe((res: any) => {
-      this.propiedadesMineraLista = res?.data ?? [];
-    });
+    // Filtro reactivo para propiedad minera
+    this.propiedadesMineraFiltradas$ = this.propiedadMineraControl.valueChanges.pipe(
+      startWith(''),
+      debounceTime(300),
+      switchMap((value: string) => {
+        if (!value || value.length < 1) {
+          return of([]);
+        }
+        return this.propiedadMineraService.getPropiedades({ Nombre: value }).pipe(
+          map(res => res.data)
+        );
+      })
+    );
+    // Si se edita, setear el nombre en el autocomplete
+    if (this.modo === 'editar' && this.expediente && this.expediente.PropiedadMineraNombre) {
+      this.propiedadMineraControl.setValue(this.expediente.PropiedadMineraNombre);
+    }
     this.tipoExpedienteService.getTipos().subscribe((res: any) => {
       this.tiposExpedienteLista = res ?? [];
     });
@@ -315,6 +344,11 @@ export class ExpedienteFormComponent implements OnInit {
     if (value.Ano) {
       value.Ano = Number(value.Ano) || null;
     }
+    // Asignar el ID de la propiedad minera seleccionada
+    const selectedPropiedad = this.selectedPropiedadMinera;
+    if (selectedPropiedad) {
+      value.IdPropiedadMinera = selectedPropiedad.IdPropiedadMinera;
+    }
     if (this.modo === 'editar') {
       this.edit.emit(value);
       return;
@@ -322,6 +356,7 @@ export class ExpedienteFormComponent implements OnInit {
     this.create.emit(value);
     if (this.modo === 'crear') {
       this.form.reset();
+      this.propiedadMineraControl.setValue('');
     }
   }
 }

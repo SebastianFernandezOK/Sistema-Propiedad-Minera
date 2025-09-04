@@ -1,4 +1,5 @@
 import { Component, Input, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
@@ -102,7 +103,7 @@ export class ActasComponent implements OnInit {
   editando = false;
   actaEdit: Acta | null = null;
 
-  constructor(private actaService: ActaService, private router: Router) {}
+  constructor(private actaService: ActaService, private router: Router, private cdr: ChangeDetectorRef) {}
 
   ngOnInit() {
     if (this.idExpediente) {
@@ -124,11 +125,13 @@ export class ActasComponent implements OnInit {
             this.totalActas = this.actas.length;
           }
           this.loadingActas = false;
+          this.cdr.detectChanges();
         },
         error: () => {
           this.actas = [];
           this.totalActas = 0;
           this.loadingActas = false;
+          this.cdr.detectChanges();
         }
       });
   }

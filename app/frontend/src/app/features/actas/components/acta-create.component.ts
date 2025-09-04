@@ -12,15 +12,17 @@ import { Location } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { Router } from '@angular/router';
 import { trigger, transition, style, animate } from '@angular/animations';
+import { AutoridadService, Autoridad } from '../../autoridades/services/autoridad.service';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 
 // Usar la interfaz Acta del servicio
 
 @Component({
   selector: 'app-acta-create',
   standalone: true,
-  imports: [CommonModule, MatFormFieldModule, MatInputModule, MatButtonModule, ReactiveFormsModule, MatDatepickerModule, MatNativeDateModule, MatIconModule],
+  imports: [CommonModule, MatFormFieldModule, MatInputModule, MatButtonModule, ReactiveFormsModule, MatAutocompleteModule, MatDatepickerModule, MatNativeDateModule],
   template: `
-    <form [@fadeInUp] [formGroup]="form" (ngSubmit)="onSubmit()" class="acta-form">
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="acta-form">
       <mat-form-field appearance="fill" class="full-width">
         <mat-label>Descripción*</mat-label>
         <input matInput formControlName="Descripcion" required>
@@ -42,13 +44,18 @@ import { trigger, transition, style, animate } from '@angular/animations';
         </mat-form-field>
       </div>
       <div class="row-fields">
+        <mat-form-field appearance="fill" class="half-width" style="background: #ffffffff;">
+          <mat-label>Autoridad*</mat-label>
+          <input type="text" matInput [matAutocomplete]="auto" [matAutocompletePosition]="'below'" formControlName="IdAutoridad" (input)="filtrarAutoridades()">
+          <mat-autocomplete #auto="matAutocomplete">
+            <mat-option *ngFor="let autoridad of autoridadesFiltradas" [value]="autoridad.IdAutoridad">
+              {{ autoridad.Nombre }}
+            </mat-option>
+          </mat-autocomplete>
+        </mat-form-field>
         <mat-form-field appearance="fill" class="half-width">
           <mat-label>Lugar*</mat-label>
           <input matInput formControlName="Lugar" required>
-        </mat-form-field>
-        <mat-form-field appearance="fill" class="half-width">
-          <mat-label>Autoridad*</mat-label>
-          <input matInput formControlName="IdAutoridad" required>
         </mat-form-field>
       </div>
       <div class="button-row">
@@ -57,13 +64,15 @@ import { trigger, transition, style, animate } from '@angular/animations';
     </form>
   `,
   styles: [`
-    .acta-form { display: flex; flex-direction: column; gap: 1.5rem; max-width: 500px; margin: 0 auto; position: relative; }
+    .acta-form { display: flex; flex-direction: column; gap: 1.5rem; max-width: 500px; margin: 0 auto; }
     .full-width { width: 100%; }
     .row-fields { display: flex; gap: 1rem; }
     .half-width { width: 100%; }
     .button-row { display: flex; justify-content: center; margin-top: 2rem; }
-    .close-btn { display: block; margin: 1.5rem auto 1.5rem auto; position: static; background: #fff; border-radius: 6px; z-index: 2; }
-    ::ng-deep .mat-datepicker-content { background: #fff !important; }
+    mat-form-field[appearance="fill"] { background: #fff; }
+    ::ng-deep .mat-autocomplete-panel { z-index: 1000 !important; background: #fff !important; }
+  ::ng-deep .mat-datepicker-content { background: #fff !important; }
+  ::ng-deep .mat-calendar { background: #fff !important; }
   `],
   animations: [
     trigger('fadeInUp', [
@@ -80,10 +89,14 @@ export class ActaCreateComponent {
   @Output() create = new EventEmitter<Acta>();
   @Output() cancelar = new EventEmitter<void>();
 
+  autoridades: Autoridad[] = [];
+  autoridadesFiltradas: Autoridad[] = [];
+
   constructor(
     private fb: FormBuilder,
     private location: Location,
-    private router: Router
+    private router: Router,
+    private autoridadService: AutoridadService
   ) {
     this.form = this.fb.group({
       Descripcion: ['', Validators.required],
@@ -91,7 +104,14 @@ export class ActaCreateComponent {
       Fecha: ['', Validators.required],
       IdTipoActa: ['', Validators.required],
       Lugar: ['', Validators.required],
-      IdAutoridad: [null, Validators.required] // number, requerido
+      IdAutoridad: ['', Validators.required]
+    });
+  }
+
+  ngOnInit() {
+    this.autoridadService.getAll().subscribe((autoridades) => {
+      this.autoridades = autoridades;
+      this.autoridadesFiltradas = autoridades;
     });
   }
 
@@ -108,5 +128,10 @@ export class ActaCreateComponent {
 
   volver() {
     this.cancelar.emit();
+  }
+
+  filtrarAutoridades() {
+    const valor = this.form.get('IdAutoridad')?.value?.toLowerCase() || '';
+    this.autoridadesFiltradas = this.autoridades.filter(a => a.Nombre.toLowerCase().includes(valor));
   }
 }

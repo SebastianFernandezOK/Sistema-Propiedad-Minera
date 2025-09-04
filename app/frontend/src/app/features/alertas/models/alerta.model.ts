@@ -1,7 +1,7 @@
 export interface AlertaCreate {
   IdTransaccion?: number;
   IdTipoAlerta?: number;
-  Estado?: string;
+  IdEstado?: number;
   Asunto?: string;
   Mensaje?: string;
   Medio?: string;

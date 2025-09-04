@@ -205,24 +205,27 @@ export class ActaDetalleComponent implements OnInit, AfterViewInit {
   ) {}
 
   ngOnInit() {
-    const id = Number(this.route.snapshot.paramMap.get('actaId'));
-    if (id) {
-      this.actaService.getActaById(id).subscribe({
-        next: (resp: ActaDetalleResponse) => {
-          this.acta = resp;
-          this.loading = false;
-          setTimeout(() => this.updateUnderline(), 10);
-          if (resp && (resp as any).IdTransaccion) {
-            this.loadAlertas(id); // Usar id de acta para alertas
-            this.loadObservaciones((resp as any).IdTransaccion);
+    this.route.paramMap.subscribe(params => {
+      const id = Number(params.get('actaId'));
+      if (id) {
+        this.loading = true;
+        this.actaService.getActaById(id).subscribe({
+          next: (resp: ActaDetalleResponse) => {
+            this.acta = resp;
+            this.loading = false;
+            setTimeout(() => this.updateUnderline(), 10);
+            if (resp && (resp as any).IdTransaccion) {
+              this.loadAlertas(id); // Usar id de acta para alertas
+              this.loadObservaciones((resp as any).IdTransaccion);
+            }
+          },
+          error: () => {
+            this.acta = null;
+            this.loading = false;
           }
-        },
-        error: () => {
-          this.acta = null;
-          this.loading = false;
-        }
-      });
-    }
+        });
+      }
+    });
   }
 
   loadAlertas(idActa: number) {
