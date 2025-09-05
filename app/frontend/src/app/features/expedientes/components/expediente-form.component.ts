@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output, OnInit, Input } from '@angular/core';
+import { Component, EventEmitter, Output, OnInit, Input, SimpleChanges, OnChanges, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
@@ -12,14 +12,16 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
 import { MatCardModule } from '@angular/material/card';
 import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
+import { SharedDatepickerModule } from '../../../shared/shared-datepicker.module';
+import { DateFormatDirective } from '../../../shared/directives/date-format.directive';
 import { ExpedienteCreate } from '../models/expediente.model';
 import { TipoExpedienteService, TipoExpediente } from '../services/tipo-expediente.service';
 
 @Component({
   selector: 'app-expediente-form',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatSelectModule, MatCardModule, MatDatepickerModule, MatNativeDateModule, MatAutocompleteModule],
+  encapsulation: ViewEncapsulation.None,
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatSelectModule, MatCardModule, SharedDatepickerModule, MatAutocompleteModule, DateFormatDirective],
   template: `
     <mat-card class="expediente-form-card">
       <mat-card-title class="form-title">{{ modo === 'editar' ? 'Editar Expediente' : 'Datos del Expediente' }}</mat-card-title>
@@ -53,24 +55,29 @@ import { TipoExpedienteService, TipoExpediente } from '../services/tipo-expedien
         <!-- Fila 3: Fechas y Propiedad Minera -->
         <mat-form-field appearance="fill">
           <mat-label>Fecha de Inicio</mat-label>
-          <input matInput [matDatepicker]="pickerInicio" formControlName="FechaInicio">
+          <input matInput [matDatepicker]="pickerInicio" formControlName="FechaInicio" appDateFormat>
           <mat-datepicker-toggle matSuffix [for]="pickerInicio"></mat-datepicker-toggle>
           <mat-datepicker #pickerInicio></mat-datepicker>
         </mat-form-field>
         <mat-form-field appearance="fill">
           <mat-label>Fecha de Fin</mat-label>
-          <input matInput [matDatepicker]="pickerFin" formControlName="FechaFin">
+          <input matInput [matDatepicker]="pickerFin" formControlName="FechaFin" appDateFormat>
           <mat-datepicker-toggle matSuffix [for]="pickerFin"></mat-datepicker-toggle>
           <mat-datepicker #pickerFin></mat-datepicker>
         </mat-form-field>
         <mat-form-field appearance="fill">
-          <mat-label>Propiedad Minera</mat-label>
+          <mat-label>Propiedad Minera *</mat-label>
           <input matInput type="text" [formControl]="propiedadMineraControl" [matAutocomplete]="auto" [ngStyle]="{background:'#fff'}">
           <mat-autocomplete #auto="matAutocomplete" (optionSelected)="onPropiedadMineraSelected($event)">
             <mat-option *ngFor="let propiedad of propiedadesMineraFiltradas$ | async" [value]="propiedad.Nombre">
               {{propiedad.Nombre}}
             </mat-option>
           </mat-autocomplete>
+          <mat-error *ngIf="propiedadMineraControl.hasError('required')" 
+                     class="error-text-red" 
+                     [ngStyle]="{'color': '#f44336', 'font-weight': '500', 'font-size': '0.85rem'}">
+            Propiedad Minera es requerida
+          </mat-error>
         </mat-form-field>
         <!-- Fila 4: ID Tipo de Expediente -->
           <mat-form-field appearance="fill">
@@ -125,11 +132,11 @@ import { TipoExpedienteService, TipoExpediente } from '../services/tipo-expedien
     }
     mat-form-field {
       width: 100%;
-      /* background: #e8f5e9;  Eliminado fondo verde claro */
+      background: #fff !important;
       border-radius: 6px;
     }
     mat-form-field.mat-focused {
-      /* background: #d0e7db;  Eliminado fondo verde claro al enfocar */
+      background: #fff !important;
     }
     mat-select, input, textarea {
       color: #111 !important;
@@ -154,6 +161,8 @@ import { TipoExpedienteService, TipoExpediente } from '../services/tipo-expedien
       background: #fff !important;
       border-radius: 50%;
     }
+    
+    /* FONDO SÓLIDO BLANCO PARA FORM FIELDS Y SELECTS */
     ::ng-deep .mat-form-field {
       background: #fff !important;
       border-radius: 6px !important;
@@ -162,6 +171,16 @@ import { TipoExpedienteService, TipoExpediente } from '../services/tipo-expedien
       background: #fff !important;
       border-radius: 6px !important;
     }
+    ::ng-deep .mat-form-field-infix {
+      background: #fff !important;
+      border-radius: 6px !important;
+    }
+    ::ng-deep .mat-form-field-wrapper {
+      background: #fff !important;
+      border-radius: 6px !important;
+    }
+    
+    /* FONDO ESPECÍFICO PARA SELECTS */
     ::ng-deep .mat-select-trigger {
       background: #fff !important;
       border-radius: 6px !important;
@@ -171,6 +190,22 @@ import { TipoExpedienteService, TipoExpediente } from '../services/tipo-expedien
       background: #fff !important;
       color: #111 !important;
     }
+    ::ng-deep .mat-select-value-text {
+      background: #fff !important;
+      color: #111 !important;
+    }
+    ::ng-deep .mat-select {
+      background: #fff !important;
+      border-radius: 6px !important;
+    }
+    
+    /* FONDO PARA INPUTS ESPECÍFICAMENTE */
+    ::ng-deep .mat-input-element {
+      background: #fff !important;
+      color: #111 !important;
+    }
+    
+    /* PANEL DESPLEGABLE DE SELECTS */
     ::ng-deep .mat-select-panel {
       background: #fff !important;
       color: #111 !important;
@@ -184,10 +219,6 @@ import { TipoExpedienteService, TipoExpediente } from '../services/tipo-expedien
     ::ng-deep .mat-option.mat-selected {
       background: #d0e7db !important;
       color: #111 !important;
-    }
-    ::ng-deep .mat-select {
-      background: #fff !important;
-      border-radius: 6px !important;
     }
     /* Paginador sólido */
     .mat-paginator, .mat-paginator-range-label, .mat-paginator-icon {
@@ -226,9 +257,56 @@ import { TipoExpedienteService, TipoExpediente } from '../services/tipo-expedien
         grid-column: 1 / 2;
       }
     }
+    
+    /* Estilos para mensaje de error de Propiedad Minera */
+    .error-text-red {
+      color: #f44336 !important;
+      font-size: 0.85rem !important;
+      font-weight: 500 !important;
+      margin-top: 0.3rem !important;
+      background: transparent !important;
+    }
+    
+    ::ng-deep .mat-error {
+      color: #f44336 !important;
+      font-size: 0.85rem !important;
+      font-weight: 500 !important;
+      margin-top: 0.3rem !important;
+    }
+    
+    ::ng-deep .error-text-red {
+      color: #f44336 !important;
+      font-size: 0.85rem !important;
+      font-weight: 500 !important;
+      margin-top: 0.3rem !important;
+      display: block !important;
+    }
+    
+    ::ng-deep mat-form-field.mat-form-field-invalid .mat-form-field-outline {
+      border-color: #f44336 !important;
+    }
+    
+    ::ng-deep mat-form-field.mat-form-field-invalid .mat-form-field-label {
+      color: #f44336 !important;
+    }
+    
+    /* Estilos específicos para datepickers */
+    ::ng-deep .mat-mdc-form-field input[matInput] {
+      background: #fff !important;
+    }
+    
+    ::ng-deep .mat-datepicker-input {
+      background: #fff !important;
+    }
+    
+    ::ng-deep .mdc-text-field--filled .mdc-text-field__input {
+      background: #fff !important;
+    }
   `]
 })
-export class ExpedienteFormComponent implements OnInit {
+
+
+export class ExpedienteFormComponent implements OnInit, OnChanges {
   onPropiedadMineraSelected(event: any) {
     const nombre = event?.option?.value;
     if (!nombre) return;
@@ -237,6 +315,8 @@ export class ExpedienteFormComponent implements OnInit {
       this.selectedPropiedadMinera = propiedad ? propiedad : null;
       if (propiedad) {
         this.form.patchValue({ IdPropiedadMinera: propiedad.IdPropiedadMinera });
+        // Limpiar errores cuando se selecciona una propiedad válida
+        this.propiedadMineraControl.setErrors(null);
       }
     });
   }
@@ -261,9 +341,9 @@ export class ExpedienteFormComponent implements OnInit {
       this.form = this.fb.group({
         CodigoExpediente: ['', [Validators.required, Validators.maxLength(50)]],
         PrimerDueno: ['', [Validators.maxLength(50)]],
-        Ano: [null, [Validators.required, Validators.pattern(/^\d{4}$/)]],
-        FechaInicio: ['', [Validators.pattern(/^\d{4}-\d{2}-\d{2}$/)]],
-        FechaFin: ['', [Validators.pattern(/^\d{4}-\d{2}-\d{2}$/)]],
+        Ano: [null, [Validators.required]],
+        FechaInicio: [null],
+        FechaFin: [null],
         Estado: ['', [Validators.maxLength(50)]],
         Dependencia: ['', [Validators.maxLength(100)]],
         Caratula: ['', [Validators.maxLength(200)]],
@@ -289,50 +369,119 @@ export class ExpedienteFormComponent implements OnInit {
         );
       })
     );
-    // Si se edita, setear el nombre en el autocomplete
-    if (this.modo === 'editar' && this.expediente && this.expediente.PropiedadMineraNombre) {
-      this.propiedadMineraControl.setValue(this.expediente.PropiedadMineraNombre);
-    }
     this.tipoExpedienteService.getTipos().subscribe((res: any) => {
       this.tiposExpedienteLista = res ?? [];
     });
-    if (this.modo === 'editar' && this.expediente) {
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['expediente'] && this.modo === 'editar' && this.expediente) {
       const patch = { ...this.expediente };
-      // Corrige fechas: si viene string, pásala a Date; si viene número, ignora
-      if (patch.FechaInicio && typeof patch.FechaInicio === 'string') {
-        patch.FechaInicio = this.parseDateString(patch.FechaInicio);
-      }
-      if (patch.FechaFin && typeof patch.FechaFin === 'string') {
-        patch.FechaFin = this.parseDateString(patch.FechaFin);
-      }
+        // Corrige fechas: si viene string, pásala a Date object
+        if (patch.FechaInicio && typeof patch.FechaInicio === 'string') {
+          const date = this.parseDate(patch.FechaInicio);
+          patch.FechaInicio = date;
+        }
+        if (patch.FechaFin && typeof patch.FechaFin === 'string') {
+          const date = this.parseDate(patch.FechaFin);
+          patch.FechaFin = date;
+        }
       // Corrige año: si viene string o número, pásalo a número
       if (patch.Ano) {
         patch.Ano = Number(patch.Ano) || '';
       }
       this.form.patchValue(patch);
+      
+      // Cargar propiedad minera si existe
+      if (this.expediente.IdPropiedadMinera) {
+        this.loadPropiedadMineraForEdit(this.expediente.IdPropiedadMinera);
+      }
+      
+      // Setea el nombre en el autocomplete si corresponde
+      if (this.expediente.PropiedadMineraNombre) {
+        this.propiedadMineraControl.setValue(this.expediente.PropiedadMineraNombre);
+      }
     }
   }
 
-  // Parsea string tipo 'YYYY-MM-DD' o 'YYYY-MM-DDTHH:mm:ss' a Date
-  private parseDateString(dateStr: string): Date | null {
-    if (!dateStr) return null;
-    // Solo toma la parte de fecha si viene con hora
-    const clean = dateStr.split('T')[0];
-    const [year, month, day] = clean.split('-').map(Number);
-    if (!year || !month || !day) return null;
-    return new Date(year, month - 1, day);
+  private parseDate(dateString: string): Date | null {
+    if (!dateString) return null;
+    
+    // Intenta parsear YYYY-MM-DD del backend
+    const isoMatch = dateString.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (isoMatch) {
+      const [, year, month, day] = isoMatch;
+      return new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+    }
+    
+    // Intenta parsear DD/MM/YYYY
+    const dmyMatch = dateString.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+    if (dmyMatch) {
+      const [, day, month, year] = dmyMatch;
+      return new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+    }
+    
+    return null;
   }
 
   private formatDateToISO(date: any): string {
     if (!date) return '';
-    if (typeof date === 'string' && date.match(/^\d{4}-\d{2}-\d{2}$/)) return date;
-    const d = new Date(date);
-    if (isNaN(d.getTime())) return '';
-    return d.toISOString().slice(0, 10);
+    
+    if (date instanceof Date) {
+      const year = date.getFullYear();
+      const month = (date.getMonth() + 1).toString().padStart(2, '0');
+      const day = date.getDate().toString().padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+    
+    if (typeof date === 'string') {
+      const parsedDate = this.parseDate(date);
+      if (parsedDate) {
+        return this.formatDateToISO(parsedDate);
+      }
+    }
+    
+    return '';
+  }
+
+  private loadPropiedadMineraForEdit(idPropiedadMinera: number): void {
+    this.propiedadMineraService.getPropiedades({}).subscribe(res => {
+      const propiedad = res.data.find((p: PropiedadMinera) => p.IdPropiedadMinera === idPropiedadMinera);
+      if (propiedad) {
+        this.selectedPropiedadMinera = propiedad;
+        this.propiedadMineraControl.setValue(propiedad.Nombre);
+        this.form.patchValue({ IdPropiedadMinera: propiedad.IdPropiedadMinera });
+      }
+    });
   }
 
   onSubmit(): void {
+    console.log('=== EXPEDIENTE onSubmit ===');
+    console.log('Form valid:', this.form.valid);
+    console.log('Form value:', this.form.value);
+    console.log('Form errors:', this.form.errors);
+    
+    // Verificar errores en cada campo
+    Object.keys(this.form.controls).forEach(key => {
+      const control = this.form.get(key);
+      if (control && control.errors) {
+        console.log(`ERROR en campo ${key}:`, control.errors);
+      }
+    });
+    
+    // Marcar todos los campos como tocados para mostrar errores
+    this.form.markAllAsTouched();
+    this.propiedadMineraControl.markAsTouched();
+    
+    // Validar solo que el formulario principal sea válido
+    if (this.form.invalid) {
+      console.log('Formulario inválido - deteniendo');
+      return;
+    }
+
     const value = { ...this.form.value };
+    console.log('Valor antes de formatear:', value);
+    
     // Formatear fechas a ISO antes de emitir
     if (value.FechaInicio) {
       value.FechaInicio = this.formatDateToISO(value.FechaInicio);
@@ -344,19 +493,28 @@ export class ExpedienteFormComponent implements OnInit {
     if (value.Ano) {
       value.Ano = Number(value.Ano) || null;
     }
-    // Asignar el ID de la propiedad minera seleccionada
+    // Asignar el ID de la propiedad minera seleccionada (si hay una)
     const selectedPropiedad = this.selectedPropiedadMinera;
     if (selectedPropiedad) {
       value.IdPropiedadMinera = selectedPropiedad.IdPropiedadMinera;
+    } else {
+      value.IdPropiedadMinera = null;
     }
+    
+    console.log('Valor final a enviar:', value);
+    console.log('Modo:', this.modo);
+    
     if (this.modo === 'editar') {
+      console.log('Emitiendo edit');
       this.edit.emit(value);
       return;
     }
+    console.log('Emitiendo create');
     this.create.emit(value);
     if (this.modo === 'crear') {
       this.form.reset();
       this.propiedadMineraControl.setValue('');
+      this.selectedPropiedadMinera = null;
     }
   }
 }

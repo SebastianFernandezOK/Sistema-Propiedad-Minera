@@ -6,11 +6,13 @@ import { CoreModule } from './core/core.module';
 import { SharedModule } from './shared/shared.module';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MAT_DATE_LOCALE, MAT_DATE_FORMATS } from '@angular/material/core';
-import { MY_DATE_FORMATS } from './date-formats';
-import localeEsAr from '@angular/common/locales/es-AR';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
+import { MY_DATE_FORMATS } from './core/date-formats';
+import localeEs from '@angular/common/locales/es';
 import { registerLocaleData } from '@angular/common';
 
-registerLocaleData(localeEsAr);
+registerLocaleData(localeEs);
 
 @NgModule({
   imports: [
@@ -19,11 +21,13 @@ registerLocaleData(localeEsAr);
     AppRoutingModule,
     CoreModule,
     SharedModule,
-    MatDialogModule
+  MatDialogModule,
+  MatDatepickerModule,
+  MatNativeDateModule
   ],
   providers: [
-    { provide: LOCALE_ID, useValue: 'es-AR' },
-    { provide: MAT_DATE_LOCALE, useValue: 'es-AR' },
+    { provide: LOCALE_ID, useValue: 'es' },
+    { provide: MAT_DATE_LOCALE, useValue: 'es' },
     { provide: MAT_DATE_FORMATS, useValue: MY_DATE_FORMATS },
   ],
 })

@@ -36,7 +36,7 @@
       <div class="date-field-wrapper">
         <mat-label>Fecha Inicio</mat-label>
         <div class="date-input-row">
-          <input matInput [matDatepicker]="pickerInicio" formControlName="FechaInicio">
+          <input matInput [matDatepicker]="pickerInicio" formControlName="FechaInicio" appDateFormat>
           <mat-datepicker-toggle matSuffix [for]="pickerInicio"></mat-datepicker-toggle>
         </div>
         <mat-datepicker #pickerInicio></mat-datepicker>
@@ -44,7 +44,7 @@
     </mat-form-field>
     <mat-form-field appearance="fill" class="third-width">
       <mat-label>Fecha Fin</mat-label>
-      <input matInput [matDatepicker]="pickerFin" formControlName="FechaFin">
+      <input matInput [matDatepicker]="pickerFin" formControlName="FechaFin" appDateFormat>
       <mat-datepicker-toggle matSuffix [for]="pickerFin"></mat-datepicker-toggle>
       <mat-datepicker #pickerFin></mat-datepicker>
     </mat-form-field>

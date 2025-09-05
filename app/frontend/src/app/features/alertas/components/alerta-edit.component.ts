@@ -13,6 +13,7 @@ import { AlertaCreate } from '../models/alerta.model';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatNativeDateModule } from '@angular/material/core';
 import { TipoAlertaService } from '../services/tipo-alerta.service';
+import { DateFormatDirective } from '../../../shared/directives/date-format.directive';
 
 @Component({
   selector: 'app-alerta-edit',
@@ -25,7 +26,8 @@ import { TipoAlertaService } from '../services/tipo-alerta.service';
     MatDatepickerModule,
     MatSelectModule,
     MatNativeDateModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    DateFormatDirective
   ],
   templateUrl: './alerta-edit.component.html',
   styleUrls: ['./alerta-edit.component.css']
@@ -68,8 +70,26 @@ export class AlertaEditComponent {
   }
 
   onSubmit() {
+    console.log('=== ALERTA EDIT onSubmit ===');
+    console.log('Form valid:', this.form.valid);
+    console.log('Form value:', this.form.value);
+    console.log('Form errors:', this.form.errors);
+    console.log('Alerta data:', this.alerta);
+    
+    // Verificar errores en cada campo
+    Object.keys(this.form.controls).forEach(key => {
+      const control = this.form.get(key);
+      if (control && control.errors) {
+        console.log(`ERROR en campo ${key}:`, control.errors);
+      }
+    });
+    
     if (this.form.valid) {
+      console.log('Emitiendo evento update con:', this.form.value);
       this.update.emit(this.form.value);
+    } else {
+      console.log('Formulario de edición de alerta inválido - deteniendo');
+      this.form.markAllAsTouched();
     }
   }
 

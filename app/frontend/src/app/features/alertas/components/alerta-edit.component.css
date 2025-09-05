@@ -34,4 +34,3 @@
 .date-input-row { display: flex; align-items: center; gap: 0.5rem; }
 .button-row { display: flex; justify-content: center; margin-top: 2rem; }
 .close-btn { display: block; margin: 1.5rem auto 1.5rem auto; position: static; background: #fff; border-radius: 6px; z-index: 2; }
-::ng-deep .mat-datepicker-content { background: #fff !important; }

@@ -13,11 +13,12 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { trigger, transition, style, animate } from '@angular/animations';
 import { AutoridadService, Autoridad } from '../../autoridades/services/autoridad.service';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { DateFormatDirective } from '../../../shared/directives/date-format.directive';
 
 @Component({
   selector: 'app-acta-edit',
   standalone: true,
-  imports: [CommonModule, MatFormFieldModule, MatInputModule, MatButtonModule, ReactiveFormsModule, MatAutocompleteModule, MatDatepickerModule, MatNativeDateModule],
+  imports: [CommonModule, MatFormFieldModule, MatInputModule, MatButtonModule, ReactiveFormsModule, MatAutocompleteModule, MatDatepickerModule, MatNativeDateModule, DateFormatDirective],
   template: `
     <form [@fadeInUp] [formGroup]="form" (ngSubmit)="onSubmit()" class="acta-form">
       <mat-form-field appearance="fill" class="full-width">
@@ -31,7 +32,7 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
       <div class="row-fields">
         <mat-form-field appearance="fill" class="half-width">
           <mat-label>Fecha*</mat-label>
-          <input matInput [matDatepicker]="picker" formControlName="Fecha" required>
+          <input matInput [matDatepicker]="picker" formControlName="Fecha" required appDateFormat>
           <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
           <mat-datepicker #picker></mat-datepicker>
         </mat-form-field>
@@ -66,11 +67,6 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
     .row-fields { display: flex; gap: 1rem; }
     .half-width { width: 100%; }
     .button-row { display: flex; justify-content: center; margin-top: 2rem; }
-    mat-form-field[appearance="fill"] { background: #fff; }
-  ::ng-deep .mat-autocomplete-panel { z-index: 1000 !important; background: #fff !important; }
-  ::ng-deep .mat-datepicker-content { background: #fff !important; }
-  ::ng-deep .mat-calendar { background: #fff !important; }
-  ::ng-deep .mat-calendar-body-selected, ::ng-deep .mat-calendar-body-active { background: #fff !important; color: #222 !important; }
   `],
   animations: [
     trigger('fadeInUp', [

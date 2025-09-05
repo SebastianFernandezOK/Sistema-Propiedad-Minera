@@ -163,10 +163,27 @@ export class AlertasListComponent implements OnInit, OnChanges {
   }
 
   onActualizarAlerta(alerta: any) {
-    this.loadAlertas(this.currentPage, this.pageSize);
-    this.editando = false;
-    this.alertaEdit = null;
-    this.mostrarFormulario = false;
+    console.log('=== onActualizarAlerta recibido ===');
+    console.log('Datos para actualizar:', alerta);
+    console.log('Alerta original:', this.alertaEdit);
+    
+    if (this.alertaEdit && this.alertaEdit.idAlerta) {
+      console.log('Actualizando alerta ID:', this.alertaEdit.idAlerta);
+      this.alertaService.updateAlerta(this.alertaEdit.idAlerta, alerta).subscribe({
+        next: (resp) => {
+          console.log('Alerta actualizada exitosamente:', resp);
+          this.loadAlertas(this.currentPage, this.pageSize);
+          this.editando = false;
+          this.alertaEdit = null;
+          this.mostrarFormulario = false;
+        },
+        error: (err) => {
+          console.error('Error al actualizar alerta:', err);
+        }
+      });
+    } else {
+      console.error('No se encontró el ID de la alerta para actualizar');
+    }
   }
 
   onEditarAlerta(alerta: any) {

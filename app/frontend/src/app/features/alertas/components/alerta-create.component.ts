@@ -12,11 +12,12 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { MatNativeDateModule } from '@angular/material/core';
 import { TipoAlertaService } from '../services/tipo-alerta.service';
 import { trigger, transition, style, animate } from '@angular/animations';
+import { DateFormatDirective } from '../../../shared/directives/date-format.directive';
 
 @Component({
   selector: 'app-alerta-create',
   standalone: true,
-  imports: [CommonModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatDatepickerModule, MatSelectModule, MatNativeDateModule, ReactiveFormsModule],
+  imports: [CommonModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatDatepickerModule, MatSelectModule, MatNativeDateModule, ReactiveFormsModule, DateFormatDirective],
   template: `
     <form [@fadeInUp] [formGroup]="form" (ngSubmit)="onSubmit()" class="alerta-form">
       <div class="row-fields">
@@ -52,13 +53,13 @@ import { trigger, transition, style, animate } from '@angular/animations';
       <div class="row-fields">
         <mat-form-field appearance="fill" class="third-width">
           <mat-label>Fecha Inicio</mat-label>
-          <input matInput [matDatepicker]="pickerInicio" formControlName="FechaInicio">
+          <input matInput [matDatepicker]="pickerInicio" formControlName="FechaInicio" appDateFormat>
           <mat-datepicker-toggle matSuffix [for]="pickerInicio"></mat-datepicker-toggle>
           <mat-datepicker #pickerInicio></mat-datepicker>
         </mat-form-field>
         <mat-form-field appearance="fill" class="third-width">
           <mat-label>Fecha Fin</mat-label>
-          <input matInput [matDatepicker]="pickerFin" formControlName="FechaFin">
+          <input matInput [matDatepicker]="pickerFin" formControlName="FechaFin" appDateFormat>
           <mat-datepicker-toggle matSuffix [for]="pickerFin"></mat-datepicker-toggle>
           <mat-datepicker #pickerFin></mat-datepicker>
         </mat-form-field>
@@ -80,7 +81,6 @@ import { trigger, transition, style, animate } from '@angular/animations';
     .third-width { width: 33%; min-width: 180px; }
     .button-row { display: flex; justify-content: center; margin-top: 2rem; }
     .close-btn { display: block; margin: 1.5rem auto 1.5rem auto; position: static; background: #fff; border-radius: 6px; z-index: 2; }
-    ::ng-deep .mat-datepicker-content { background: #fff !important; }
   `],
   animations: [
     trigger('fadeInUp', [
@@ -108,8 +108,8 @@ export class AlertaCreateComponent {
       Estado: [''],
       Medio: [''],
       Periodicidad: [''],
-      FechaInicio: [''],
-      FechaFin: [''],
+      FechaInicio: [null],
+      FechaFin: [null],
       Obs: ['']
     });
   }
@@ -151,13 +151,29 @@ export class AlertaCreateComponent {
   }
 
   onSubmit() {
+    console.log('=== ALERTA onSubmit ===');
+    console.log('Form valid:', this.form.valid);
+    console.log('Form value:', this.form.value);
+    console.log('Form errors:', this.form.errors);
+    
+    if (this.form.invalid) {
+      console.log('Formulario de alerta inválido - deteniendo');
+      this.form.markAllAsTouched();
+      return;
+    }
+    
     const value: AlertaCreate = {
       ...this.form.value,
       IdTransaccion: this.idTransaccion
     };
+    
+    console.log('Valor a enviar:', value);
+    
     if (this.editando && this.alerta && this.alerta.idAlerta) {
+      console.log('Editando alerta ID:', this.alerta.idAlerta);
       this.alertaService.updateAlerta(this.alerta.idAlerta, value).subscribe({
         next: (resp) => {
+          console.log('Alerta editada exitosamente:', resp);
           this.create.emit(resp);
           this.form.reset();
         },
@@ -166,8 +182,10 @@ export class AlertaCreateComponent {
         }
       });
     } else {
+      console.log('Creando nueva alerta');
       this.alertaService.createAlerta(value).subscribe({
         next: (resp) => {
+          console.log('Alerta creada exitosamente:', resp);
           this.create.emit(resp);
           this.form.reset();
         },

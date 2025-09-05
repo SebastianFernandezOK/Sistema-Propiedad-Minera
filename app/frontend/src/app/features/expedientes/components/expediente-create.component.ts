@@ -59,11 +59,12 @@ export class ExpedienteCreateComponent {
     this.success = false;
     this.error = false;
     this.expedienteService.createExpediente(expediente).subscribe({
-      next: () => {
+      next: (result) => {
         this.success = true;
         setTimeout(() => this.router.navigate(['/expedientes']), 1200);
       },
-      error: () => {
+      error: (err) => {
+        console.error('Error al crear expediente:', err);
         this.error = true;
       }
     });
