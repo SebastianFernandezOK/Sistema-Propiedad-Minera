@@ -1,5 +1,4 @@
 import { Component, Input, OnInit, ViewChild } from '@angular/core';
-import { ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
@@ -103,7 +102,7 @@ export class ActasComponent implements OnInit {
   editando = false;
   actaEdit: Acta | null = null;
 
-  constructor(private actaService: ActaService, private router: Router, private cdr: ChangeDetectorRef) {}
+  constructor(private actaService: ActaService, private router: Router) {}
 
   ngOnInit() {
     if (this.idExpediente) {
@@ -125,13 +124,11 @@ export class ActasComponent implements OnInit {
             this.totalActas = this.actas.length;
           }
           this.loadingActas = false;
-          this.cdr.detectChanges();
         },
         error: () => {
           this.actas = [];
           this.totalActas = 0;
           this.loadingActas = false;
-          this.cdr.detectChanges();
         }
       });
   }
@@ -143,10 +140,29 @@ export class ActasComponent implements OnInit {
   }
 
   onCrearActa(acta: Acta) {
+    console.log('=== onCrearActa ===');
+    console.log('Recibido del formulario:', acta);
+    console.log('Tipos de datos:');
+    console.log('  IdExpediente:', typeof acta.IdExpediente, acta.IdExpediente);
+    console.log('  Fecha:', typeof acta.Fecha, acta.Fecha);
+    console.log('  IdAutoridad:', typeof acta.IdAutoridad, acta.IdAutoridad);
+    
     this.actaService.create(acta).subscribe({
       next: () => {
+        console.log('Acta creada exitosamente');
         this.cargarActas();
         this.mostrarFormulario = false;
+      },
+      error: (error) => {
+        console.error('Error al crear acta:', error);
+        console.error('Response status:', error.status);
+        console.error('Response body:', error.error);
+        console.error('Error detail:', error.error?.detail);
+        if (error.error?.detail && Array.isArray(error.error.detail)) {
+          error.error.detail.forEach((detail: any, index: number) => {
+            console.error(`Error ${index + 1}:`, detail);
+          });
+        }
       }
     });
   }

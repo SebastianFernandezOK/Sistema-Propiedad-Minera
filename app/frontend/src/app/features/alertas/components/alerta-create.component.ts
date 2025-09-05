@@ -11,6 +11,8 @@ import { AlertaCreate } from '../models/alerta.model';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatNativeDateModule } from '@angular/material/core';
 import { TipoAlertaService } from '../services/tipo-alerta.service';
+import { EstadoAlertaService } from '../services/estado-alerta.service';
+import type { EstadoAlerta } from '../models/estado-alerta.model';
 import { trigger, transition, style, animate } from '@angular/animations';
 import { DateFormatDirective } from '../../../shared/directives/date-format.directive';
 
@@ -39,7 +41,9 @@ import { DateFormatDirective } from '../../../shared/directives/date-format.dire
       <div class="row-fields">
         <mat-form-field appearance="fill" class="third-width">
           <mat-label>Estado</mat-label>
-          <input matInput formControlName="Estado">
+          <mat-select formControlName="IdEstado" required>
+            <mat-option *ngFor="let estado of estadosAlerta" [value]="estado.IdEstado">{{ estado.nombre }}</mat-option>
+          </mat-select>
         </mat-form-field>
         <mat-form-field appearance="fill" class="third-width">
           <mat-label>Medio</mat-label>
@@ -99,12 +103,14 @@ export class AlertaCreateComponent {
   @Output() cancelar = new EventEmitter<void>();
   form: FormGroup;
   tiposAlerta: any[] = [];
+  estadosAlerta: EstadoAlerta[] = [];
 
-  constructor(private fb: FormBuilder, private alertaService: AlertaService, private tipoAlertaService: TipoAlertaService) {
+  constructor(private fb: FormBuilder, private alertaService: AlertaService, private tipoAlertaService: TipoAlertaService, private estadoAlertaService: EstadoAlertaService) {
     this.form = this.fb.group({
       IdTipoAlerta: [null, Validators.required],
       Asunto: ['', Validators.required],
       Mensaje: ['', Validators.required],
+      IdEstado: [null, Validators.required],
       Estado: [''],
       Medio: [''],
       Periodicidad: [''],
@@ -116,6 +122,7 @@ export class AlertaCreateComponent {
 
   ngOnInit() {
     this.tipoAlertaService.getTiposAlerta().subscribe(tipos => this.tiposAlerta = tipos);
+    this.estadoAlertaService.getEstadosAlerta().subscribe(estados => this.estadosAlerta = estados);
     if (this.idTransaccion) {
       this.form.addControl('IdTransaccion', this.fb.control(this.idTransaccion));
     }
@@ -123,6 +130,7 @@ export class AlertaCreateComponent {
       this.form.patchValue({
         Asunto: this.alerta.Asunto,
         Mensaje: this.alerta.Mensaje,
+        IdEstado: this.alerta.IdEstado,
         Estado: this.alerta.Estado,
         Medio: this.alerta.Medio,
         Periodicidad: this.alerta.Periodicidad,
@@ -138,6 +146,7 @@ export class AlertaCreateComponent {
       this.form.patchValue({
         Asunto: this.alerta.Asunto,
         Mensaje: this.alerta.Mensaje,
+        IdEstado: this.alerta.IdEstado,
         Estado: this.alerta.Estado,
         Medio: this.alerta.Medio,
         Periodicidad: this.alerta.Periodicidad,

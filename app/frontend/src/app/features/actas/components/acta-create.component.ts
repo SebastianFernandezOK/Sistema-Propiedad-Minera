@@ -16,8 +16,6 @@ import { AutoridadService, Autoridad } from '../../autoridades/services/autorida
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { DateFormatDirective } from '../../../shared/directives/date-format.directive';
 
-// Usar la interfaz Acta del servicio
-
 @Component({
   selector: 'app-acta-create',
   standalone: true,
@@ -112,16 +110,49 @@ export class ActaCreateComponent {
     });
   }
 
+  formatDateToISO(date: Date): string {
+    return date.toISOString().split('T')[0];
+  }
+
   onSubmit() {
+    console.log('=== ACTA onSubmit ===');
+    console.log('Form valid:', this.form.valid);
+    console.log('Form value:', this.form.value);
+    console.log('Form errors:', this.form.errors);
+    console.log('IdExpediente:', this.idExpediente);
+    
+    // Verificar errores en cada campo
+    Object.keys(this.form.controls).forEach(key => {
+      const control = this.form.get(key);
+      if (control && control.errors) {
+        console.log(`ERROR en campo ${key}:`, control.errors);
+      }
+    });
+    
     if (!this.idExpediente) {
+      console.log('No hay IdExpediente - deteniendo');
+      return;
+    }
+    
+    if (this.form.invalid) {
+      console.log('Formulario inválido - deteniendo');
+      this.form.markAllAsTouched();
       return;
     }
     
     const value: Acta = {
       IdExpediente: this.idExpediente,
       ...this.form.value,
-      IdAutoridad: this.form.value.IdAutoridad ? Number(this.form.value.IdAutoridad) : null
+      IdAutoridad: this.form.value.IdAutoridad ? Number(this.form.value.IdAutoridad) : null,
+      IdTipoActa: this.form.value.IdTipoActa ? String(this.form.value.IdTipoActa) : null,
+      Fecha: this.form.value.Fecha ? this.formatDateToISO(this.form.value.Fecha) : null
     };
+    
+    console.log('Datos finales a enviar:', value);
+    console.log('Tipo de IdExpediente:', typeof value.IdExpediente, value.IdExpediente);
+    console.log('Tipo de Fecha:', typeof value.Fecha, value.Fecha);
+    console.log('Tipo de IdAutoridad:', typeof value.IdAutoridad, value.IdAutoridad);
+    console.log('Tipo de IdTipoActa:', typeof value.IdTipoActa, value.IdTipoActa);
     
     this.create.emit(value);
     this.form.reset();
