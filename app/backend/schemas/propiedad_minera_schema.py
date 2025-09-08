@@ -13,7 +13,6 @@ class PropiedadMineraBase(BaseModel):
     Provincia: Optional[str]
     Mensura: Optional[datetime]
     AreaHectareas: Optional[float]
-    LaborLegal: Optional[str]
     DescubrimientoDirecto: Optional[str] = None
 
 class PropiedadMineraCreate(PropiedadMineraBase):
@@ -23,4 +22,4 @@ class PropiedadMineraRead(PropiedadMineraBase):
     IdPropiedadMinera: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
