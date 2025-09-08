@@ -58,21 +58,6 @@ import { Expediente, ExpedienteFilter } from '../models/expediente.model';
               <input matInput [(ngModel)]="filters.CodigoExpediente" (input)="onFilterChange()" placeholder="Buscar por código">
             </mat-form-field>
 
-            <mat-form-field appearance="outline">
-              <mat-label>Estado</mat-label>
-              <mat-select [(ngModel)]="filters.Estado" (selectionChange)="onFilterChange()">
-                <mat-option value="">Todos</mat-option>
-                <mat-option value="ACTIVO">Activo</mat-option>
-                <mat-option value="CERRADO">Cerrado</mat-option>
-                <mat-option value="SUSPENDIDO">Suspendido</mat-option>
-              </mat-select>
-            </mat-form-field>
-
-            <mat-form-field appearance="outline">
-              <mat-label>Dependencia</mat-label>
-              <input matInput [(ngModel)]="filters.Dependencia" (input)="onFilterChange()" placeholder="Filtrar por dependencia">
-            </mat-form-field>
-
             <button mat-button (click)="clearFilters()">
               <mat-icon>clear</mat-icon>
               Limpiar Filtros

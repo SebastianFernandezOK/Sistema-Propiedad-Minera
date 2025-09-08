@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { TitularMineroService, TitularMinero, TitularMineroCreate } from '../services/titular.service';
@@ -8,10 +8,10 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 
 @Component({
-  selector: 'app-titular-create-form',
+  selector: 'app-titular-edit-form',
   standalone: true,
   imports: [
     CommonModule, 
@@ -26,9 +26,9 @@ import { Router } from '@angular/router';
   template: `
     <div class="form-container">
       <div class="form-header">
-        <h2>Crear Nuevo Titular Minero</h2>
+        <h2>Editar Titular Minero</h2>
       </div>
-      <form [formGroup]="form" (ngSubmit)="onSubmit()" class="titular-form">
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" class="titular-form" *ngIf="!loading">
         <!-- Información Personal -->
         <div class="section-title">Información Personal</div>
         <div class="form-row">
@@ -69,6 +69,7 @@ import { Router } from '@angular/router';
             </mat-error>
           </mat-form-field>
 
+          <!-- Información de Contacto -->
           <mat-form-field appearance="outline">
             <mat-label>Email *</mat-label>
             <input matInput type="email" formControlName="Email" required />
@@ -89,8 +90,6 @@ import { Router } from '@angular/router';
           </mat-form-field>
         </div>
 
-        <!-- Información de Contacto -->
-        <div class="section-title">Información de Contacto y Asignación</div>
         <div class="form-row">
           <mat-form-field appearance="outline">
             <mat-label>Domicilio *</mat-label>
@@ -100,6 +99,7 @@ import { Router } from '@angular/router';
             </mat-error>
           </mat-form-field>
 
+          <!-- Información de Asignación -->
           <mat-form-field appearance="outline">
             <mat-label>Fecha de Asignación *</mat-label>
             <input matInput [matDatepicker]="picker" formControlName="FechaAsignacion" required>
@@ -117,6 +117,7 @@ import { Router } from '@angular/router';
               <mat-option value="Activo">Activo</mat-option>
               <mat-option value="Inactivo">Inactivo</mat-option>
               <mat-option value="Suspendido">Suspendido</mat-option>
+              <mat-option value="Pendiente">Pendiente</mat-option>
             </mat-select>
             <mat-error *ngIf="form.get('Estado')?.hasError('required')">
               El estado es requerido
@@ -126,38 +127,38 @@ import { Router } from '@angular/router';
 
         <!-- Información Adicional -->
         <div class="section-title">Información Adicional</div>
-        <div class="form-row">
+        <div class="form-row full-width">
           <mat-form-field appearance="outline">
             <mat-label>Descripción</mat-label>
             <textarea matInput formControlName="Descripcion" rows="2"></textarea>
           </mat-form-field>
+        </div>
 
+        <div class="form-row full-width">
           <mat-form-field appearance="outline">
             <mat-label>Observaciones</mat-label>
-            <textarea matInput formControlName="Observaciones" rows="2"></textarea>
+            <textarea matInput formControlName="Observaciones" rows="3"></textarea>
           </mat-form-field>
-
-          <!-- Campo vacío para mantener la estructura de 3 columnas -->
-          <div class="empty-field"></div>
         </div>
 
         <div class="form-actions">
-          <button mat-button type="button" (click)="testClick()">
-            Test Click
-          </button>
           <button mat-button type="button" (click)="onCancel()" class="cancel-btn">
             Cancelar
           </button>
           <button mat-raised-button color="primary" type="button" (click)="onSubmit()">
-            {{ loading ? 'Creando...' : 'Crear Titular' }}
+            {{ saving ? 'Guardando...' : 'Actualizar Titular' }}
           </button>
         </div>
       </form>
+      
+      <div *ngIf="loading" class="loading-container">
+        <p>Cargando datos del titular...</p>
+      </div>
     </div>
   `,
   styles: [`
     .form-container {
-      max-width: 1000px;
+      max-width: 1200px;
       margin: 0 auto;
     }
     .form-header {
@@ -218,6 +219,13 @@ import { Router } from '@angular/router';
     .cancel-btn {
       color: #666;
     }
+    .loading-container {
+      background: #fff;
+      padding: 24px;
+      border-radius: 0 0 8px 8px;
+      box-shadow: 0 2px 8px rgba(65, 103, 89, 0.08);
+      text-align: center;
+    }
     mat-error {
       font-size: 0.85rem;
     }
@@ -240,14 +248,17 @@ import { Router } from '@angular/router';
     }
   `]
 })
-export class TitularCreateFormComponent {
+export class TitularEditFormComponent implements OnInit {
   form: FormGroup;
-  loading = false;
+  loading = true;
+  saving = false;
+  titularId: number | null = null;
 
   constructor(
     private fb: FormBuilder, 
     private titularService: TitularMineroService,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute
   ) {
     this.form = this.fb.group({
       Nombre: ['', Validators.required],
@@ -257,39 +268,78 @@ export class TitularCreateFormComponent {
       Telefono: ['', Validators.required],
       Email: ['', [Validators.required, Validators.email]],
       FechaAsignacion: ['', Validators.required],
-      Estado: ['Activo', Validators.required],
+      Estado: ['', Validators.required],
       RepresentanteLegal: ['', Validators.required],
       Observaciones: [''],
       Descripcion: ['']
     });
   }
 
+  ngOnInit() {
+    this.route.params.subscribe(params => {
+      this.titularId = +params['id'];
+      if (this.titularId) {
+        this.loadTitular(this.titularId);
+      }
+    });
+  }
+
+  loadTitular(id: number) {
+    this.loading = true;
+    this.titularService.getById(id).subscribe({
+      next: (titular: TitularMinero) => {
+        // Convertir la fecha para el datepicker
+        const fechaAsignacion = new Date(titular.FechaAsignacion);
+        
+        this.form.patchValue({
+          Nombre: titular.Nombre,
+          TipoPersona: titular.TipoPersona,
+          DniCuit: titular.DniCuit,
+          Domicilio: titular.Domicilio,
+          Telefono: titular.Telefono,
+          Email: titular.Email,
+          FechaAsignacion: fechaAsignacion,
+          Estado: titular.Estado,
+          RepresentanteLegal: titular.RepresentanteLegal,
+          Observaciones: titular.Observaciones,
+          Descripcion: titular.Descripcion
+        });
+        this.loading = false;
+      },
+      error: (error: any) => {
+        console.error('Error al cargar titular:', error);
+        alert('Error al cargar los datos del titular');
+        this.router.navigate(['/titulares']);
+      }
+    });
+  }
+
   onSubmit() {
-    console.log('onSubmit llamado');
+    console.log('onSubmit llamado - EDICIÓN');
     console.log('Form valid:', this.form.valid);
     console.log('Form value:', this.form.value);
-    console.log('Form errors:', this.form.errors);
+    console.log('titularId:', this.titularId);
     
-    if (this.form.valid) {
-      console.log('Formulario válido, iniciando creación...');
-      this.loading = true;
-      const titularData: TitularMineroCreate = this.form.value;
+    if (this.form.valid && this.titularId) {
+      console.log('Formulario válido, iniciando actualización...');
+      this.saving = true;
+      const titularData: Partial<TitularMineroCreate> = this.form.value;
       
-      this.titularService.create(titularData).subscribe({
+      this.titularService.update(this.titularId, titularData).subscribe({
         next: (response: TitularMinero) => {
-          console.log('Titular creado exitosamente:', response);
-          alert('Titular minero creado exitosamente');
-          this.loading = false;
-          this.router.navigate(['/titulares']); // Navegar a la lista
+          console.log('Titular actualizado exitosamente:', response);
+          alert('Titular minero actualizado exitosamente');
+          this.saving = false;
+          this.router.navigate(['/titulares']);
         },
         error: (error: any) => {
-          console.error('Error al crear titular:', error);
-          alert('Error al crear el titular minero');
-          this.loading = false;
+          console.error('Error al actualizar titular:', error);
+          alert('Error al actualizar el titular minero');
+          this.saving = false;
         }
       });
     } else {
-      console.log('Formulario inválido');
+      console.log('Formulario inválido o titularId faltante');
       this.form.markAllAsTouched();
       
       // Mostrar errores específicos de cada campo
@@ -304,10 +354,5 @@ export class TitularCreateFormComponent {
 
   onCancel() {
     this.router.navigate(['/titulares']);
-  }
-
-  testClick() {
-    console.log('Test click funcionando!');
-    alert('El botón responde!');
   }
 }
