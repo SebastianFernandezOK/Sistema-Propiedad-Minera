@@ -425,8 +425,7 @@ export class PropiedadesListComponent implements OnInit {
 
   viewPropiedad(propiedad: PropiedadMinera) {
     console.log('Ver propiedad:', propiedad);
-    // TODO: Implementar navegación a detalle cuando esté creado
-    // this.router.navigate(['/propiedades', propiedad.IdPropiedadMinera]);
+    this.router.navigate(['/propiedades', propiedad.IdPropiedadMinera, 'detalle']);
   }
 
   editPropiedad(propiedad: PropiedadMinera) {
