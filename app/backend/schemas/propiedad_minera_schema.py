@@ -13,7 +13,6 @@ class PropiedadMineraBase(BaseModel):
     Provincia: Optional[str]
     Mensura: Optional[datetime]
     AreaHectareas: Optional[float]
-    LaborLegal: Optional[str]
     DescubrimientoDirecto: Optional[str] = None
 
 class PropiedadMineraCreate(PropiedadMineraBase):

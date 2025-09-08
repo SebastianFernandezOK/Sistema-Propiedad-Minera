@@ -15,5 +15,4 @@ class PropiedadMinera(Base):
     Provincia = Column(String(100), nullable=True)
     Mensura = Column(DateTime, nullable=True)
     AreaHectareas = Column(Float, nullable=True)
-    LaborLegal = Column(String(50), nullable=True)
     DescubrimientoDirecto = Column(String(50), nullable=True)
