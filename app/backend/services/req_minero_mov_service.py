@@ -29,6 +29,7 @@ class ReqMineroMovService:
             else:
                 print(f"[WARNING] No se encontró IdTransaccion para la propiedad {req_minero_mov_data.IdPropiedadMinera}")
         
+        print(f"[DEBUG] Datos antes de crear en repositorio: {req_minero_mov_data.dict()}")
         return self.repository.create(req_minero_mov_data)
 
     def update(self, id_req_minero_mov: int, req_minero_mov_data: ReqMineroMovUpdate) -> Optional[ReqMineroMov]:

@@ -15,6 +15,8 @@ import { AlertaService } from '../../alertas/services/alerta.service';
 import { ObservacionesService } from '../../observaciones/services/observaciones.service';
 import { AlertasListComponent } from '../../alertas/components/alertas-list.component';
 import { ObservacionesTabComponent } from '../../observaciones/components/observaciones-tab.component';
+import { MAT_DATE_LOCALE, MAT_DATE_FORMATS } from '@angular/material/core';
+import { MY_DATE_FORMATS } from '../../../core/date-formats';
 
 @Component({
   selector: 'app-acta-detalle',
@@ -166,6 +168,10 @@ import { ObservacionesTabComponent } from '../../observaciones/components/observ
     mat-list-item { margin-bottom: 8px; }
     em { color: #888; }
   `],
+  providers: [
+    { provide: MAT_DATE_LOCALE, useValue: 'es' },
+    { provide: MAT_DATE_FORMATS, useValue: MY_DATE_FORMATS }
+  ],
   animations: [
     trigger('slideContent', [
       transition(':increment', [
@@ -205,27 +211,24 @@ export class ActaDetalleComponent implements OnInit, AfterViewInit {
   ) {}
 
   ngOnInit() {
-    this.route.paramMap.subscribe(params => {
-      const id = Number(params.get('actaId'));
-      if (id) {
-        this.loading = true;
-        this.actaService.getActaById(id).subscribe({
-          next: (resp: ActaDetalleResponse) => {
-            this.acta = resp;
-            this.loading = false;
-            setTimeout(() => this.updateUnderline(), 10);
-            if (resp && (resp as any).IdTransaccion) {
-              this.loadAlertas(id); // Usar id de acta para alertas
-              this.loadObservaciones((resp as any).IdTransaccion);
-            }
-          },
-          error: () => {
-            this.acta = null;
-            this.loading = false;
+    const id = Number(this.route.snapshot.paramMap.get('actaId'));
+    if (id) {
+      this.actaService.getActaById(id).subscribe({
+        next: (resp: ActaDetalleResponse) => {
+          this.acta = resp;
+          this.loading = false;
+          setTimeout(() => this.updateUnderline(), 10);
+          if (resp && (resp as any).IdTransaccion) {
+            this.loadAlertas(id); // Usar id de acta para alertas
+            this.loadObservaciones((resp as any).IdTransaccion);
           }
-        });
-      }
-    });
+        },
+        error: () => {
+          this.acta = null;
+          this.loading = false;
+        }
+      });
+    }
   }
 
   loadAlertas(idActa: number) {

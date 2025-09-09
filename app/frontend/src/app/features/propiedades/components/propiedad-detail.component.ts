@@ -11,8 +11,10 @@ import { MatTableModule } from '@angular/material/table';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatMenuModule } from '@angular/material/menu';
 import { PropiedadMineraService } from '../services/propiedad-minera.service';
-import { ReqMineroMovService, ReqMineroMov } from '../services/req-minero-mov.service';
+import { ReqMineroMovService, ReqMineroMov, ReqMineroMovCreate } from '../services/req-minero-mov.service';
 import { PropiedadMinera } from '../models/propiedad-minera.model';
+import { ReqMineroMovCreateComponent } from './req-minero-mov/req-minero-mov-create.component';
+import { ReqMineroMovEditComponent } from './req-minero-mov/req-minero-mov-edit.component';
 
 @Component({
   selector: 'app-propiedad-detail',
@@ -27,7 +29,9 @@ import { PropiedadMinera } from '../models/propiedad-minera.model';
     MatDividerModule,
     MatTableModule,
     MatChipsModule,
-    MatMenuModule
+    MatMenuModule,
+    ReqMineroMovCreateComponent,
+    ReqMineroMovEditComponent
   ],
   template: `
     <div class="detail-container">
@@ -42,12 +46,6 @@ import { PropiedadMinera } from '../models/propiedad-minera.model';
             <h1 *ngIf="!propiedad && !loading">Propiedad Minera</h1>
             <p class="subtitle" *ngIf="propiedad">ID: {{ propiedad.IdPropiedadMinera }}</p>
           </div>
-        </div>
-        <div class="header-actions">
-          <button mat-raised-button color="primary" (click)="editPropiedad()" *ngIf="propiedad">
-            <mat-icon>edit</mat-icon>
-            Editar
-          </button>
         </div>
       </div>
 
@@ -66,6 +64,11 @@ import { PropiedadMinera } from '../models/propiedad-minera.model';
               <mat-card class="info-card">
                 <mat-card-header>
                   <mat-card-title>Información General</mat-card-title>
+                  <div class="spacer"></div>
+                  <button mat-raised-button color="primary" (click)="editPropiedad()" *ngIf="propiedad">
+                    <mat-icon>edit</mat-icon>
+                    Editar Propiedad
+                  </button>
                 </mat-card-header>
                 <mat-card-content>
                   <div class="info-grid">
@@ -138,10 +141,37 @@ import { PropiedadMinera } from '../models/propiedad-minera.model';
           <!-- Tab 2: Requerimientos Mineros -->
           <mat-tab label="Requerimientos Mineros">
             <div class="tab-content">
-              <mat-card class="info-card">
+              <!-- Formulario de creación (solo si está activo) -->
+              <div *ngIf="mostrandoFormularioCreacion" class="formulario-container">
+                <app-req-minero-mov-create 
+                  [idPropiedadMinera]="propiedadId"
+                  (create)="onCrearRequerimiento($event)"
+                  (cancelar)="ocultarFormularioCreacion()">
+                </app-req-minero-mov-create>
+              </div>
+
+              <!-- Formulario de edición (solo si está activo) -->
+              <div *ngIf="mostrandoFormularioEdicion && requerimientoEnEdicion" class="formulario-container">
+                <app-req-minero-mov-edit 
+                  [reqMineroMov]="requerimientoEnEdicion"
+                  (update)="onActualizarRequerimiento($event)"
+                  (cancelar)="ocultarFormularioEdicion()">
+                </app-req-minero-mov-edit>
+              </div>
+
+              <!-- Lista de requerimientos (solo si no hay formularios activos) -->
+              <mat-card class="info-card" *ngIf="!mostrandoFormularioCreacion && !mostrandoFormularioEdicion">
                 <mat-card-header>
                   <mat-card-title>Requerimientos Mineros</mat-card-title>
                   <mat-card-subtitle>Documentos y requisitos de la propiedad minera</mat-card-subtitle>
+                  <div class="spacer"></div>
+                  <button mat-raised-button 
+                          color="accent" 
+                          (click)="mostrarFormularioCreacion()"
+                          class="btn-nuevo-requerimiento">
+                    <mat-icon>add</mat-icon>
+                    Nuevo Requerimiento
+                  </button>
                 </mat-card-header>
                 <mat-card-content>
                   <!-- Loading de requerimientos -->
@@ -180,18 +210,6 @@ import { PropiedadMinera } from '../models/propiedad-minera.model';
                         </td>
                       </ng-container>
 
-                      <!-- Columna Estado -->
-                      <ng-container matColumnDef="estado">
-                        <th mat-header-cell *matHeaderCellDef>Estado</th>
-                        <td mat-cell *matCellDef="let req">
-                          <mat-chip-set>
-                            <mat-chip [class]="getEstadoClass(req)">
-                              {{ getEstadoText(req) }}
-                            </mat-chip>
-                          </mat-chip-set>
-                        </td>
-                      </ng-container>
-
                       <!-- Columna Acciones -->
                       <ng-container matColumnDef="acciones">
                         <th mat-header-cell *matHeaderCellDef>Acciones</th>
@@ -213,23 +231,6 @@ import { PropiedadMinera } from '../models/propiedad-minera.model';
                       <h3>No hay requerimientos registrados</h3>
                       <p>Aún no se han agregado requerimientos para esta propiedad minera.</p>
                     </div>
-                  </div>
-
-                  <!-- Acciones de requerimientos -->
-                  <div class="requerimientos-actions">
-                    <button mat-raised-button color="primary" (click)="agregarRequerimiento()">
-                      <mat-icon>add</mat-icon>
-                      Agregar Requerimiento
-                    </button>
-                    <button mat-stroked-button (click)="exportarRequerimientos()" 
-                            [disabled]="requerimientos.length === 0">
-                      <mat-icon>file_download</mat-icon>
-                      Exportar Lista
-                    </button>
-                    <button mat-stroked-button (click)="recargarRequerimientos()">
-                      <mat-icon>refresh</mat-icon>
-                      Actualizar
-                    </button>
                   </div>
                 </mat-card-content>
               </mat-card>
@@ -337,8 +338,33 @@ import { PropiedadMinera } from '../models/propiedad-minera.model';
       min-height: 400px;
     }
 
+    .formulario-container {
+      margin-bottom: 24px;
+    }
+
     .info-card {
       margin-bottom: 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .info-card mat-card-header {
+      display: flex !important;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .info-card mat-card-header button {
+      z-index: 10;
+      pointer-events: auto;
+    }
+
+    .btn-nuevo-requerimiento {
+      cursor: pointer !important;
+      user-select: none;
+    }
+
+    .spacer {
+      flex: 1;
     }
 
     .info-card:last-child {
@@ -419,13 +445,7 @@ import { PropiedadMinera } from '../models/propiedad-minera.model';
       color: #1976d2;
     }
 
-    .requerimientos-actions {
-      display: flex;
-      gap: 12px;
-      margin-top: 24px;
-      padding-top: 16px;
-      border-top: 1px solid #e0e0e0;
-    }
+
 
     .loading-requerimientos {
       display: flex;
@@ -492,27 +512,6 @@ import { PropiedadMinera } from '../models/propiedad-minera.model';
       font-size: 0.9rem;
     }
 
-    /* Estados de chips */
-    mat-chip.estado-completado {
-      background-color: #e8f5e8 !important;
-      color: #2e7d32 !important;
-    }
-
-    mat-chip.estado-pendiente {
-      background-color: #fff3e0 !important;
-      color: #f57c00 !important;
-    }
-
-    mat-chip.estado-proceso {
-      background-color: #e3f2fd !important;
-      color: #1976d2 !important;
-    }
-
-    mat-chip.estado-vencido {
-      background-color: #ffebee !important;
-      color: #d32f2f !important;
-    }
-
     .error-container {
       display: flex;
       flex-direction: column;
@@ -563,10 +562,6 @@ import { PropiedadMinera } from '../models/propiedad-minera.model';
       .info-grid {
         grid-template-columns: 1fr;
       }
-
-      .requerimientos-actions {
-        flex-direction: column;
-      }
     }
   `]
 })
@@ -578,7 +573,12 @@ export class PropiedadDetailComponent implements OnInit {
   // Requerimientos
   requerimientos: ReqMineroMov[] = [];
   loadingRequerimientos = false;
-  requerimientosColumns: string[] = ['fecha', 'descripcion', 'importe', 'estado', 'acciones'];
+  requerimientosColumns: string[] = ['fecha', 'descripcion', 'importe', 'acciones'];
+
+  // Estados de formularios
+  mostrandoFormularioCreacion = false;
+  mostrandoFormularioEdicion = false;
+  requerimientoEnEdicion: ReqMineroMov | null = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -651,47 +651,68 @@ export class PropiedadDetailComponent implements OnInit {
     }).format(amount);
   }
 
-  getEstadoClass(requerimiento: ReqMineroMov): string {
-    // Lógica simple para determinar el estado basado en fechas o importe
-    if (requerimiento.Importe && requerimiento.Importe > 0) {
-      return 'estado-completado';
-    } else if (requerimiento.Fecha) {
-      const fechaReq = new Date(requerimiento.Fecha);
-      const ahora = new Date();
-      const diasDiferencia = (ahora.getTime() - fechaReq.getTime()) / (1000 * 3600 * 24);
-      
-      if (diasDiferencia > 30) {
-        return 'estado-vencido';
-      } else if (diasDiferencia > 7) {
-        return 'estado-proceso';
-      } else {
-        return 'estado-pendiente';
-      }
-    }
-    return 'estado-pendiente';
+  // Métodos para manejar formularios
+  mostrarFormularioCreacion() {
+    console.log('mostrarFormularioCreacion called'); // Debug
+    this.mostrandoFormularioCreacion = true;
+    this.mostrandoFormularioEdicion = false;
+    this.requerimientoEnEdicion = null;
   }
 
-  getEstadoText(requerimiento: ReqMineroMov): string {
-    const estadoClass = this.getEstadoClass(requerimiento);
-    switch (estadoClass) {
-      case 'estado-completado': return 'Completado';
-      case 'estado-proceso': return 'En Proceso';
-      case 'estado-vencido': return 'Vencido';
-      default: return 'Pendiente';
-    }
+  ocultarFormularioCreacion() {
+    this.mostrandoFormularioCreacion = false;
+  }
+
+  mostrarFormularioEdicion(requerimiento: ReqMineroMov) {
+    this.mostrandoFormularioCreacion = false;
+    this.mostrandoFormularioEdicion = true;
+    this.requerimientoEnEdicion = { ...requerimiento };
+  }
+
+  ocultarFormularioEdicion() {
+    this.mostrandoFormularioEdicion = false;
+    this.requerimientoEnEdicion = null;
+  }
+
+  onCrearRequerimiento(reqData: ReqMineroMovCreate) {
+    if (!this.propiedadId) return;
+
+    this.reqMineroMovService.createReqMineroMovForPropiedad(this.propiedadId, reqData).subscribe({
+      next: (response) => {
+        console.log('Requerimiento creado exitosamente:', response);
+        this.ocultarFormularioCreacion();
+        this.loadRequerimientos(this.propiedadId!);
+      },
+      error: (error) => {
+        console.error('Error al crear requerimiento:', error);
+        alert('Error al crear el requerimiento. Por favor, intente nuevamente.');
+      }
+    });
+  }
+
+  onActualizarRequerimiento(reqData: Partial<ReqMineroMovCreate>) {
+    if (!this.requerimientoEnEdicion?.IdReqMineroMov) return;
+
+    this.reqMineroMovService.updateReqMineroMov(this.requerimientoEnEdicion.IdReqMineroMov, reqData).subscribe({
+      next: (response) => {
+        console.log('Requerimiento actualizado exitosamente:', response);
+        this.ocultarFormularioEdicion();
+        this.loadRequerimientos(this.propiedadId!);
+      },
+      error: (error) => {
+        console.error('Error al actualizar requerimiento:', error);
+        alert('Error al actualizar el requerimiento. Por favor, intente nuevamente.');
+      }
+    });
   }
 
   // Métodos para acciones de requerimientos
   agregarRequerimiento() {
-    console.log('Agregar nuevo requerimiento para propiedad:', this.propiedadId);
-    // TODO: Implementar modal o navegación para agregar requerimiento
-    alert('Función de agregar requerimiento - Por implementar');
+    this.mostrarFormularioCreacion();
   }
 
   editarRequerimiento(requerimiento: ReqMineroMov) {
-    console.log('Editar requerimiento:', requerimiento);
-    // TODO: Implementar modal o navegación para editar requerimiento
-    alert(`Editar requerimiento: ${requerimiento.Descripcion}`);
+    this.mostrarFormularioEdicion(requerimiento);
   }
 
   verDetalleRequerimiento(requerimiento: ReqMineroMov) {
@@ -736,7 +757,7 @@ export class PropiedadDetailComponent implements OnInit {
 
   editPropiedad() {
     if (this.propiedadId) {
-      this.router.navigate(['/propiedades/edit', this.propiedadId]);
+      this.router.navigate(['/propiedades', this.propiedadId, 'editar']);
     }
   }
 }

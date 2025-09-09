@@ -5,15 +5,14 @@ import { CommonModule } from '@angular/common';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
-import { MatDatepickerModule } from '@angular/material/datepicker';
 import { EstadoAlertaService } from '../services/estado-alerta.service';
 import type { EstadoAlerta } from '../models/estado-alerta.model';
 import { MatSelectModule } from '@angular/material/select';
 import { AlertaCreate } from '../models/alerta.model';
 import { ReactiveFormsModule } from '@angular/forms';
-import { MatNativeDateModule } from '@angular/material/core';
 import { TipoAlertaService } from '../services/tipo-alerta.service';
 import { DateFormatDirective } from '../../../shared/directives/date-format.directive';
+import { SharedDatepickerModule } from '../../../shared/shared-datepicker.module';
 
 @Component({
   selector: 'app-alerta-edit',
@@ -23,11 +22,10 @@ import { DateFormatDirective } from '../../../shared/directives/date-format.dire
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
-    MatDatepickerModule,
     MatSelectModule,
-    MatNativeDateModule,
     ReactiveFormsModule,
-    DateFormatDirective
+    DateFormatDirective,
+    SharedDatepickerModule
   ],
   templateUrl: './alerta-edit.component.html',
   styleUrls: ['./alerta-edit.component.css']

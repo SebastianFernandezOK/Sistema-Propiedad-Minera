@@ -119,9 +119,14 @@ def create_req_minero_mov_for_propiedad(
         # Asignar automáticamente el IdPropiedadMinera
         req_minero_mov_data.IdPropiedadMinera = id_propiedad_minera
         print(f"[DEBUG] Creando requerimiento para propiedad: {id_propiedad_minera}")
+        print(f"[DEBUG] Datos recibidos: {req_minero_mov_data.dict()}")
         
         return service.create(req_minero_mov_data)
     except Exception as e:
+        print(f"[ERROR] Error al crear requerimiento: {str(e)}")
+        print(f"[ERROR] Tipo de error: {type(e).__name__}")
+        import traceback
+        print(f"[ERROR] Traceback: {traceback.format_exc()}")
         raise HTTPException(status_code=400, detail=str(e))
 
 @router.put("/req-minero-movs/{id_req_minero_mov}", response_model=ReqMineroMovOut)

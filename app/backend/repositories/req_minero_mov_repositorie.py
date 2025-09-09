@@ -9,7 +9,7 @@ class ReqMineroMovRepository:
         self.db = db
 
     def get_all(self, skip: int = 0, limit: int = 100) -> List[ReqMineroMov]:
-        return self.db.query(ReqMineroMov).offset(skip).limit(limit).all()
+        return self.db.query(ReqMineroMov).order_by(ReqMineroMov.IdReqMineroMov.desc()).offset(skip).limit(limit).all()
 
     def get_by_id(self, id_req_minero_mov: int) -> Optional[ReqMineroMov]:
         return self.db.query(ReqMineroMov).filter(ReqMineroMov.IdReqMineroMov == id_req_minero_mov).first()
@@ -17,22 +17,39 @@ class ReqMineroMovRepository:
     def get_by_propiedad(self, id_propiedad_minera: int, skip: int = 0, limit: int = 100) -> List[ReqMineroMov]:
         return self.db.query(ReqMineroMov).filter(
             ReqMineroMov.IdPropiedadMinera == id_propiedad_minera
-        ).offset(skip).limit(limit).all()
+        ).order_by(ReqMineroMov.IdReqMineroMov.desc()).offset(skip).limit(limit).all()
 
     def create(self, req_minero_mov_data: ReqMineroMovCreate) -> ReqMineroMov:
         # Convertir a diccionario y crear instancia
         req_minero_mov_dict = req_minero_mov_data.dict()
+        print(f"[DEBUG] Diccionario para crear: {req_minero_mov_dict}")
         
         # Agregar campos de auditoría
         req_minero_mov_dict['AudFecha'] = datetime.now()
         if not req_minero_mov_dict.get('AudUsuario'):
             req_minero_mov_dict['AudUsuario'] = 1  # Usuario por defecto
         
-        db_req_minero_mov = ReqMineroMov(**req_minero_mov_dict)
-        self.db.add(db_req_minero_mov)
-        self.db.commit()
-        self.db.refresh(db_req_minero_mov)
-        return db_req_minero_mov
+        print(f"[DEBUG] Diccionario final con auditoría: {req_minero_mov_dict}")
+        
+        try:
+            db_req_minero_mov = ReqMineroMov(**req_minero_mov_dict)
+            print(f"[DEBUG] Objeto ReqMineroMov creado: {db_req_minero_mov}")
+            
+            self.db.add(db_req_minero_mov)
+            print(f"[DEBUG] Objeto añadido a la sesión")
+            
+            self.db.commit()
+            print(f"[DEBUG] Commit realizado")
+            
+            self.db.refresh(db_req_minero_mov)
+            print(f"[DEBUG] Objeto refrescado, ID: {db_req_minero_mov.IdReqMineroMov}")
+            
+            return db_req_minero_mov
+        except Exception as e:
+            print(f"[ERROR] Error en repositorio create: {str(e)}")
+            print(f"[ERROR] Tipo de error: {type(e).__name__}")
+            self.db.rollback()
+            raise
 
     def update(self, id_req_minero_mov: int, req_minero_mov_data: ReqMineroMovUpdate) -> Optional[ReqMineroMov]:
         db_req_minero_mov = self.get_by_id(id_req_minero_mov)
@@ -89,7 +106,7 @@ class ReqMineroMovRepository:
         if filters.get('FechaHasta'):
             query = query.filter(ReqMineroMov.Fecha <= filters['FechaHasta'])
         
-        return query.offset(skip).limit(limit).all()
+        return query.order_by(ReqMineroMov.IdReqMineroMov.desc()).offset(skip).limit(limit).all()
 
     def search_count(self, filters: dict) -> int:
         query = self.db.query(ReqMineroMov)

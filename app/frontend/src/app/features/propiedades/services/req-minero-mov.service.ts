@@ -3,6 +3,13 @@ import { HttpClient, HttpParams, HttpHeaders, HttpResponse } from '@angular/comm
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
+export interface ReqMinero {
+  IdReqMinero: number;
+  IdTransaccion?: number;
+  Tipo?: string;
+  Descripcion?: string;
+}
+
 export interface ReqMineroMov {
   IdReqMineroMov: number;
   IdPropiedadMinera?: number;
@@ -39,7 +46,7 @@ export interface ReqMineroMovFilter {
   providedIn: 'root'
 })
 export class ReqMineroMovService {
-  private apiUrl = 'http://localhost:8000';
+  private apiUrl = 'http://localhost:9000';
 
   constructor(private http: HttpClient) { }
 
@@ -151,5 +158,15 @@ export class ReqMineroMovService {
 
   deleteReqMineroMov(id: number): Observable<{ok: boolean, message: string}> {
     return this.http.delete<{ok: boolean, message: string}>(`${this.apiUrl}/req-minero-movs/${id}`);
+  }
+
+  // Métodos para ReqMinero
+  getReqMineros(): Observable<ReqMinero[]> {
+    return this.http.get<ReqMinero[]>(`${this.apiUrl}/req-mineros`);
+  }
+
+  // Método para obtener una propiedad minera por ID
+  getPropiedadMinera(id: number): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/propiedades-mineras/${id}`);
   }
 }
