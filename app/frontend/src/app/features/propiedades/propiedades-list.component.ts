@@ -110,7 +110,8 @@ import { PropiedadMinera, PropiedadMineraFilter } from './models/propiedad-miner
                 <td mat-cell *matCellDef="let propiedad">
                   <div class="cell-content">
                     <span class="primary-text">{{propiedad.Nombre || 'Sin nombre'}}</span>
-                    <span class="secondary-text" *ngIf="propiedad.IdTitular">Titular ID: {{propiedad.IdTitular}}</span>
+                    <span class="secondary-text" *ngIf="propiedad.TitularNombre">Titular: {{propiedad.TitularNombre}}</span>
+                    <span class="secondary-text" *ngIf="!propiedad.TitularNombre && propiedad.IdTitular">Titular ID: {{propiedad.IdTitular}}</span>
                   </div>
                 </td>
               </ng-container>
