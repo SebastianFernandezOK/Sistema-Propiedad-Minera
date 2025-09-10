@@ -162,7 +162,8 @@ export class ReqMineroMovService {
 
   // Métodos para ReqMinero
   getReqMineros(): Observable<ReqMinero[]> {
-    return this.http.get<ReqMinero[]>(`${this.apiUrl}/req-mineros`);
+    return this.http.get<{data: ReqMinero[], total: number}>(`${this.apiUrl}/req-mineros`)
+      .pipe(map(response => response.data || []));
   }
 
   // Método para obtener una propiedad minera por ID

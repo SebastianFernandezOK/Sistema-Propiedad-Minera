@@ -74,12 +74,6 @@ import { Expediente, ExpedienteFilter } from '../models/expediente.model';
 
             <table mat-table [dataSource]="expedientes" *ngIf="!loading" class="expedientes-table">
               
-              <!-- ID Column -->
-              <ng-container matColumnDef="IdExpediente">
-                <th mat-header-cell *matHeaderCellDef>ID</th>
-                <td mat-cell *matCellDef="let expediente">{{ expediente.IdExpediente }}</td>
-              </ng-container>
-
               <!-- Código Column -->
               <ng-container matColumnDef="CodigoExpediente">
                 <th mat-header-cell *matHeaderCellDef>Código</th>
@@ -284,7 +278,6 @@ export class ExpedientesListComponent implements OnInit {
 
   expedientes: Expediente[] = [];
   displayedColumns: string[] = [
-  'IdExpediente', 
   'CodigoExpediente', 
   'PrimerDueno',
     'Caratula', 

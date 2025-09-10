@@ -8,7 +8,7 @@ import json
 
 router = APIRouter()
 
-@router.get("/req-mineros", response_model=List[ReqMinero])
+@router.get("/req-mineros")
 def get_req_mineros(
     skip: int = Query(0, ge=0, description="Número de registros a omitir"),
     limit: int = Query(100, ge=1, le=1000, description="Número máximo de registros a retornar"),
@@ -35,7 +35,7 @@ def get_req_mineros(
         req_mineros = service.get_all(skip, limit)
         total = service.get_count()
     
-    return req_mineros
+    return {"data": req_mineros, "total": total}
 
 @router.get("/req-mineros/{id_req_minero}", response_model=ReqMinero)
 def get_req_minero(

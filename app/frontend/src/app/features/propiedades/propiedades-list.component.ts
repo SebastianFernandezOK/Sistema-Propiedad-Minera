@@ -96,14 +96,6 @@ import { PropiedadMinera, PropiedadMineraFilter } from './models/propiedad-miner
         <mat-card-content>
           <div class="table-container">
             <table mat-table [dataSource]="propiedades" class="propiedades-table" matSort>
-              <!-- ID Column -->
-              <ng-container matColumnDef="IdPropiedadMinera">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header>ID</th>
-                <td mat-cell *matCellDef="let propiedad">
-                  <span class="id-number">{{propiedad.IdPropiedadMinera}}</span>
-                </td>
-              </ng-container>
-
               <!-- Nombre Column -->
               <ng-container matColumnDef="Nombre">
                 <th mat-header-cell *matHeaderCellDef mat-sort-header>Nombre</th>
@@ -343,7 +335,6 @@ export class PropiedadesListComponent implements OnInit {
   propiedades: PropiedadMinera[] = [];
   filterForm: FormGroup;
   displayedColumns: string[] = [
-    'IdPropiedadMinera',
     'Nombre',
     'Provincia',
     'AreaHectareas',

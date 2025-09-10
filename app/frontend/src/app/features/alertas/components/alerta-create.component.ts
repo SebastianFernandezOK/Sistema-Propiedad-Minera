@@ -10,7 +10,9 @@ import { AlertaCreate } from '../models/alerta.model';
 import { ReactiveFormsModule } from '@angular/forms';
 import { TipoAlertaService } from '../services/tipo-alerta.service';
 import { EstadoAlertaService } from '../services/estado-alerta.service';
+import { PeriodicidadAlertaService } from '../../periodicidad-alerta/services/periodicidad-alerta.service';
 import type { EstadoAlerta } from '../models/estado-alerta.model';
+import type { PeriodicidadAlerta } from '../../periodicidad-alerta/models/periodicidad-alerta.model';
 import { trigger, transition, style, animate } from '@angular/animations';
 import { DateFormatDirective } from '../../../shared/directives/date-format.directive';
 import { SharedDatepickerModule } from '../../../shared/shared-datepicker.module';
@@ -50,7 +52,17 @@ import { SharedDatepickerModule } from '../../../shared/shared-datepicker.module
         </mat-form-field>
         <mat-form-field appearance="fill" class="third-width">
           <mat-label>Periodicidad</mat-label>
-          <input matInput formControlName="Periodicidad">
+          <mat-select formControlName="IdPeriodicidad" required>
+            <mat-option *ngFor="let periodicidad of periodicidades" [value]="periodicidad.IdPeriodicidad">
+              {{ periodicidad.Nombre }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <div class="row-fields">
+        <mat-form-field appearance="fill" class="full-width">
+          <mat-label>Destinatarios</mat-label>
+          <textarea matInput formControlName="Destinatarios" rows="3"></textarea>
         </mat-form-field>
       </div>
       <div class="row-fields">
@@ -103,8 +115,15 @@ export class AlertaCreateComponent {
   form: FormGroup;
   tiposAlerta: any[] = [];
   estadosAlerta: EstadoAlerta[] = [];
+  periodicidades: PeriodicidadAlerta[] = [];
 
-  constructor(private fb: FormBuilder, private alertaService: AlertaService, private tipoAlertaService: TipoAlertaService, private estadoAlertaService: EstadoAlertaService) {
+  constructor(
+    private fb: FormBuilder, 
+    private alertaService: AlertaService, 
+    private tipoAlertaService: TipoAlertaService, 
+    private estadoAlertaService: EstadoAlertaService,
+    private periodicidadAlertaService: PeriodicidadAlertaService
+  ) {
     this.form = this.fb.group({
       IdTipoAlerta: [null, Validators.required],
       Asunto: ['', Validators.required],
@@ -112,9 +131,10 @@ export class AlertaCreateComponent {
       IdEstado: [null, Validators.required],
       Estado: [''],
       Medio: [''],
-      Periodicidad: [''],
+      IdPeriodicidad: [null, Validators.required],
       FechaInicio: [null],
       FechaFin: [null],
+      Destinatarios: [''],
       Obs: ['']
     });
   }
@@ -122,6 +142,7 @@ export class AlertaCreateComponent {
   ngOnInit() {
     this.tipoAlertaService.getTiposAlerta().subscribe(tipos => this.tiposAlerta = tipos);
     this.estadoAlertaService.getEstadosAlerta().subscribe(estados => this.estadosAlerta = estados);
+    this.periodicidadAlertaService.getPeriodicidades().subscribe(periodicidades => this.periodicidades = periodicidades);
     if (this.idTransaccion) {
       this.form.addControl('IdTransaccion', this.fb.control(this.idTransaccion));
     }
@@ -132,9 +153,10 @@ export class AlertaCreateComponent {
         IdEstado: this.alerta.IdEstado,
         Estado: this.alerta.Estado,
         Medio: this.alerta.Medio,
-        Periodicidad: this.alerta.Periodicidad,
+        IdPeriodicidad: this.alerta.IdPeriodicidad,
         FechaInicio: this.alerta.FechaInicio,
         FechaFin: this.alerta.FechaFin,
+        Destinatarios: this.alerta.Destinatarios,
         Obs: this.alerta.Obs
       });
     }
@@ -148,9 +170,10 @@ export class AlertaCreateComponent {
         IdEstado: this.alerta.IdEstado,
         Estado: this.alerta.Estado,
         Medio: this.alerta.Medio,
-        Periodicidad: this.alerta.Periodicidad,
+        IdPeriodicidad: this.alerta.IdPeriodicidad,
         FechaInicio: this.alerta.FechaInicio,
         FechaFin: this.alerta.FechaFin,
+        Destinatarios: this.alerta.Destinatarios,
         Obs: this.alerta.Obs
       });
     } else {

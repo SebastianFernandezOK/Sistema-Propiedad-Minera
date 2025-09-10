@@ -12,6 +12,8 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatMenuModule } from '@angular/material/menu';
 import { PropiedadMineraService } from '../services/propiedad-minera.service';
 import { ReqMineroMovService, ReqMineroMov, ReqMineroMovCreate } from '../services/req-minero-mov.service';
+import { ReqMineroService, ReqMinero } from '../services/req-minero.service';
+import { TitularMineroService } from '../../titulares/services/titular.service';
 import { PropiedadMinera } from '../models/propiedad-minera.model';
 import { ReqMineroMovCreateComponent } from './req-minero-mov/req-minero-mov-create.component';
 import { ReqMineroMovEditComponent } from './req-minero-mov/req-minero-mov-edit.component';
@@ -42,9 +44,8 @@ import { ReqMineroMovEditComponent } from './req-minero-mov/req-minero-mov-edit.
             <mat-icon>arrow_back</mat-icon>
           </button>
           <div class="header-info">
-            <h1 *ngIf="propiedad">{{ propiedad.Nombre || 'Propiedad Minera' }}</h1>
+            <h1 *ngIf="propiedad">Propiedad minera {{ propiedad.Nombre || 'Propiedad Minera' }}</h1>
             <h1 *ngIf="!propiedad && !loading">Propiedad Minera</h1>
-            <p class="subtitle" *ngIf="propiedad">ID: {{ propiedad.IdPropiedadMinera }}</p>
           </div>
         </div>
       </div>
@@ -73,12 +74,12 @@ import { ReqMineroMovEditComponent } from './req-minero-mov/req-minero-mov-edit.
                 <mat-card-content>
                   <div class="info-grid">
                     <div class="info-item">
-                      <label>Nombre:</label>
+                      <label>Nombre de la Propiedad:</label>
                       <span>{{ propiedad.Nombre || 'No especificado' }}</span>
                     </div>
                     <div class="info-item">
-                      <label>ID Titular:</label>
-                      <span>{{ propiedad.IdTitular || 'No asignado' }}</span>
+                      <label>Titular:</label>
+                      <span>{{ titularNombre || 'Cargando...' }}</span>
                     </div>
                     <div class="info-item">
                       <label>Provincia:</label>
@@ -117,20 +118,6 @@ import { ReqMineroMovEditComponent } from './req-minero-mov/req-minero-mov-edit.
                     <div class="info-item">
                       <label>Fecha de Mensura:</label>
                       <span>{{ formatDate(propiedad.Mensura) }}</span>
-                    </div>
-                  </div>
-                </mat-card-content>
-              </mat-card>
-
-              <mat-card class="info-card">
-                <mat-card-header>
-                  <mat-card-title>Información de Transacción</mat-card-title>
-                </mat-card-header>
-                <mat-card-content>
-                  <div class="info-grid">
-                    <div class="info-item">
-                      <label>ID Transacción:</label>
-                      <span>{{ propiedad.IdTransaccion || 'No asignada' }}</span>
                     </div>
                   </div>
                 </mat-card-content>
@@ -183,6 +170,14 @@ import { ReqMineroMovEditComponent } from './req-minero-mov/req-minero-mov-edit.
                   <!-- Tabla de requerimientos -->
                   <div *ngIf="!loadingRequerimientos" class="requerimientos-table">
                     <table mat-table [dataSource]="requerimientos" class="full-width-table">
+                      <!-- Columna Nombre Requerimiento Minero -->
+                      <ng-container matColumnDef="nombreReqMinero">
+                        <th mat-header-cell *matHeaderCellDef>Tipo de Requerimiento</th>
+                        <td mat-cell *matCellDef="let req">
+                          {{ req.IdReqMinero ? getTipoRequerimientoNombre(req.IdReqMinero) : 'Sin tipo especificado' }}
+                        </td>
+                      </ng-container>
+
                       <!-- Columna Fecha -->
                       <ng-container matColumnDef="fecha">
                         <th mat-header-cell *matHeaderCellDef>Fecha</th>
@@ -319,18 +314,37 @@ import { ReqMineroMovEditComponent } from './req-minero-mov/req-minero-mov-edit.
       justify-content: center;
       padding: 80px 20px;
       text-align: center;
+      background: linear-gradient(135deg, #f8fffe 0%, #f1f8f6 100%);
+      border-radius: 16px;
+      border: 1px solid #e1f0ec;
+      margin: 20px;
+      box-shadow: 0 4px 15px rgba(65, 103, 89, 0.08);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .loading-container:hover {
+      box-shadow: 0 8px 25px rgba(65, 103, 89, 0.12);
+      transform: translateY(-2px);
     }
 
     .loading-container p {
       margin-top: 16px;
-      color: #666;
+      color: #2d5a48;
+      font-weight: 500;
+      font-size: 1.1rem;
     }
 
     .tabs-container {
       background: white;
-      border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(65, 103, 89, 0.1);
       overflow: hidden;
+      border: 1px solid #e1f0ec;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .tabs-container:hover {
+      box-shadow: 0 8px 30px rgba(65, 103, 89, 0.15);
     }
 
     .tab-content {
@@ -344,7 +358,17 @@ import { ReqMineroMovEditComponent } from './req-minero-mov/req-minero-mov-edit.
 
     .info-card {
       margin-bottom: 24px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      box-shadow: 0 4px 15px rgba(65, 103, 89, 0.08);
+      border-radius: 16px;
+      border: 1px solid #e1f0ec;
+      background: linear-gradient(135deg, #fdfdfd 0%, #f9fdf9 100%);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      overflow: hidden;
+    }
+
+    .info-card:hover {
+      box-shadow: 0 8px 25px rgba(65, 103, 89, 0.12);
+      transform: translateY(-2px);
     }
 
     .info-card mat-card-header {
@@ -375,24 +399,93 @@ import { ReqMineroMovEditComponent } from './req-minero-mov/req-minero-mov-edit.
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
       gap: 20px;
-      margin-top: 16px;
+      margin-top: 20px;
     }
 
     .info-item {
       display: flex;
       flex-direction: column;
-      gap: 4px;
+      gap: 8px;
+      padding: 16px;
+      background: linear-gradient(135deg, #f8fffe 0%, #f1f8f6 100%);
+      border-radius: 12px;
+      border: 1px solid #e1f0ec;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .info-item::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      background: linear-gradient(180deg, #416759 0%, #5a8070 100%);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .info-item:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(65, 103, 89, 0.12);
+      border-color: #c8e0d7;
+    }
+
+    .info-item:hover::before {
+      opacity: 1;
     }
 
     .info-item label {
-      font-weight: 500;
-      color: #666;
+      font-weight: 600;
+      color: #2d5a48;
       font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+      position: relative;
     }
 
     .info-item span {
-      color: #333;
+      color: #1a4435;
       font-size: 1rem;
+      font-weight: 500;
+      line-height: 1.4;
+    }
+
+    /* Estilos modernos para botones */
+    button[mat-raised-button] {
+      background: linear-gradient(135deg, #416759 0%, #5a8070 100%) !important;
+      border-radius: 12px !important;
+      padding: 12px 20px !important;
+      font-weight: 600 !important;
+      text-transform: uppercase !important;
+      letter-spacing: 0.5px !important;
+      box-shadow: 0 4px 15px rgba(65, 103, 89, 0.25) !important;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+      border: none !important;
+    }
+
+    button[mat-raised-button]:hover {
+      transform: translateY(-2px) !important;
+      box-shadow: 0 8px 25px rgba(65, 103, 89, 0.35) !important;
+    }
+
+    button[mat-raised-button] mat-icon {
+      margin-right: 8px;
+    }
+
+    .back-button {
+      color: #416759 !important;
+      background: rgba(65, 103, 89, 0.1) !important;
+      border-radius: 50% !important;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    }
+
+    .back-button:hover {
+      background: rgba(65, 103, 89, 0.2) !important;
+      transform: translateX(-2px) !important;
     }
 
     .requerimientos-container {
@@ -569,11 +662,15 @@ export class PropiedadDetailComponent implements OnInit {
   propiedad: PropiedadMinera | null = null;
   loading = true;
   propiedadId: number | null = null;
+  titularNombre: string = '';
   
   // Requerimientos
   requerimientos: ReqMineroMov[] = [];
   loadingRequerimientos = false;
-  requerimientosColumns: string[] = ['fecha', 'descripcion', 'importe', 'acciones'];
+  requerimientosColumns: string[] = ['nombreReqMinero', 'fecha', 'descripcion', 'importe', 'acciones'];
+  
+  // Lista de tipos de requerimientos para hacer el mapeo
+  tiposRequerimientos: ReqMinero[] = [];
 
   // Estados de formularios
   mostrandoFormularioCreacion = false;
@@ -584,10 +681,15 @@ export class PropiedadDetailComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private propiedadService: PropiedadMineraService,
-    private reqMineroMovService: ReqMineroMovService
+    private reqMineroMovService: ReqMineroMovService,
+    private reqMineroService: ReqMineroService,
+    private titularService: TitularMineroService
   ) {}
 
   ngOnInit() {
+    // Cargar tipos de requerimientos primero
+    this.cargarTiposRequerimientos();
+    
     this.route.params.subscribe(params => {
       this.propiedadId = +params['id'];
       if (this.propiedadId) {
@@ -606,6 +708,10 @@ export class PropiedadDetailComponent implements OnInit {
         this.loading = false;
         // Cargar requerimientos cuando se carga la propiedad
         this.loadRequerimientos(id);
+        // Cargar nombre del titular
+        if (propiedad.IdTitular) {
+          this.cargarTitular(propiedad.IdTitular);
+        }
       },
       error: (error: any) => {
         console.error('Error al cargar propiedad:', error);
@@ -619,6 +725,7 @@ export class PropiedadDetailComponent implements OnInit {
     this.reqMineroMovService.getReqMineroMovsByPropiedad(idPropiedadMinera).subscribe({
       next: (result) => {
         this.requerimientos = result.data;
+        console.log('Requerimientos cargados:', this.requerimientos);
         this.loadingRequerimientos = false;
       },
       error: (error: any) => {
@@ -627,6 +734,44 @@ export class PropiedadDetailComponent implements OnInit {
         this.loadingRequerimientos = false;
       }
     });
+  }
+
+  cargarTitular(idTitular: number) {
+    this.titularService.getAll().subscribe({
+      next: (titulares) => {
+        const titular = titulares.find(t => t.IdTitular === idTitular);
+        this.titularNombre = titular ? titular.Nombre : 'Titular no encontrado';
+      },
+      error: () => {
+        this.titularNombre = 'Error al cargar titular';
+      }
+    });
+  }
+
+  private cargarTiposRequerimientos(): void {
+    this.reqMineroService.getReqMineros().subscribe({
+      next: (response: {data: ReqMinero[], total: number}) => {
+        this.tiposRequerimientos = response.data || [];
+        console.log('Tipos de requerimientos cargados:', this.tiposRequerimientos);
+      },
+      error: (error: any) => {
+        console.error('Error al cargar tipos de requerimientos:', error);
+      }
+    });
+  }
+
+  getTipoRequerimientoNombre(idReqMinero: number): string {
+    if (!idReqMinero) {
+      return 'ID no disponible';
+    }
+    
+    console.log('Buscando tipo para ID:', idReqMinero);
+    console.log('Tipos disponibles:', this.tiposRequerimientos);
+    
+    const tipo = this.tiposRequerimientos.find(t => t.IdReqMinero === idReqMinero);
+    console.log('Tipo encontrado:', tipo);
+    
+    return tipo?.Tipo || `No especificado (ID: ${idReqMinero})`;
   }
 
   formatDate(date: Date | string | null | undefined): string {

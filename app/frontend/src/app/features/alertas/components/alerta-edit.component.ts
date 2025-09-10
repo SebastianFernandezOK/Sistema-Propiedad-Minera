@@ -11,6 +11,8 @@ import { MatSelectModule } from '@angular/material/select';
 import { AlertaCreate } from '../models/alerta.model';
 import { ReactiveFormsModule } from '@angular/forms';
 import { TipoAlertaService } from '../services/tipo-alerta.service';
+import { PeriodicidadAlertaService } from '../../periodicidad-alerta/services/periodicidad-alerta.service';
+import type { PeriodicidadAlerta } from '../../periodicidad-alerta/models/periodicidad-alerta.model';
 import { DateFormatDirective } from '../../../shared/directives/date-format.directive';
 import { SharedDatepickerModule } from '../../../shared/shared-datepicker.module';
 
@@ -38,12 +40,14 @@ export class AlertaEditComponent {
   form: FormGroup;
   tiposAlerta: any[] = [];
   estadosAlerta: EstadoAlerta[] = [];
+  periodicidades: PeriodicidadAlerta[] = [];
 
   constructor(
     private fb: FormBuilder,
     private alertaService: AlertaService,
     private tipoAlertaService: TipoAlertaService,
-    private estadoAlertaService: EstadoAlertaService
+    private estadoAlertaService: EstadoAlertaService,
+    private periodicidadAlertaService: PeriodicidadAlertaService
   ) {
     this.form = this.fb.group({
       IdTipoAlerta: [null, Validators.required],
@@ -52,9 +56,10 @@ export class AlertaEditComponent {
       IdEstado: [null, Validators.required],
       Estado: [''],
       Medio: [''],
-      Periodicidad: [''],
+      IdPeriodicidad: [null, Validators.required],
       FechaInicio: [null],
       FechaFin: [null],
+      Destinatarios: [''],
       Obs: ['']
     });
   }
@@ -62,6 +67,7 @@ export class AlertaEditComponent {
   ngOnInit() {
     this.estadoAlertaService.getEstadosAlerta().subscribe(estados => this.estadosAlerta = estados);
     this.tipoAlertaService.getTiposAlerta().subscribe(tipos => this.tiposAlerta = tipos);
+    this.periodicidadAlertaService.getPeriodicidades().subscribe(periodicidades => this.periodicidades = periodicidades);
     if (this.alerta) {
       this.form.patchValue(this.alerta);
     }
