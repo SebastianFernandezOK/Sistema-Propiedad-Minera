@@ -23,6 +23,7 @@ import { AlertaCreateComponent } from '../../alertas/components/alerta-create.co
 import { AlertasListComponent } from '../../alertas/components/alertas-list.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { ExpedienteFormComponent } from './expediente-form.component';
+import { ArchivosExpedienteComponent } from './archivos/archivos-expediente.component';
 
 @Component({
   selector: 'app-expediente-detail',
@@ -46,7 +47,8 @@ import { ExpedienteFormComponent } from './expediente-form.component';
   ObservacionesTabComponent,
   AlertasListComponent,
   ReactiveFormsModule,
-  ExpedienteFormComponent
+  ExpedienteFormComponent,
+  ArchivosExpedienteComponent
   ],
   templateUrl: './expediente-detail.component.html',
   styleUrls: ['./expediente-detail.component.scss'],
@@ -89,7 +91,8 @@ export class ExpedienteDetailComponent implements OnInit, AfterViewInit {
     { label: 'Actas', icon: 'description', chip: false },
     { label: 'Resoluciones', icon: 'gavel', chip: false },
     { label: 'Alertas', icon: 'warning', chip: true, chipValue: 0 },
-    { label: 'Observaciones', icon: 'note', chip: false } // Nuevo tab de Observaciones
+    { label: 'Observaciones', icon: 'note', chip: false },
+    { label: 'Archivos', icon: 'attach_file', chip: false }
   ];
   selectedTabIndex = 0;
 

@@ -14,6 +14,22 @@ class ArchivoRepositorie:
     def get_all(self, skip: int = 0, limit: int = 100) -> List[Archivo]:
         return self.db.query(Archivo).offset(skip).limit(limit).all()
 
+    def get_by_transaccion(self, id_transaccion: int) -> List[Archivo]:
+        return self.db.query(Archivo).filter(Archivo.IdTransaccion == id_transaccion).all()
+
+    def get_by_transaccion_and_tipo(self, id_transaccion: int, tipo: str) -> List[Archivo]:
+        return self.db.query(Archivo).filter(
+            Archivo.IdTransaccion == id_transaccion,
+            Archivo.Tipo == tipo
+        ).all()
+
+    def get_by_expediente(self, id_transaccion: int, codigo_expediente: str) -> List[Archivo]:
+        return self.db.query(Archivo).filter(
+            Archivo.IdTransaccion == id_transaccion,
+            Archivo.Tipo == "expediente",
+            Archivo.Nombre.like(f"{codigo_expediente}_%")
+        ).all()
+
     def create(self, archivo: ArchivoCreate) -> Archivo:
         db_archivo = Archivo(**archivo.model_dump())
         self.db.add(db_archivo)

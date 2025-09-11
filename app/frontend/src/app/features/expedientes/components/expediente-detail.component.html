@@ -105,6 +105,12 @@
                 <app-observaciones-tab [idTransaccion]="expediente.IdTransaccion ?? null"></app-observaciones-tab>
               </div>
             </ng-container>
+            <!-- Archivos -->
+            <ng-container *ngSwitchCase="5">
+              <div class="tab-content">
+                <app-archivos-expediente [idExpediente]="expediente.IdExpediente"></app-archivos-expediente>
+              </div>
+            </ng-container>
           </ng-container>
         </div>
       </div>

@@ -13,6 +13,15 @@ class ArchivoService:
     def get_archivos(self, skip: int = 0, limit: int = 100):
         return self.repo.get_all(skip, limit)
 
+    def get_archivos_by_transaccion(self, id_transaccion: int):
+        return self.repo.get_by_transaccion(id_transaccion)
+
+    def get_archivos_by_transaccion_and_tipo(self, id_transaccion: int, tipo: str):
+        return self.repo.get_by_transaccion_and_tipo(id_transaccion, tipo)
+
+    def get_archivos_by_expediente(self, id_transaccion: int, codigo_expediente: str):
+        return self.repo.get_by_expediente(id_transaccion, codigo_expediente)
+
     def create_archivo(self, archivo: ArchivoCreate):
         return self.repo.create(archivo)
 

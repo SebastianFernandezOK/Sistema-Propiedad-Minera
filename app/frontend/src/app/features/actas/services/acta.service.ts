@@ -63,10 +63,7 @@ export class ActaService {
     const range = `[${pageIndex * pageSize},${(pageIndex + 1) * pageSize - 1}]`;
     return this.http.get<any>(
       `${this.apiUrl}?filter=${filter}&range=${range}`,
-      {
-        observe: 'response',
-        headers: { 'Cache-Control': 'no-cache' }
-      }
+      { observe: 'response' }
     );
   }
 }

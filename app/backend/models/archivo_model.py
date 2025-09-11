@@ -8,8 +8,9 @@ class Archivo(Base):
 
     IdArchivo = Column(Integer, primary_key=True, autoincrement=True)
     IdTransaccion = Column(Integer, nullable=True)
+    Nombre = Column(String(255), nullable=True)
     Descripcion = Column(String(150), nullable=True)
-    Archivo = Column(String(1500), nullable=True)
+    Tipo = Column(String(1500), nullable=True)
     Link = Column(String(500), nullable=False)
-    AudFecha = Column(DateTime, nullable=False)
-    AudUsuario = Column(SmallInteger, nullable=False)
+    AudFecha = Column(DateTime, nullable=True)
+    AudUsuario = Column(SmallInteger, nullable=True)
