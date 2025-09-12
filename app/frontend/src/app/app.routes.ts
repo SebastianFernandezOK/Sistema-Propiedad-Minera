@@ -29,6 +29,14 @@ export const routes: Routes = [
       {
         path: 'tipos-notificacion',
         loadChildren: () => import('./features/tipos-notificacion/routes/tipos-notificacion.routes').then(r => r.TIPOS_NOTIFICACION_ROUTES)
+      },
+      {
+        path: 'tipos-alerta',
+        loadChildren: () => import('./features/tipos-alerta/routes/tipos-alerta.routes').then(r => r.TIPOS_ALERTA_ROUTES)
+      },
+      {
+        path: 'areas',
+        loadChildren: () => import('./features/areas/routes/areas.routes').then(r => r.AREAS_ROUTES)
       }
     ]
   }

@@ -57,12 +57,16 @@ import { MatMenuModule } from '@angular/material/menu';
               <mat-icon>history</mat-icon>
               <span>Auditoría</span>
             </button>
+            <button mat-menu-item routerLink="/areas">
+              <mat-icon>business</mat-icon>
+              <span>Áreas</span>
+            </button>
             <button mat-menu-item routerLink="/tipos-notificacion">
               <mat-icon>notifications</mat-icon>
               <span>Tipos de Notificación</span>
             </button>
             <button mat-menu-item routerLink="/tipos-alerta">
-              <mat-icon>notifications</mat-icon>
+              <mat-icon>warning</mat-icon>
               <span>Tipos de Alerta</span>
             </button>
           </mat-menu>
