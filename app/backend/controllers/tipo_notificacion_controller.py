@@ -16,8 +16,10 @@ def list_tipos_notificacion(
     response: Response = None,
     range: str = Query(None, alias="range")
 ):
+    print(f"Controller: list_tipos_notificacion called with range={range}")
     service = TipoNotificacionService(db)
     items = service.get_tipos_notificacion()
+    print(f"Controller: Service returned {len(items)} items")
     total = len(items)
     start, end = 0, total - 1
     if range:
@@ -29,6 +31,8 @@ def list_tipos_notificacion(
     paginated_items = items[start:end+1]
     if response is not None:
         response.headers["Content-Range"] = f"tipos-notificacion {start}-{end}/{total}"
+        print(f"Controller: Setting Content-Range header: tipos-notificacion {start}-{end}/{total}")
+    print(f"Controller: Returning {len(paginated_items)} paginated items")
     return paginated_items
 
 @router.get("/{id}", response_model=TipoNotificacionOut)

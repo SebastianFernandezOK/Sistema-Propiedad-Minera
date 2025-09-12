@@ -21,10 +21,13 @@ class TipoNotificacionRepositorie:
     def get_all(self, skip: int = 0, limit: int = 100) -> List[TipoNotificacion]:
         """Obtiene todos los tipos de notificación con paginación"""
         try:
-            return self.db.query(TipoNotificacion).order_by(
+            result = self.db.query(TipoNotificacion).order_by(
                 TipoNotificacion.IdTipoNotificacion
             ).offset(skip).limit(limit).all()
-        except SQLAlchemyError:
+            print(f"Repository get_all: Found {len(result)} records")
+            return result
+        except SQLAlchemyError as e:
+            print(f"Error in get_all: {e}")
             return []
 
     def get_by_descripcion(self, descripcion: str) -> Optional[TipoNotificacion]:
@@ -39,14 +42,8 @@ class TipoNotificacionRepositorie:
     def create(self, tipo_notificacion: TipoNotificacionCreate) -> Optional[TipoNotificacion]:
         """Crea un nuevo tipo de notificación"""
         try:
-            # Verificar si ya existe un tipo con el mismo ID
-            existing = self.get(tipo_notificacion.IdTipoNotificacion)
-            if existing:
-                return None
-            
-            # Crear el objeto con todos los campos del modelo
+            # Crear el objeto sin especificar IdTipoNotificacion (será autoincremental)
             db_obj = TipoNotificacion(
-                IdTipoNotificacion=tipo_notificacion.IdTipoNotificacion,
                 Descripcion=tipo_notificacion.Descripcion,
                 DescCorta=tipo_notificacion.DescCorta,
                 AudFecha=tipo_notificacion.AudFecha or datetime.now(),
@@ -57,7 +54,8 @@ class TipoNotificacionRepositorie:
             self.db.commit()
             self.db.refresh(db_obj)
             return db_obj
-        except SQLAlchemyError:
+        except SQLAlchemyError as e:
+            print(f"Error creating TipoNotificacion: {e}")
             self.db.rollback()
             return None
 

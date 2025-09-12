@@ -25,6 +25,10 @@ export const routes: Routes = [
       {
         path: 'alertas',
         loadComponent: () => import('./features/alertas/components/alertas-global-list.component').then(m => m.AlertasGlobalListComponent)
+      },
+      {
+        path: 'tipos-notificacion',
+        loadChildren: () => import('./features/tipos-notificacion/routes/tipos-notificacion.routes').then(r => r.TIPOS_NOTIFICACION_ROUTES)
       }
     ]
   }

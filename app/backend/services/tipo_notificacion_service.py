@@ -10,7 +10,10 @@ class TipoNotificacionService:
         return self.repo.get(id_tipo_notificacion)
 
     def get_tipos_notificacion(self, skip: int = 0, limit: int = 100):
-        return self.repo.get_all(skip, limit)
+        print(f"Service get_tipos_notificacion called with skip={skip}, limit={limit}")
+        result = self.repo.get_all(skip, limit)
+        print(f"Service returning {len(result)} records")
+        return result
 
     def create_tipo_notificacion(self, tipo_notificacion: TipoNotificacionCreate):
         return self.repo.create(tipo_notificacion)
