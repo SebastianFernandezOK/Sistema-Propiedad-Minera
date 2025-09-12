@@ -4,7 +4,7 @@ from backend.database.connection import Base
 class Area(Base):
     __tablename__ = "Area"
 
-    IdArea = Column(Integer, primary_key=True, index=True, autoincrement=False)
+    IdArea = Column(Integer, primary_key=True, index=True, autoincrement=True)
     Descripcion = Column(String(100), nullable=False)
     AudFecha = Column(DateTime, nullable=True)
     AudUsuario = Column(SmallInteger, nullable=True)

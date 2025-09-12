@@ -4,7 +4,7 @@ from backend.database.connection import Base
 class TipoAlerta(Base):
     __tablename__ = "TipoAlerta"
 
-    IdTipoAlerta = Column(Integer, primary_key=True, index=True, autoincrement=False)
+    IdTipoAlerta = Column(Integer, primary_key=True, index=True, autoincrement=True)
     Descripcion = Column(String(45), nullable=False)
     IdArea = Column(SmallInteger, nullable=True)
     Asunto = Column(String(50), nullable=True)
