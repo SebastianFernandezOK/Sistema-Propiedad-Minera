@@ -96,21 +96,14 @@ import { PropiedadMinera, PropiedadMineraFilter } from './models/propiedad-miner
         <mat-card-content>
           <div class="table-container">
             <table mat-table [dataSource]="propiedades" class="propiedades-table" matSort>
-              <!-- ID Column -->
-              <ng-container matColumnDef="IdPropiedadMinera">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header>ID</th>
-                <td mat-cell *matCellDef="let propiedad">
-                  <span class="id-number">{{propiedad.IdPropiedadMinera}}</span>
-                </td>
-              </ng-container>
-
               <!-- Nombre Column -->
               <ng-container matColumnDef="Nombre">
                 <th mat-header-cell *matHeaderCellDef mat-sort-header>Nombre</th>
                 <td mat-cell *matCellDef="let propiedad">
                   <div class="cell-content">
                     <span class="primary-text">{{propiedad.Nombre || 'Sin nombre'}}</span>
-                    <span class="secondary-text" *ngIf="propiedad.IdTitular">Titular ID: {{propiedad.IdTitular}}</span>
+                    <span class="secondary-text" *ngIf="propiedad.TitularNombre">Titular: {{propiedad.TitularNombre}}</span>
+                    <span class="secondary-text" *ngIf="!propiedad.TitularNombre && propiedad.IdTitular">Titular ID: {{propiedad.IdTitular}}</span>
                   </div>
                 </td>
               </ng-container>
@@ -342,7 +335,6 @@ export class PropiedadesListComponent implements OnInit {
   propiedades: PropiedadMinera[] = [];
   filterForm: FormGroup;
   displayedColumns: string[] = [
-    'IdPropiedadMinera',
     'Nombre',
     'Provincia',
     'AreaHectareas',
@@ -425,8 +417,7 @@ export class PropiedadesListComponent implements OnInit {
 
   viewPropiedad(propiedad: PropiedadMinera) {
     console.log('Ver propiedad:', propiedad);
-    // TODO: Implementar navegación a detalle cuando esté creado
-    // this.router.navigate(['/propiedades', propiedad.IdPropiedadMinera]);
+    this.router.navigate(['/propiedades', propiedad.IdPropiedadMinera, 'detalle']);
   }
 
   editPropiedad(propiedad: PropiedadMinera) {

@@ -11,6 +11,9 @@ class ActaService:
     def get_by_transaccion_padre(self, id_transaccion_padre: int):
         return self.repository.get_by_transaccion_padre(id_transaccion_padre)
 
+    def get_by_transaccion(self, id_transaccion: int):
+        return self.repository.get_by_transaccion(id_transaccion)
+
     
     
     def __init__(self, db: Session):
