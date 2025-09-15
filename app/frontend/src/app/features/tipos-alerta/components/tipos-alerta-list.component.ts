@@ -38,7 +38,7 @@ import { TipoAlerta } from '../models/tipo-alerta.model';
           <div class="header-actions">
             <button mat-raised-button color="primary" (click)="crearTipoAlerta()">
               <mat-icon>add</mat-icon>
-              + Nuevo Tipo de Alerta
+              Nuevo Tipo de Alerta
             </button>
           </div>
         </mat-card-header>

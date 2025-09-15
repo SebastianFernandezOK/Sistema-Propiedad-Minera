@@ -38,7 +38,7 @@ import { TipoNotificacion } from '../models/tipo-notificacion.model';
           <div class="header-actions">
             <button mat-raised-button color="primary" (click)="crearTipoNotificacion()">
               <mat-icon>add</mat-icon>
-              + Nuevo Tipo de Notificación
+              Nuevo Tipo de Notificación
             </button>
           </div>
         </mat-card-header>

@@ -38,7 +38,7 @@ import { Area } from '../models/area.model';
           <div class="header-actions">
             <button mat-raised-button color="primary" (click)="crearArea()">
               <mat-icon>add</mat-icon>
-              + Nueva Área
+              Nueva Área
             </button>
           </div>
         </mat-card-header>
