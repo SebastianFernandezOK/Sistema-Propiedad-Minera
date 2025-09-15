@@ -31,7 +31,7 @@ export class TipoNotificacionService {
     const body = {
       Descripcion: tipoNotificacion.Descripcion,
       DescCorta: tipoNotificacion.DescCorta || null,
-      AudUsuario: null, // Se carga como nulo por el momento
+      AudUsuario: 0, // Se carga como 0 por el momento
       AudFecha: new Date().toISOString() // Fecha actual automática
     };
     return this.http.post<TipoNotificacion>(this.apiUrl, body);
@@ -41,7 +41,7 @@ export class TipoNotificacionService {
     const body = {
       Descripcion: tipoNotificacion.Descripcion,
       DescCorta: tipoNotificacion.DescCorta || null,
-      AudUsuario: null,
+      AudUsuario: 0,
       AudFecha: new Date().toISOString()
     };
     return this.http.put<TipoNotificacion>(`${this.apiUrl}/${id}`, body);

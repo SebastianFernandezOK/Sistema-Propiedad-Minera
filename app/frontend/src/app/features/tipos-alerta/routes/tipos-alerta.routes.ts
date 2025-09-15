@@ -1,14 +1,20 @@
 import { Routes } from '@angular/router';
-import { TiposAlertaListComponent } from '../components/tipos-alerta-list.component';
-import { TipoAlertaCreateComponent } from '../components/tipo-alerta-create.component';
 
 export const TIPOS_ALERTA_ROUTES: Routes = [
   {
     path: '',
-    component: TiposAlertaListComponent
+    loadComponent: () => import('../components/tipos-alerta-list.component').then(m => m.TiposAlertaListComponent)
   },
   {
     path: 'nuevo',
-    component: TipoAlertaCreateComponent
+    loadComponent: () => import('../components/tipo-alerta-create.component').then(m => m.TipoAlertaCreateComponent)
+  },
+  {
+    path: ':id',
+    loadComponent: () => import('../components/tipo-alerta-detail.component').then(m => m.TipoAlertaDetailComponent)
+  },
+  {
+    path: ':id/editar',
+    loadComponent: () => import('../components/tipo-alerta-edit.component').then(m => m.TipoAlertaEditComponent)
   }
 ];

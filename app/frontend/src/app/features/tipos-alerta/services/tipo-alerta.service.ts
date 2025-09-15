@@ -35,7 +35,7 @@ export class TipoAlertaService {
       Mensaje: tipoAlerta.Mensaje || '',
       Obs: tipoAlerta.Obs || '',
       AudFecha: new Date().toISOString(),
-      AudUsuario: null // Se carga como nulo por el momento
+      AudUsuario: 0 // Se carga como 0 por el momento
     };
     return this.http.post<TipoAlerta>(this.apiUrl, body);
   }
@@ -48,7 +48,7 @@ export class TipoAlertaService {
       Mensaje: tipoAlerta.Mensaje || '',
       Obs: tipoAlerta.Obs || '',
       AudFecha: new Date().toISOString(),
-      AudUsuario: null
+      AudUsuario: 0
     };
     return this.http.put<TipoAlerta>(`${this.apiUrl}/${id}`, body);
   }
