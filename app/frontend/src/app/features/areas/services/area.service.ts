@@ -36,7 +36,7 @@ export class AreaService {
       Descripcion: area.Descripcion,
       AudFecha: new Date().toISOString(),
       AudUsuario: null, // Por el momento nulo
-      IdArea: 0 // No debería registrarse según tu especificación
+      //IdArea: 0 // No debería registrarse según tu especificación
     };
     return this.http.post<Area>(`${this.apiUrl}/`, body);
   }
