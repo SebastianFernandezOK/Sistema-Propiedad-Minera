@@ -15,9 +15,11 @@ from backend.controllers.auditoria_controller import router as auditoria_router
 from backend.controllers.transaccion_controller import router as transaccion_router
 from backend.controllers.observaciones_controller import router as observaciones_router
 from backend.controllers.tipo_alerta_controller import router as tipo_alerta_router
+from backend.controllers.tipo_notificacion_controller import router as tipo_notificacion_router
 from backend.controllers.req_minero_mov_controller import router as req_minero_mov_router
 from backend.controllers.req_minero_controller import router as req_minero_router
 from backend.controllers.periodicidad_alerta_controller import router as periodicidad_alerta_router
+
 from fastapi.middleware.cors import CORSMiddleware
 
 
@@ -31,6 +33,7 @@ app.add_middleware(
     allow_headers=["*"],
     expose_headers=["Content-Range"],
 )
+
 
 app.include_router(propiedad_minera_router)
 app.include_router(expediente_router)
@@ -48,6 +51,7 @@ app.include_router(auditoria_router)
 app.include_router(transaccion_router)
 app.include_router(observaciones_router)
 app.include_router(tipo_alerta_router)
+app.include_router(tipo_notificacion_router)
 app.include_router(req_minero_mov_router)
 app.include_router(req_minero_router)
 app.include_router(periodicidad_alerta_router)

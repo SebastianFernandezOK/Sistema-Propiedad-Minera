@@ -8,16 +8,14 @@ class AreaBase(BaseModel):
     AudUsuario: Optional[int] = None
 
 class AreaCreate(AreaBase):
-    IdArea: int
-
-class AreaUpdate(AreaBase):
     pass
 
-class AreaInDBBase(AreaBase):
-    IdArea: int
+class AreaUpdate(BaseModel):
+    Descripcion: Optional[str] = None
+    AudFecha: Optional[datetime] = None
+    AudUsuario: Optional[int] = None
 
+class AreaOut(AreaBase):
+    IdArea: int
     class Config:
-        from_attributes = True  # Para Pydantic v2
-
-class Area(AreaInDBBase):
-    pass
+        orm_mode = True

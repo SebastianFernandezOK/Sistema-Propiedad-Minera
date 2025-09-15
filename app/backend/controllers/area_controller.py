@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Response, Query
 from sqlalchemy.orm import Session
-from backend.schemas.area_schema import Area, AreaCreate, AreaUpdate
+from backend.schemas.area_schema import AreaOut, AreaCreate, AreaUpdate
 from backend.services import area_service
 from backend.database.connection import get_db
 from typing import List
@@ -10,7 +10,7 @@ router = APIRouter(
     tags=["areas"]
 )
 
-@router.get("", response_model=List[Area])
+@router.get("", response_model=List[AreaOut])
 def listar_areas(
     db: Session = Depends(get_db),
     response: Response = None,
@@ -31,18 +31,18 @@ def listar_areas(
         response.headers["Content-Range"] = f"areas {start}-{end}/{total}"
     return paginated_items
 
-@router.get("/{id}", response_model=Area)
+@router.get("/{id}", response_model=AreaOut)
 def obtener_area(id: int, db: Session = Depends(get_db)):
     area = area_service.get_area(db, id)
     if not area:
         raise HTTPException(status_code=404, detail="Area no encontrada")
     return area
 
-@router.post("/", response_model=Area)
+@router.post("/", response_model=AreaOut)
 def crear_area(area_data: AreaCreate, db: Session = Depends(get_db)):
     return area_service.create_area(db, area_data)
 
-@router.put("/{id}", response_model=Area)
+@router.put("/{id}", response_model=AreaOut)
 def actualizar_area(id: int, area_data: AreaUpdate, db: Session = Depends(get_db)):
     updated = area_service.update_area(db, id, area_data)
     if not updated:

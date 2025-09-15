@@ -27,3 +27,4 @@ class PropiedadMinera(Base):
             if titular:
                 return titular.Nombre
         return None
+
