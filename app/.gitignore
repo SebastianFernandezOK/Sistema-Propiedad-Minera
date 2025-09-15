@@ -44,3 +44,10 @@ __pycache__/
 .DS_Store
 Thumbs.db
 node_modules/
+
+**/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+.Python
