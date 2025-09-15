@@ -15,7 +15,11 @@ class ActaRepository:
             .all()
         )
 
+    def get_by_transaccion(self, id_transaccion: int):
+        return self.db.query(Acta).filter(Acta.IdTransaccion == id_transaccion).first()
+
     
+    model = Acta
     def __init__(self, db: Session):
         self.db = db
 

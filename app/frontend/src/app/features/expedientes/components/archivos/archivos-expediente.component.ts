@@ -1,5 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
@@ -14,15 +15,16 @@ import { ArchivoEditComponent } from './archivo-edit.component';
   selector: 'app-archivos-expediente',
   standalone: true,
   imports: [
-    CommonModule,
-    MatTabsModule,
-    MatCardModule,
-    MatButtonModule,
-    MatIconModule,
-    MatTableModule,
-    MatProgressSpinnerModule,
-    ArchivoCreateComponent,
-    ArchivoEditComponent
+  CommonModule,
+  MatTabsModule,
+  MatCardModule,
+  MatButtonModule,
+  MatIconModule,
+  MatTableModule,
+  MatProgressSpinnerModule,
+  ArchivoCreateComponent,
+  ArchivoEditComponent,
+  MatPaginatorModule
   ],
   template: `
     <div class="archivos-container">
@@ -111,6 +113,15 @@ import { ArchivoEditComponent } from './archivo-edit.component';
               <mat-icon>folder_open</mat-icon>
               <p>No hay archivos subidos para este expediente</p>
             </div>
+
+            <mat-paginator
+              [length]="totalItems"
+              [pageSize]="pageSize"
+              [pageSizeOptions]="[5, 10, 20, 50]"
+              [pageIndex]="paginaActual - 1"
+              (page)="onPageChange($event)"
+              showFirstLastButtons>
+            </mat-paginator>
           </mat-card-content>
         </mat-card>
       </div>
@@ -119,6 +130,7 @@ import { ArchivoEditComponent } from './archivo-edit.component';
   styles: [`
     .archivos-container {
       padding: 16px;
+      padding-bottom: 64px; /* Espacio extra para el dropdown del paginator */
     }
 
     .archivos-header {
@@ -154,6 +166,13 @@ import { ArchivoEditComponent } from './archivo-edit.component';
   `]
 })
 export class ArchivosExpedienteComponent implements OnInit {
+  // ...existing code...
+  // Método para manejar el cambio de página y tamaño
+  onPageChange(event: any) {
+    this.pageSize = event.pageSize;
+    this.paginaActual = event.pageIndex + 1;
+    this.cargarArchivos();
+  }
   @Input() idExpediente!: number;
 
   archivos: Archivo[] = [];
@@ -161,6 +180,12 @@ export class ArchivosExpedienteComponent implements OnInit {
   mostrandoFormCreacion = false;
   archivoEnEdicion: Archivo | null = null;
   displayedColumns: string[] = ['nombre', 'descripcion', 'fecha', 'acciones'];
+
+  // Paginación
+  paginaActual: number = 1;
+  pageSize: number = 10;
+  totalPages: number = 1;
+  totalItems: number = 0;
 
   constructor(private archivoService: ArchivoService) {}
 
@@ -172,9 +197,15 @@ export class ArchivosExpedienteComponent implements OnInit {
 
   cargarArchivos() {
     this.loading = true;
-    this.archivoService.getArchivosByEntidad('expediente', this.idExpediente).subscribe({
-      next: (archivos: Archivo[]) => {
-        this.archivos = archivos;
+    this.archivoService.getArchivosByEntidad('expediente', this.idExpediente, this.paginaActual, this.pageSize).subscribe({
+      next: (response: any) => {
+        this.archivos = response.archivos || [];
+        // Leer paginación desde response.pagination
+        const pag = response.pagination || {};
+  this.totalItems = pag.total_items || 0;
+  this.totalPages = pag.total_pages || 1;
+  this.paginaActual = pag.current_page || 1;
+  // No sobrescribir el pageSize con el del backend, mantener el seleccionado por el usuario
         this.loading = false;
       },
       error: (error: any) => {
@@ -182,6 +213,7 @@ export class ArchivosExpedienteComponent implements OnInit {
         this.loading = false;
       }
     });
+
   }
 
   mostrarFormularioCreacion() {
@@ -189,8 +221,9 @@ export class ArchivosExpedienteComponent implements OnInit {
   }
 
   onArchivoCreado(archivo: Archivo) {
-    this.archivos.push(archivo);
-    this.mostrandoFormCreacion = false;
+  // Recargar archivos para reflejar el nuevo archivo en la paginación
+  this.mostrandoFormCreacion = false;
+  this.cargarArchivos();
   }
 
   onCancelarCreacion() {
@@ -238,7 +271,8 @@ export class ArchivosExpedienteComponent implements OnInit {
     if (confirm('¿Está seguro de que desea eliminar este archivo?')) {
       this.archivoService.deleteArchivo(archivo.IdArchivo).subscribe({
         next: () => {
-          this.archivos = this.archivos.filter(a => a.IdArchivo !== archivo.IdArchivo);
+          // Recargar archivos para reflejar la eliminación
+          this.cargarArchivos();
         },
         error: (error) => {
           console.error('Error al eliminar archivo:', error);
@@ -247,9 +281,9 @@ export class ArchivosExpedienteComponent implements OnInit {
     }
   }
 
+
   formatDate(date: Date | string | null | undefined): string {
     if (!date) return '-';
-    
     try {
       const dateObj = typeof date === 'string' ? new Date(date) : date;
       return dateObj.toLocaleDateString('es-ES', {
@@ -263,4 +297,12 @@ export class ArchivosExpedienteComponent implements OnInit {
       return '-';
     }
   }
+
+  cambiarPagina(nuevaPagina: number) {
+    if (nuevaPagina >= 1 && nuevaPagina <= this.totalPages) {
+      this.paginaActual = nuevaPagina;
+      this.cargarArchivos();
+    }
+  }
+
 }

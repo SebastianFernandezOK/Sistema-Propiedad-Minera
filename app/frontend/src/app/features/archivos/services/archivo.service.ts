@@ -86,11 +86,10 @@ export class ArchivoService {
     if (nombre) {
       formData.append('Nombre', nombre);
     }
-    if (descripcion) {
-      formData.append('Descripcion', descripcion);
-    }
+    formData.append('Descripcion', descripcion ?? '');
 
-    return this.http.post<Archivo>(`${this.apiUrl}/upload`, formData, {
+    // tipo: 'acta' o 'expediente', idTransaccion: id de la entidad
+    return this.http.post<Archivo>(`${this.apiUrl}/upload/${tipo}/${idTransaccion}`, formData, {
       reportProgress: true,
       observe: 'events'
     }).pipe(
@@ -122,8 +121,9 @@ export class ArchivoService {
   }
 
   // Obtener archivos por entidad (genérico)
-  getArchivosByEntidad(entidad: string, idEntidad: number): Observable<Archivo[]> {
-    return this.http.get<Archivo[]>(`${this.apiUrl}/${entidad}/${idEntidad}`);
+  getArchivosByEntidad(entidad: string, idEntidad: number, page: number = 1, pageSize: number = 10): Observable<any> {
+  // El backend debe aceptar parámetros ?page=1&limit=10
+  return this.http.get<any>(`${this.apiUrl}/${entidad}/${idEntidad}?page=${page}&limit=${pageSize}`);
   }
 
   // Subir archivo por entidad (genérico)

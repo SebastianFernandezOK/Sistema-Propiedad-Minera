@@ -30,6 +30,10 @@ export interface ActaDetalleResponse extends Acta {
 
 @Injectable({ providedIn: 'root' })
 export class ActaService {
+  getArchivosByEntidad(entidad: string, idEntidad: number, page: number = 1, limit: number = 10): Observable<any> {
+    // El backend debe aceptar parámetros ?page=1&limit=10
+    return this.http.get<any>(`http://localhost:9000/archivos/${entidad}/${idEntidad}?page=${page}&limit=${limit}`);
+  }
   private apiUrl = 'http://localhost:9000/actas';
 
   constructor(private http: HttpClient) {}

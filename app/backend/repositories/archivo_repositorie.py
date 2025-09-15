@@ -23,6 +23,18 @@ class ArchivoRepositorie:
             Archivo.Tipo == tipo
         ).all()
 
+    def get_by_transaccion_and_tipo_paginated(self, id_transaccion: int, tipo: str, skip: int = 0, limit: int = 10) -> List[Archivo]:
+        return self.db.query(Archivo).filter(
+            Archivo.IdTransaccion == id_transaccion,
+            Archivo.Tipo == tipo
+        ).order_by(Archivo.IdArchivo.desc()).offset(skip).limit(limit).all()
+
+    def count_by_transaccion_and_tipo(self, id_transaccion: int, tipo: str) -> int:
+        return self.db.query(Archivo).filter(
+            Archivo.IdTransaccion == id_transaccion,
+            Archivo.Tipo == tipo
+        ).count()
+
     def get_by_expediente(self, id_transaccion: int, codigo_expediente: str) -> List[Archivo]:
         return self.db.query(Archivo).filter(
             Archivo.IdTransaccion == id_transaccion,
