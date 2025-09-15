@@ -30,6 +30,7 @@ app.add_middleware(
     expose_headers=["Content-Range"],
 )
 
+
 app.include_router(propiedad_minera_router)
 app.include_router(expediente_router)
 app.include_router(tipo_expediente_router)
