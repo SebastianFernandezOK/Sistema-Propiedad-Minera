@@ -3,6 +3,7 @@ import { trigger, transition, style, animate } from '@angular/animations';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ActaService, ActaDetalleResponse } from '../services/acta.service';
+import { ArchivoService } from '../../archivos/services/archivo.service';
 import { AutoridadService, Autoridad } from '../../autoridades/services/autoridad.service';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
@@ -12,19 +13,40 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatPaginatorModule } from '@angular/material/paginator';
 import { AlertaService } from '../../alertas/services/alerta.service';
 import { ObservacionesService } from '../../observaciones/services/observaciones.service';
 import { AlertasListComponent } from '../../alertas/components/alertas-list.component';
 import { ObservacionesTabComponent } from '../../observaciones/components/observaciones-tab.component';
 import { MAT_DATE_LOCALE, MAT_DATE_FORMATS } from '@angular/material/core';
+import { MatTableModule } from '@angular/material/table';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MY_DATE_FORMATS } from '../../../core/date-formats';
 
 @Component({
   selector: 'app-acta-detalle',
   standalone: true,
   imports: [
-    CommonModule, MatCardModule, MatButtonModule, MatChipsModule, MatProgressSpinnerModule, MatListModule, MatIconModule, MatDividerModule,
-    AlertasListComponent, ObservacionesTabComponent
+    CommonModule,
+    MatCardModule,
+    MatButtonModule,
+    MatChipsModule,
+    MatProgressSpinnerModule,
+    MatListModule,
+    MatIconModule,
+    MatDividerModule,
+    AlertasListComponent,
+    ObservacionesTabComponent,
+    MatPaginatorModule,
+  MatTableModule,
+  FormsModule,
+  ReactiveFormsModule,
+  MatFormFieldModule,
+  MatInputModule,
+  MatProgressBarModule
   ],
   template: `
     <div class="acta-detail-container">
@@ -111,8 +133,88 @@ import { MY_DATE_FORMATS } from '../../../core/date-formats';
                 <div class="tab-content">
                   <mat-card>
                     <mat-card-content>
-                      <div><b>Archivos:</b></div>
-                      <div><em>(Aquí va el listado o integración de archivos asociados al acta)</em></div>
+                      <div class="archivos-header">
+                        <h3>Archivos del Acta</h3>
+                        <div *ngIf="!mostrarFormularioArchivoActa">
+                          <button mat-raised-button color="primary" (click)="mostrarFormularioArchivoActa = true">
+                            <mat-icon>cloud_upload</mat-icon>
+                            Subir Archivo
+                          </button>
+                        </div>
+                      </div>
+                      <mat-card class="archivo-form" *ngIf="mostrarFormularioArchivoActa">
+                        <mat-card-header>
+                          <mat-card-title>Subir Archivo</mat-card-title>
+                        </mat-card-header>
+                        <mat-card-content>
+                          <form (ngSubmit)="subirArchivoActa()" #formArchivoActa="ngForm" autocomplete="off">
+                            <div class="file-input-container">
+                              <mat-form-field appearance="outline" style="width: 100%; margin-bottom: 16px;">
+                                <mat-label>Archivo seleccionado</mat-label>
+                                <input matInput [value]="archivoSeleccionadoActa?.name || ''" readonly placeholder="Selecciona un archivo">
+                                <button mat-icon-button matSuffix type="button" (click)="fileInputActa.click()">
+                                  <mat-icon>attach_file</mat-icon>
+                                </button>
+                              </mat-form-field>
+                              <input type="file" #fileInputActa (change)="onArchivoSeleccionado($event)" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.xlsx,.xls" style="display: none">
+                            </div>
+                            <mat-form-field appearance="outline" style="width: 100%; margin-bottom: 16px;">
+                              <mat-label>Descripción (opcional)</mat-label>
+                              <textarea matInput [(ngModel)]="descripcionArchivoActa" name="descripcionArchivoActa" rows="3" placeholder="Descripción del archivo"></textarea>
+                            </mat-form-field>
+                            <div *ngIf="loadingArchivoActa" class="upload-progress">
+                              <p>Subiendo archivo...</p>
+                              <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+                            </div>
+                            <div class="form-actions" style="display: flex; gap: 16px; justify-content: flex-end; margin-top: 16px;">
+                              <button mat-button type="button" (click)="cancelarSubidaArchivoActa()" [disabled]="loadingArchivoActa">Cancelar</button>
+                              <button mat-raised-button color="primary" type="submit" [disabled]="!archivoSeleccionadoActa || loadingArchivoActa">
+                                <mat-icon>cloud_upload</mat-icon>
+                                Subir Archivo
+                              </button>
+                            </div>
+                            <div *ngIf="errorArchivoActa" class="error-msg">{{ errorArchivoActa }}</div>
+                          </form>
+                        </mat-card-content>
+                      </mat-card>
+                      <ng-container *ngIf="!mostrarFormularioArchivoActa">
+                        <table mat-table [dataSource]="archivosActa" class="full-width-table" *ngIf="archivosActa.length > 0">
+                          <ng-container matColumnDef="nombre">
+                            <th mat-header-cell *matHeaderCellDef>Nombre</th>
+                            <td mat-cell *matCellDef="let archivo">{{ archivo.Nombre }}</td>
+                          </ng-container>
+                          <ng-container matColumnDef="descripcion">
+                            <th mat-header-cell *matHeaderCellDef>Descripción</th>
+                            <td mat-cell *matCellDef="let archivo">{{ archivo.Descripcion || 'Sin descripción' }}</td>
+                          </ng-container>
+                          <ng-container matColumnDef="fecha">
+                            <th mat-header-cell *matHeaderCellDef>Fecha</th>
+                            <td mat-cell *matCellDef="let archivo">{{ archivo.AudFecha | date:'dd/MM/yyyy HH:mm' }}</td>
+                          </ng-container>
+                          <ng-container matColumnDef="acciones">
+                            <th mat-header-cell *matHeaderCellDef>Acciones</th>
+                            <td mat-cell *matCellDef="let archivo">
+                              <button mat-icon-button (click)="descargarArchivoActa(archivo)" title="Descargar">
+                                <mat-icon>download</mat-icon>
+                              </button>
+                            </td>
+                          </ng-container>
+                          <tr mat-header-row *matHeaderRowDef="displayedColumnsArchivosActa"></tr>
+                          <tr mat-row *matRowDef="let row; columns: displayedColumnsArchivosActa;"></tr>
+                        </table>
+                        <div *ngIf="archivosActa.length === 0" class="no-archivos">
+                          <mat-icon>folder_open</mat-icon>
+                          <p>No hay archivos subidos para este acta</p>
+                        </div>
+                        <mat-paginator
+                          [length]="totalArchivosActa"
+                          [pageSize]="pageSizeArchivosActa"
+                          [pageSizeOptions]="[5, 10, 20, 50]"
+                          [pageIndex]="paginaActualArchivosActa - 1"
+                          (page)="onPageChangeArchivosActa($event)"
+                          showFirstLastButtons>
+                        </mat-paginator>
+                      </ng-container>
                     </mat-card-content>
                   </mat-card>
                 </div>
@@ -124,6 +226,12 @@ import { MY_DATE_FORMATS } from '../../../core/date-formats';
     </div>
   `,
   styles: [`
+    .archivos-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
     .acta-detail-container { padding: 20px; max-width: 1200px; margin: 0 auto; }
     .detail-header { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid #e0e0e0; }
     .detail-header h1 { flex: 1; margin: 0; font-size: 28px; font-weight: 500; }
@@ -228,6 +336,91 @@ import { MY_DATE_FORMATS } from '../../../core/date-formats';
   ]
 })
 export class ActaDetalleComponent implements OnInit, AfterViewInit {
+  mostrarFormularioArchivoActa = false;
+  cancelarSubidaArchivoActa() {
+  this.archivoSeleccionadoActa = null;
+  this.descripcionArchivoActa = '';
+  this.errorArchivoActa = '';
+  this.loadingArchivoActa = false;
+  this.mostrarFormularioArchivoActa = false;
+  }
+  archivoSeleccionadoActa: File | null = null;
+  descripcionArchivoActa: string = '';
+  loadingArchivoActa: boolean = false;
+  errorArchivoActa: string = '';
+  onArchivoSeleccionado(event: any) {
+    const file = event.target.files && event.target.files[0];
+    this.archivoSeleccionadoActa = file || null;
+    this.errorArchivoActa = '';
+  }
+
+  subirArchivoActa() {
+    if (!this.archivoSeleccionadoActa || !this.acta || !this.acta.IdTransaccion) {
+      this.errorArchivoActa = 'Debe seleccionar un archivo y tener un acta válida.';
+      return;
+    }
+    console.log('Descripción a enviar:', this.descripcionArchivoActa);
+    this.loadingArchivoActa = true;
+    this.errorArchivoActa = '';
+    // Usar ArchivoService para subir archivo
+    this.archivoService.uploadArchivo(
+      this.archivoSeleccionadoActa,
+      'acta',
+      this.acta.IdTransaccion,
+      this.archivoSeleccionadoActa.name,
+      this.descripcionArchivoActa,
+      1
+    ).subscribe({
+      next: (res: any) => {
+        if (res.progress === 100 && res.response) {
+          this.cargarArchivosActa(this.acta!.IdTransaccion!);
+          this.archivoSeleccionadoActa = null;
+          this.descripcionArchivoActa = '';
+        }
+        this.loadingArchivoActa = false;
+      },
+      error: (err: any) => {
+        this.errorArchivoActa = 'Error al subir archivo: ' + (err?.error?.detail || err.message || '');
+        this.loadingArchivoActa = false;
+      }
+    });
+  }
+  archivosActa: any[] = [];
+  displayedColumnsArchivosActa: string[] = ['nombre', 'descripcion', 'fecha', 'acciones'];
+  paginaActualArchivosActa: number = 1;
+  pageSizeArchivosActa: number = 10;
+  totalArchivosActa: number = 0;
+  // ...existing code...
+
+  cargarArchivosActa(idActa: number) {
+    this.actaService.getArchivosByEntidad('acta', idActa, this.paginaActualArchivosActa, this.pageSizeArchivosActa).subscribe({
+      next: (response: any) => {
+        this.archivosActa = response.archivos || [];
+        const pag = response.pagination || {};
+        this.totalArchivosActa = pag.total_items || 0;
+        this.paginaActualArchivosActa = pag.current_page || 1;
+        // Mantener el pageSize seleccionado
+      },
+      error: (error: any) => {
+        console.error('Error al cargar archivos de acta:', error);
+      }
+    });
+  }
+
+  onPageChangeArchivosActa(event: any) {
+    this.pageSizeArchivosActa = event.pageSize;
+    this.paginaActualArchivosActa = event.pageIndex + 1;
+    if (this.acta && this.acta.IdTransaccion) {
+      this.cargarArchivosActa(this.acta.IdTransaccion);
+    }
+  }
+
+  descargarArchivoActa(archivo: any) {
+    const link = archivo.Link || '';
+    const nombre = archivo.Nombre || '';
+    // Cambia la ruta si es necesario para actas
+    window.open(link, '_blank');
+  }
   @ViewChildren('tabLabel', { read: ElementRef }) tabLabels!: QueryList<ElementRef>;
   underlineWidth = 0;
   underlineLeft = 0;
@@ -248,7 +441,8 @@ export class ActaDetalleComponent implements OnInit, AfterViewInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private actaService: ActaService,
+  private actaService: ActaService,
+  private archivoService: ArchivoService,
     private alertaService: AlertaService,
     private observacionesService: ObservacionesService,
     private autoridadService: AutoridadService
@@ -265,6 +459,7 @@ export class ActaDetalleComponent implements OnInit, AfterViewInit {
           if (resp && (resp as any).IdTransaccion) {
             this.loadAlertas(id); // Usar id de acta para alertas
             this.loadObservaciones((resp as any).IdTransaccion);
+            this.cargarArchivosActa((resp as any).IdTransaccion);
           }
           // Cargar nombre de autoridad
           if (resp.IdAutoridad) {

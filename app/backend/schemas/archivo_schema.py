@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import Optional
+from typing import Optional, List
 from datetime import datetime
 
 class ArchivoBase(BaseModel):
@@ -35,3 +35,15 @@ class ArchivoOut(ArchivoBase):
         if hasattr(obj, 'Nombre') and obj.Nombre:
             obj.Nombre = obj.Nombre.strip()
         return super().from_orm(obj)
+
+class PaginationInfo(BaseModel):
+    current_page: int
+    total_pages: int
+    total_items: int
+    items_per_page: int
+    has_next: bool
+    has_previous: bool
+
+class ArchivosPaginatedResponse(BaseModel):
+    archivos: List[ArchivoOut]
+    pagination: PaginationInfo

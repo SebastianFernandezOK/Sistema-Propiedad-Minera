@@ -5,7 +5,7 @@ from backend.database.connection import Base
 class Acta(Base):
     __tablename__ = "Acta"
 
-    IdActa = Column(Integer, primary_key=True, index=True, nullable=True)
+    IdActa = Column(Integer, primary_key=True, index=True, nullable=False, autoincrement=True)
     IdTransaccion = Column(Integer, nullable=True)
     IdExpediente = Column(Integer, nullable=False)  # único requerido
     IdTipoActa = Column(String(100), nullable=True)

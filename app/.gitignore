@@ -40,7 +40,7 @@ testem.log
 # System files
 
 # Python cache
-__pycache__/
+
 .DS_Store
 Thumbs.db
 node_modules/
