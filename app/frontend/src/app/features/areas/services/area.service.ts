@@ -35,7 +35,7 @@ export class AreaService {
     const body = {
       Descripcion: area.Descripcion,
       AudFecha: new Date().toISOString(),
-      AudUsuario: null, // Por el momento nulo
+      AudUsuario: 0, // Por el momento 0
       //IdArea: 0 // No debería registrarse según tu especificación
     };
     return this.http.post<Area>(`${this.apiUrl}/`, body);
@@ -45,7 +45,7 @@ export class AreaService {
     const body = {
       Descripcion: area.Descripcion,
       AudFecha: new Date().toISOString(),
-      AudUsuario: null
+      AudUsuario: 0
     };
     return this.http.put<Area>(`${this.apiUrl}/${id}`, body);
   }
