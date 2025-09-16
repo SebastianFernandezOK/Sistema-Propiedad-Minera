@@ -20,6 +20,7 @@ class PropiedadMineraCreate(PropiedadMineraBase):
 
 class PropiedadMineraRead(PropiedadMineraBase):
     IdPropiedadMinera: int
+    TitularNombre: Optional[str] = None  # Nombre del titular
 
     class Config:
         from_attributes = True

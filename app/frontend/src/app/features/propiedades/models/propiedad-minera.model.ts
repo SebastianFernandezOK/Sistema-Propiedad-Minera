@@ -2,6 +2,7 @@ export interface PropiedadMinera {
   IdPropiedadMinera: number;
   IdTransaccion?: number;
   IdTitular?: number;
+  TitularNombre?: string;  // Nombre del titular
   Nombre?: string;
   Solicitud?: Date;
   Registro?: Date;
