@@ -2,17 +2,17 @@ import {
   MAT_TOOLTIP_SCROLL_STRATEGY_FACTORY_PROVIDER,
   MatTooltip,
   TooltipComponent
-} from "./chunk-QMY6LY7M.js";
+} from "./chunk-3UXBTUKE.js";
 import {
   OverlayModule
-} from "./chunk-K7WX67B3.js";
-import {
-  A11yModule,
-  MatCommonModule
-} from "./chunk-JVW6MMYD.js";
+} from "./chunk-YDOIFKP7.js";
 import {
   CdkScrollableModule
 } from "./chunk-2T5HYLQL.js";
+import {
+  A11yModule,
+  MatCommonModule
+} from "./chunk-QHOXONDS.js";
 import {
   NgModule,
   setClassMetadata,
@@ -49,4 +49,4 @@ var MatTooltipModule = class _MatTooltipModule {
 export {
   MatTooltipModule
 };
-//# sourceMappingURL=chunk-LQA7WGD7.js.map
+//# sourceMappingURL=chunk-GEWVNWYT.js.map

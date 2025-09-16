@@ -5,7 +5,7 @@ from datetime import datetime
 class ArchivoBase(BaseModel):
     IdTransaccion: Optional[int] = None
     Nombre: Optional[str] = None
-    Descripcion: Optional[str] = None
+    Descripcion: Optional[str] = Field(None, max_length=255)
     Tipo: Optional[str] = None
     Link: str
     AudFecha: Optional[datetime] = None
@@ -17,7 +17,7 @@ class ArchivoCreate(ArchivoBase):
 class ArchivoUpdate(BaseModel):
     IdTransaccion: Optional[int] = None
     Nombre: Optional[str] = None
-    Descripcion: Optional[str] = None
+    Descripcion: Optional[str] = Field(None, max_length=255)
     Tipo: Optional[str] = None
     Link: Optional[str] = None
     AudFecha: Optional[datetime] = None

@@ -19,9 +19,12 @@ from backend.controllers.req_minero_mov_controller import router as req_minero_m
 from backend.controllers.req_minero_controller import router as req_minero_router
 from backend.controllers.periodicidad_alerta_controller import router as periodicidad_alerta_router
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 
 app = FastAPI()
+
+
 
 app.add_middleware(
     CORSMiddleware,

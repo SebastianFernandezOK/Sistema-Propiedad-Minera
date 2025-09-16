@@ -60,7 +60,8 @@ import { ArchivoService, Archivo, FileUploadProgress } from '../../../archivos/s
             <textarea matInput 
                       formControlName="descripcion"
                       rows="3"
-                      placeholder="Descripción del archivo"></textarea>
+                      placeholder="Descripción del archivo"
+                      maxlength="150"></textarea>
           </mat-form-field>
 
           <!-- Barra de progreso -->
