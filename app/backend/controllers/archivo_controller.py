@@ -10,7 +10,7 @@ from datetime import datetime
 from fastapi.responses import FileResponse
 
 router = APIRouter(prefix="/archivos", tags=["archivos"])
-BASE_UPLOAD_DIR = r"C:\Users\SebastianCarlosFerna\Documents\sistema-propiedad-minera-angular\Sistema-Propiedad-Minera\app\backend\uploads"
+BASE_UPLOAD_DIR = r"C:\Users\marcc\OneDrive\Documentos\JULIAN\Aisa\Sistema-Propiedad-Minera\app\backend\uploads"
 os.makedirs(BASE_UPLOAD_DIR, exist_ok=True)
 
 # Endpoint genérico para subir archivos por entidad
