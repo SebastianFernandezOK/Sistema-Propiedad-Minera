@@ -10,9 +10,6 @@ import {
   _ErrorStateTracker
 } from "./chunk-XEDDPHEO.js";
 import {
-  MatRippleLoader
-} from "./chunk-MFN2HWZK.js";
-import {
   MAT_OPTGROUP,
   MAT_OPTION_PARENT_COMPONENT,
   MatOptgroup,
@@ -21,14 +18,17 @@ import {
   MatOptionSelectionChange,
   _countGroupLabelsBeforeOption,
   _getOptionScrollPosition
-} from "./chunk-ZSORTLPP.js";
+} from "./chunk-XUHJQKBA.js";
 import {
   MatPseudoCheckbox,
   MatPseudoCheckboxModule
-} from "./chunk-G5A5CRIO.js";
+} from "./chunk-XURWJXFX.js";
+import {
+  MatRippleLoader
+} from "./chunk-COSUIECM.js";
 import {
   MatRippleModule
-} from "./chunk-QSHT7NN6.js";
+} from "./chunk-62G6Q6E6.js";
 import {
   MAT_RIPPLE_GLOBAL_OPTIONS,
   MatRipple,
@@ -36,7 +36,7 @@ import {
   RippleRenderer,
   RippleState,
   defaultRippleAnimationConfig
-} from "./chunk-52X3T2OJ.js";
+} from "./chunk-LTMKULCB.js";
 import {
   _StructuralStylesLoader
 } from "./chunk-TWYM27AY.js";
@@ -48,13 +48,13 @@ import {
   MATERIAL_ANIMATIONS,
   _animationsDisabled,
   _getAnimationsState
-} from "./chunk-BQMORGMD.js";
+} from "./chunk-FE7TKVCD.js";
+import "./chunk-7UJZXIJQ.js";
 import {
   MATERIAL_SANITY_CHECKS,
   MatCommonModule
-} from "./chunk-JVW6MMYD.js";
+} from "./chunk-QHOXONDS.js";
 import "./chunk-4HO625B4.js";
-import "./chunk-7UJZXIJQ.js";
 import "./chunk-R2RNR56W.js";
 import "./chunk-TSLLPUPR.js";
 import "./chunk-FZBQARSG.js";
@@ -79,8 +79,8 @@ import {
   ɵɵprojection,
   ɵɵprojectionDef
 } from "./chunk-WCCCVU43.js";
-import "./chunk-HWYXSU2G.js";
 import "./chunk-JRFR6BLO.js";
+import "./chunk-HWYXSU2G.js";
 import {
   startWith
 } from "./chunk-MARUHEWW.js";

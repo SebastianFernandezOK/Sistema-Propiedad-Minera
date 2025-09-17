@@ -86,7 +86,7 @@ export class ArchivoService {
     if (nombre) {
       formData.append('Nombre', nombre);
     }
-    formData.append('Descripcion', descripcion ?? '');
+  formData.append('descripcion', descripcion ?? '');
 
     // tipo: 'acta' o 'expediente', idTransaccion: id de la entidad
     return this.http.post<Archivo>(`${this.apiUrl}/upload/${tipo}/${idTransaccion}`, formData, {

@@ -1,0 +1,1 @@
+# El servicio TipoActaService ya no es utilizado en el frontend y puede ser eliminado con seguridad.

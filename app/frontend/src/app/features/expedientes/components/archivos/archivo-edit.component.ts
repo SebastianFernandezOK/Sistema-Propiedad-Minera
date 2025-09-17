@@ -40,7 +40,8 @@ import { ArchivoService, Archivo } from '../../../archivos/services/archivo.serv
             <textarea matInput 
                       formControlName="descripcion"
                       rows="3"
-                      placeholder="Descripción del archivo"></textarea>
+                      placeholder="Descripción del archivo"
+                      maxlength="150"></textarea>
           </mat-form-field>
 
           <!-- Botones de acción -->
