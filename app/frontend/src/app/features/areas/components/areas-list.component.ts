@@ -85,13 +85,13 @@ import { Area } from '../models/area.model';
                 <td mat-cell *matCellDef="let area" class="actions-column">
                   <button mat-icon-button 
                           color="primary" 
-                          (click)="editarArea(area.IdArea)"
+                          (click)="editarArea(area.IdArea); $event.stopPropagation()"
                           matTooltip="Editar área">
                     <mat-icon>edit</mat-icon>
                   </button>
                   <button mat-icon-button 
                           color="warn" 
-                          (click)="eliminarArea(area.IdArea)"
+                          (click)="eliminarArea(area.IdArea); $event.stopPropagation()"
                           matTooltip="Eliminar área">
                     <mat-icon>delete</mat-icon>
                   </button>

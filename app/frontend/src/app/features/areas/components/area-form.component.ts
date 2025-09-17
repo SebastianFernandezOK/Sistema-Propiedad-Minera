@@ -35,25 +35,26 @@ import { Area, AreaCreate } from '../models/area.model';
         <mat-card-content>
           <form [formGroup]="areaForm" (ngSubmit)="onSubmit()" class="area-form">
             <!-- Campo Descripción -->
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Descripción del Área</mat-label>
-              <input matInput 
-                     formControlName="Descripcion"
-                     placeholder="Ingrese la descripción del área"
-                     maxlength="100">
-              <mat-hint align="start">
-                <strong>{{ areaForm.get('Descripcion')?.value?.length || 0 }}/100</strong>
-              </mat-hint>
-              <mat-error *ngIf="areaForm.get('Descripcion')?.hasError('required')">
-                La descripción es requerida
-              </mat-error>
-              <mat-error *ngIf="areaForm.get('Descripcion')?.hasError('minlength')">
-                La descripción debe tener al menos 3 caracteres
-              </mat-error>
-              <mat-error *ngIf="areaForm.get('Descripcion')?.hasError('maxlength')">
-                La descripción no puede superar los 100 caracteres
-              </mat-error>
-            </mat-form-field>
+            <div class="form-field">
+              <label class="field-label">Descripción del Área</label>
+              <mat-form-field appearance="outline" class="full-width">
+                <input matInput 
+                       formControlName="Descripcion"
+                       maxlength="100">
+                <mat-hint align="start">
+                  <strong>{{ areaForm.get('Descripcion')?.value?.length || 0 }}/100</strong>
+                </mat-hint>
+                <mat-error *ngIf="areaForm.get('Descripcion')?.hasError('required')">
+                  La descripción es requerida
+                </mat-error>
+                <mat-error *ngIf="areaForm.get('Descripcion')?.hasError('minlength')">
+                  La descripción debe tener al menos 3 caracteres
+                </mat-error>
+                <mat-error *ngIf="areaForm.get('Descripcion')?.hasError('maxlength')">
+                  La descripción no puede superar los 100 caracteres
+                </mat-error>
+              </mat-form-field>
+            </div>
 
             <!-- Información de auditoría (solo en edición) -->
             <div *ngIf="isEdit && initialData" class="audit-info">
@@ -115,6 +116,19 @@ import { Area, AreaCreate } from '../models/area.model';
 
     .full-width {
       width: 100%;
+    }
+
+    .form-field {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .field-label {
+      font-weight: 500;
+      color: #333;
+      font-size: 0.95rem;
+      margin-bottom: 0.25rem;
     }
 
     .audit-info {

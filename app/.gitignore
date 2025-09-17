@@ -59,3 +59,4 @@ __pycache__/
 /app/frontend/out-tsc/
 /app/frontend/.angular/
 /app/frontend/.angular/cache/
+.angular/

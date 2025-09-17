@@ -138,6 +138,7 @@ import { TipoExpediente, TipoExpedienteCreate } from '../models/tipo-expediente.
       padding: 1.5rem;
       max-width: 600px;
       margin: 0 auto;
+      /* Sin font-family específico para usar la misma que expedientes */
     }
 
     .tipo-expediente-form {
@@ -173,6 +174,7 @@ import { TipoExpediente, TipoExpedienteCreate } from '../models/tipo-expediente.
       cursor: pointer;
       font-size: 1rem;
       font-weight: 500;
+      /* Sin font-family específico para usar la misma que expedientes */
     }
 
     .toggle-input {

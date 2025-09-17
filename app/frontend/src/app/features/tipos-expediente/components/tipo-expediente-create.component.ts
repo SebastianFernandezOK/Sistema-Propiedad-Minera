@@ -20,7 +20,13 @@ import { TipoExpedienteCreate } from '../models/tipo-expediente.model';
       (submitForm)="onSubmit($event)"
       (cancelForm)="onCancel()">
     </app-tipo-expediente-form>
-  `
+  `,
+  styles: [`
+    /* Sin estilos de fuente - usar la misma fuente por defecto que expedientes */
+    :host {
+      display: block;
+    }
+  `]
 })
 export class TipoExpedienteCreateComponent {
   loading = false;
