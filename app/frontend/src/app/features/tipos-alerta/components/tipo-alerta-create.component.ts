@@ -12,13 +12,7 @@ import { MatButtonModule } from '@angular/material/button';
   standalone: true,
   imports: [CommonModule, TipoAlertaFormComponent, MatIconModule, MatButtonModule],
   template: `
-    <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem;">
-      <button mat-raised-button class="back-fancy-btn" (click)="volver()">
-        <mat-icon>arrow_back</mat-icon>
-      </button>
-      <h2 class="form-title" style="margin: 0;">Crear Tipo de Alerta</h2>
-    </div>
-    <app-tipo-alerta-form (create)="onCreate($event)"></app-tipo-alerta-form>
+    <app-tipo-alerta-form (create)="onCreate($event)" (cancel)="volver()"></app-tipo-alerta-form>
     <div *ngIf="success" style="color: green; margin-top: 1rem; text-align: center;">
       Tipo de alerta creado correctamente.
     </div>
@@ -27,35 +21,7 @@ import { MatButtonModule } from '@angular/material/button';
     </div>
   `,
   styles: [`
-    .back-fancy-btn {
-      background: linear-gradient(45deg, #416759, #5a8a73);
-      color: white;
-      border: none;
-      border-radius: 50%;
-      width: 48px;
-      height: 48px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 3px 8px rgba(65, 103, 89, 0.3);
-      transition: all 0.3s ease;
-    }
-
-    .back-fancy-btn:hover {
-      background: linear-gradient(45deg, #355a4c, #4a7560);
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(65, 103, 89, 0.4);
-    }
-
-    .back-fancy-btn mat-icon {
-      font-size: 20px;
-    }
-
-    .form-title {
-      color: #416759;
-      font-size: 1.5rem;
-      font-weight: 600;
-    }
+    /* Estilos movidos al formulario */
   `]
 })
 export class TipoAlertaCreateComponent {

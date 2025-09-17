@@ -91,13 +91,13 @@ import { TipoAlerta } from '../models/tipo-alerta.model';
                 <td mat-cell *matCellDef="let tipo" class="actions-column">
                   <button mat-icon-button 
                           color="primary" 
-                          (click)="editarTipoAlerta(tipo.IdTipoAlerta)"
+                          (click)="editarTipoAlerta(tipo.IdTipoAlerta); $event.stopPropagation()"
                           matTooltip="Editar tipo de alerta">
                     <mat-icon>edit</mat-icon>
                   </button>
                   <button mat-icon-button 
                           color="warn" 
-                          (click)="eliminarTipoAlerta(tipo.IdTipoAlerta)"
+                          (click)="eliminarTipoAlerta(tipo.IdTipoAlerta); $event.stopPropagation()"
                           matTooltip="Eliminar tipo de alerta">
                     <mat-icon>delete</mat-icon>
                   </button>

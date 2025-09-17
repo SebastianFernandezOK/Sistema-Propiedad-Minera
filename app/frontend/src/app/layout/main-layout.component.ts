@@ -69,6 +69,10 @@ import { MatMenuModule } from '@angular/material/menu';
               <mat-icon>warning</mat-icon>
               <span>Tipos de Alerta</span>
             </button>
+            <button mat-menu-item routerLink="/tipos-expediente">
+              <mat-icon matListItemIcon>folder</mat-icon>
+              <span>Tipos de Expediente</span>
+            </button> 
           </mat-menu>
         </mat-nav-list>
       </mat-sidenav>

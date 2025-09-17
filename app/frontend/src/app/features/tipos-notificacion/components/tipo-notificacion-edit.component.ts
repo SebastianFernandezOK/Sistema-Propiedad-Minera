@@ -19,7 +19,8 @@ import { TipoNotificacion, TipoNotificacionCreate } from '../models/tipo-notific
       [modo]="'editar'"
       [tipoNotificacion]="tipoNotificacionData"
       [form]="tipoNotificacionForm"
-      (edit)="onSubmit($event)">
+      (edit)="onSubmit($event)"
+      (cancel)="onCancel()">
     </app-tipo-notificacion-form>
   `
 })

@@ -37,6 +37,10 @@ export const routes: Routes = [
       {
         path: 'areas',
         loadChildren: () => import('./features/areas/routes/areas.routes').then(r => r.AREAS_ROUTES)
+      },
+      {
+        path: 'tipos-expediente',
+        loadChildren: () => import('./features/tipos-expediente/routes/tipos-expediente.routes').then(r => r.TIPOS_EXPEDIENTE_ROUTES)
       }
     ]
   }

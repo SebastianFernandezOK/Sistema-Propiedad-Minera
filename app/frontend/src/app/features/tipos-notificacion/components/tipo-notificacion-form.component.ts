@@ -5,6 +5,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
 import { TipoNotificacionCreate } from '../models/tipo-notificacion.model';
 
 @Component({
@@ -17,40 +18,51 @@ import { TipoNotificacionCreate } from '../models/tipo-notificacion.model';
     MatFormFieldModule, 
     MatInputModule, 
     MatButtonModule, 
-    MatCardModule
+    MatCardModule,
+    MatIconModule
   ],
   template: `
     <mat-card class="tipo-notificacion-form-card">
-      <mat-card-title class="form-title">
-        {{ modo === 'editar' ? 'Editar Tipo de Notificación' : 'Nuevo Tipo de Notificación' }}
-      </mat-card-title>
+      <div class="form-header">
+        <mat-card-title class="form-title">
+          {{ modo === 'editar' ? 'Editar Tipo de Notificación' : 'Nuevo Tipo de Notificación' }}
+        </mat-card-title>
+        <button mat-raised-button color="primary" type="button" (click)="onCancel()" class="back-button">
+          <mat-icon>arrow_back</mat-icon>
+          Volver
+        </button>
+      </div>
       <form [formGroup]="form" (ngSubmit)="onSubmit()" class="tipo-notificacion-form-grid" autocomplete="off" novalidate>
         
         <!-- Descripción -->
-        <mat-form-field appearance="fill" class="full-width">
-          <mat-label>Descripción *</mat-label>
-          <input matInput formControlName="Descripcion" maxlength="255" required>
-          <mat-error *ngIf="form.get('Descripcion')?.hasError('required')">
-            La descripción es requerida
-          </mat-error>
-          <mat-error *ngIf="form.get('Descripcion')?.hasError('maxlength')">
-            La descripción no puede exceder 255 caracteres
-          </mat-error>
-        </mat-form-field>
+        <div class="form-field full-width">
+          <label class="field-label">Descripción *</label>
+          <mat-form-field appearance="outline" class="full-width">
+            <input matInput formControlName="Descripcion" maxlength="255" required>
+            <mat-error *ngIf="form.get('Descripcion')?.hasError('required')">
+              La descripción es requerida
+            </mat-error>
+            <mat-error *ngIf="form.get('Descripcion')?.hasError('maxlength')">
+              La descripción no puede exceder 255 caracteres
+            </mat-error>
+          </mat-form-field>
+        </div>
 
         <!-- Descripción Corta -->
-        <mat-form-field appearance="fill" class="full-width">
-          <mat-label>Descripción Corta</mat-label>
-          <input matInput formControlName="DescCorta" maxlength="50">
-          <mat-hint>Opcional - Máximo 50 caracteres</mat-hint>
-          <mat-error *ngIf="form.get('DescCorta')?.hasError('maxlength')">
-            La descripción corta no puede exceder 50 caracteres
-          </mat-error>
-        </mat-form-field>
+        <div class="form-field full-width">
+          <label class="field-label">Descripción Corta</label>
+          <mat-form-field appearance="outline" class="full-width">
+            <input matInput formControlName="DescCorta" maxlength="50">
+            <mat-hint>Opcional - Máximo 50 caracteres</mat-hint>
+            <mat-error *ngIf="form.get('DescCorta')?.hasError('maxlength')">
+              La descripción corta no puede exceder 50 caracteres
+            </mat-error>
+          </mat-form-field>
+        </div>
 
         <div class="form-actions full-width">
           <button mat-raised-button color="primary" type="submit" [disabled]="!form.valid">
-            {{ modo === 'editar' ? 'Guardar cambios' : 'Crear Tipo de Notificación' }}
+            {{ modo === 'editar' ? 'Guardar cambios' : 'Guardar' }}
           </button>
         </div>
       </form>
@@ -70,8 +82,29 @@ import { TipoNotificacionCreate } from '../models/tipo-notificacion.model';
       color: #416759;
       font-size: 1.5rem;
       font-weight: 700;
+      margin: 0;
+    }
+
+    .form-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       margin-bottom: 1.5rem;
-      text-align: center;
+    }
+
+    .back-button {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: #416759;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 0.95rem;
+    }
+
+    .back-button:hover {
+      background: #355a4c;
     }
 
     .tipo-notificacion-form-grid {
@@ -82,6 +115,19 @@ import { TipoNotificacionCreate } from '../models/tipo-notificacion.model';
 
     .full-width {
       grid-column: 1 / -1;
+    }
+
+    .form-field {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .field-label {
+      font-weight: 500;
+      color: #333;
+      font-size: 0.95rem;
+      margin-bottom: 0.25rem;
     }
 
     .form-actions {
@@ -128,6 +174,7 @@ import { TipoNotificacionCreate } from '../models/tipo-notificacion.model';
 export class TipoNotificacionFormComponent implements OnInit, OnChanges {
   @Output() create = new EventEmitter<TipoNotificacionCreate>();
   @Output() edit = new EventEmitter<any>();
+  @Output() cancel = new EventEmitter<void>();
   @Input() form!: FormGroup;
   @Input() tipoNotificacion: any = null;
   @Input() modo: 'crear' | 'editar' = 'crear';
@@ -174,5 +221,9 @@ export class TipoNotificacionFormComponent implements OnInit, OnChanges {
         this.create.emit(formData);
       }
     }
+  }
+
+  onCancel(): void {
+    this.cancel.emit();
   }
 }

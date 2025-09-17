@@ -7,10 +7,17 @@ class TipoExpedienteBase(BaseModel):
     Activo: Optional[bool]
 
 class TipoExpedienteCreate(TipoExpedienteBase):
-    IdTipoExpediente: int
+    pass
 
-class TipoExpedienteRead(TipoExpedienteBase):
+class TipoExpedienteRead(BaseModel):
     IdTipoExpediente: int
-
+    Nombre: str
+    Descripcion: Optional[str]
+    Activo: Optional[bool]
+    
+    class Config:
+        orm_mode = True
+    
+class TipoExpedienteOut(TipoExpedienteBase):    
     class Config:
         orm_mode = True

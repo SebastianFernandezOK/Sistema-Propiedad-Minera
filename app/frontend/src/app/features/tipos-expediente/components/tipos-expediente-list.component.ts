@@ -8,12 +8,13 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatChipsModule } from '@angular/material/chips';
 import { FormsModule } from '@angular/forms';
-import { AreaService } from '../services/area.service';
-import { Area } from '../models/area.model';
+import { TipoExpedienteService } from '../services/tipo-expediente.service';
+import { TipoExpediente } from '../models/tipo-expediente.model';
 
 @Component({
-  selector: 'app-areas-list',
+  selector: 'app-tipos-expediente-list',
   standalone: true,
   imports: [
     CommonModule,
@@ -25,20 +26,21 @@ import { Area } from '../models/area.model';
     MatCardModule,
     MatProgressSpinnerModule,
     MatTooltipModule,
+    MatChipsModule,
     FormsModule
   ],
   template: `
-    <div class="areas-container">
+    <div class="tipos-expediente-container">
       <mat-card>
         <mat-card-header>
           <mat-card-title>
-            <mat-icon>business</mat-icon>
-            Gestión de Áreas
+            <mat-icon>folder</mat-icon>
+            Gestión de Tipos de Expediente
           </mat-card-title>
           <div class="header-actions">
-            <button mat-raised-button color="primary" (click)="crearArea()">
+            <button mat-raised-button color="primary" (click)="crearTipoExpediente()">
               <mat-icon>add</mat-icon>
-              Nueva Área
+              Nuevo Tipo de Expediente
             </button>
           </div>
         </mat-card-header>
@@ -47,52 +49,63 @@ import { Area } from '../models/area.model';
           <!-- Loading Spinner -->
           <div *ngIf="loading" class="loading-container">
             <mat-spinner diameter="50"></mat-spinner>
-            <p>Cargando áreas...</p>
+            <p>Cargando tipos de expediente...</p>
           </div>
 
           <!-- Tabla -->
           <div *ngIf="!loading" class="table-container">
-            <table mat-table [dataSource]="dataSource" class="areas-table">
+            <table mat-table [dataSource]="dataSource" class="tipos-table">
               <!-- ID Column -->
-              <ng-container matColumnDef="IdArea">
+              <ng-container matColumnDef="IdTipoExpediente">
                 <th mat-header-cell *matHeaderCellDef class="id-column">ID</th>
-                <td mat-cell *matCellDef="let area" class="id-column">{{ area.IdArea }}</td>
+                <td mat-cell *matCellDef="let tipo" class="id-column">{{ tipo.IdTipoExpediente }}</td>
+              </ng-container>
+
+              <!-- Nombre Column -->
+              <ng-container matColumnDef="Nombre">
+                <th mat-header-cell *matHeaderCellDef>Nombre</th>
+                <td mat-cell *matCellDef="let tipo">
+                  <div class="nombre-cell">
+                    <strong>{{ tipo.Nombre }}</strong>
+                  </div>
+                </td>
               </ng-container>
 
               <!-- Descripción Column -->
               <ng-container matColumnDef="Descripcion">
                 <th mat-header-cell *matHeaderCellDef>Descripción</th>
-                <td mat-cell *matCellDef="let area">
+                <td mat-cell *matCellDef="let tipo">
                   <div class="descripcion-cell">
-                    <strong>{{ area.Descripcion }}</strong>
+                    {{ tipo.Descripcion | slice:0:100 }}{{ tipo.Descripcion?.length > 100 ? '...' : '' }}
                   </div>
                 </td>
               </ng-container>
 
-              <!-- Fecha Auditoría Column -->
-              <ng-container matColumnDef="AudFecha">
-                <th mat-header-cell *matHeaderCellDef>Fecha Auditoría</th>
-                <td mat-cell *matCellDef="let area">
-                  <span class="fecha-audit">
-                    {{ area.AudFecha ? (area.AudFecha | date:'dd/MM/yyyy HH:mm') : '-' }}
-                  </span>
+              <!-- Estado Column -->
+              <ng-container matColumnDef="Activo">
+                <th mat-header-cell *matHeaderCellDef class="estado-column">Estado</th>
+                <td mat-cell *matCellDef="let tipo" class="estado-column">
+                  <mat-chip [class]="tipo.Activo ? 'activo-chip' : 'inactivo-chip'">
+                    <mat-icon>{{ tipo.Activo ? 'check_circle' : 'cancel' }}</mat-icon>
+                    {{ tipo.Activo ? 'Activo' : 'Inactivo' }}
+                  </mat-chip>
                 </td>
               </ng-container>
 
               <!-- Acciones Column -->
               <ng-container matColumnDef="acciones">
                 <th mat-header-cell *matHeaderCellDef class="actions-column">Acciones</th>
-                <td mat-cell *matCellDef="let area" class="actions-column">
+                <td mat-cell *matCellDef="let tipo" class="actions-column">
                   <button mat-icon-button 
                           color="primary" 
-                          (click)="editarArea(area.IdArea); $event.stopPropagation()"
-                          matTooltip="Editar área">
+                          (click)="editarTipoExpediente(tipo.IdTipoExpediente); $event.stopPropagation()"
+                          matTooltip="Editar tipo de expediente">
                     <mat-icon>edit</mat-icon>
                   </button>
                   <button mat-icon-button 
                           color="warn" 
-                          (click)="eliminarArea(area.IdArea); $event.stopPropagation()"
-                          matTooltip="Eliminar área">
+                          (click)="eliminarTipoExpediente(tipo.IdTipoExpediente); $event.stopPropagation()"
+                          matTooltip="Eliminar tipo de expediente">
                     <mat-icon>delete</mat-icon>
                   </button>
                 </td>
@@ -101,15 +114,15 @@ import { Area } from '../models/area.model';
               <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
               <tr mat-row *matRowDef="let row; columns: displayedColumns;" 
                   class="table-row" 
-                  (click)="verDetalleArea(row.IdArea)"></tr>
+                  (click)="verDetalleTipoExpediente(row.IdTipoExpediente)"></tr>
             </table>
 
             <!-- No data message -->
             <div *ngIf="dataSource.length === 0" class="no-data">
-              <mat-icon>business_center</mat-icon>
-              <p>No se encontraron áreas</p>
-              <button mat-raised-button color="primary" (click)="crearArea()">
-                Crear primera área
+              <mat-icon>folder_open</mat-icon>
+              <p>No se encontraron tipos de expediente</p>
+              <button mat-raised-button color="primary" (click)="crearTipoExpediente()">
+                Crear primer tipo de expediente
               </button>
             </div>
           </div>
@@ -129,9 +142,9 @@ import { Area } from '../models/area.model';
     </div>
   `,
   styles: [`
-    .areas-container {
+    .tipos-expediente-container {
       padding: 1.5rem;
-      max-width: 1200px;
+      max-width: 1400px;
       margin: 0 auto;
     }
 
@@ -154,7 +167,7 @@ import { Area } from '../models/area.model';
       overflow-x: auto;
     }
 
-    .areas-table {
+    .tipos-table {
       width: 100%;
       background: white;
     }
@@ -164,18 +177,49 @@ import { Area } from '../models/area.model';
       text-align: center;
     }
 
+    .estado-column {
+      width: 120px;
+      text-align: center;
+    }
+
     .actions-column {
       width: 120px;
       text-align: center;
     }
 
+    .nombre-cell {
+      padding: 0.5rem 0;
+      color: #333;
+    }
+
     .descripcion-cell {
       padding: 0.5rem 0;
+      color: #666;
+      font-size: 0.9rem;
+      line-height: 1.4;
     }
 
     .fecha-audit {
       color: #666;
       font-size: 0.9rem;
+    }
+
+    .activo-chip {
+      background-color: #e8f5e8;
+      color: #2e7d32;
+    }
+
+    .inactivo-chip {
+      background-color: #ffebee;
+      color: #c62828;
+    }
+
+    .activo-chip mat-icon,
+    .inactivo-chip mat-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+      margin-right: 4px;
     }
 
     .table-row {
@@ -237,11 +281,18 @@ import { Area } from '../models/area.model';
     .header-actions button:hover {
       background: #355a4c;
     }
+
+    .mat-mdc-chip {
+      font-size: 0.75rem;
+      min-height: 24px;
+      display: flex;
+      align-items: center;
+    }
   `]
 })
-export class AreasListComponent implements OnInit {
-  dataSource: Area[] = [];
-  displayedColumns: string[] = ['IdArea', 'Descripcion', 'AudFecha', 'acciones'];
+export class TiposExpedienteListComponent implements OnInit {
+  dataSource: TipoExpediente[] = [];
+  displayedColumns: string[] = ['IdTipoExpediente', 'Nombre', 'Descripcion', 'Activo', 'acciones'];
   loading = false;
   error: string | null = null;
   
@@ -251,27 +302,27 @@ export class AreasListComponent implements OnInit {
   currentPage = 0;
 
   constructor(
-    private areaService: AreaService,
+    private tipoExpedienteService: TipoExpedienteService,
     private router: Router
   ) {}
 
   ngOnInit(): void {
-    this.cargarAreas();
+    this.cargarTiposExpediente();
   }
 
-  cargarAreas(): void {
+  cargarTiposExpediente(): void {
     this.loading = true;
     this.error = null;
     
-    this.areaService.getAll(this.currentPage, this.pageSize).subscribe({
+    this.tipoExpedienteService.getAll(this.currentPage, this.pageSize).subscribe({
       next: (result) => {
         this.dataSource = result.data;
         this.totalItems = result.total;
         this.loading = false;
       },
       error: (err) => {
-        console.error('Error al cargar áreas:', err);
-        this.error = 'Error al cargar las áreas';
+        console.error('Error al cargar tipos de expediente:', err);
+        this.error = 'Error al cargar los tipos de expediente';
         this.loading = false;
       }
     });
@@ -280,30 +331,33 @@ export class AreasListComponent implements OnInit {
   onPageChange(event: PageEvent): void {
     this.currentPage = event.pageIndex;
     this.pageSize = event.pageSize;
-    this.cargarAreas();
+    this.cargarTiposExpediente();
   }
 
-  crearArea(): void {
-    this.router.navigate(['/areas/nueva']);
+  crearTipoExpediente(): void {
+    this.router.navigate(['/tipos-expediente/nuevo']);
   }
 
-  verDetalleArea(id: number): void {
-    this.router.navigate(['/areas', id]);
+  verDetalleTipoExpediente(id: number): void {
+    this.router.navigate(['/tipos-expediente', id]);
   }
 
-  editarArea(id: number): void {
-    this.router.navigate(['/areas', id, 'editar']);
+  editarTipoExpediente(id: number): void {
+    this.router.navigate(['/tipos-expediente', id, 'editar']);
   }
 
-  eliminarArea(id: number): void {
-    if (confirm('¿Está seguro de que desea eliminar esta área?')) {
-      this.areaService.delete(id).subscribe({
+  eliminarTipoExpediente(id: number): void {
+    if (confirm('¿Está seguro de que desea eliminar este tipo de expediente?')) {
+      this.tipoExpedienteService.delete(id).subscribe({
         next: () => {
-          this.cargarAreas();
+          // Recargar la lista después de eliminar
+          this.cargarTiposExpediente();
+          // Mostrar mensaje de éxito
+          alert('Tipo de expediente eliminado exitosamente');
         },
         error: (err) => {
-          console.error('Error al eliminar área:', err);
-          alert('Error al eliminar el área');
+          console.error('Error al eliminar tipo de expediente:', err);
+          alert('Error al eliminar el tipo de expediente');
         }
       });
     }

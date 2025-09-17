@@ -83,13 +83,13 @@ import { TipoNotificacion } from '../models/tipo-notificacion.model';
                 <td mat-cell *matCellDef="let tipo" class="actions-column">
                   <button mat-icon-button 
                           color="primary" 
-                          (click)="editarTipoNotificacion(tipo.IdTipoNotificacion)"
+                          (click)="editarTipoNotificacion(tipo.IdTipoNotificacion); $event.stopPropagation()"
                           matTooltip="Editar tipo de notificación">
                     <mat-icon>edit</mat-icon>
                   </button>
                   <button mat-icon-button 
                           color="warn" 
-                          (click)="eliminarTipoNotificacion(tipo.IdTipoNotificacion)"
+                          (click)="eliminarTipoNotificacion(tipo.IdTipoNotificacion); $event.stopPropagation()"
                           matTooltip="Eliminar tipo de notificación">
                     <mat-icon>delete</mat-icon>
                   </button>
