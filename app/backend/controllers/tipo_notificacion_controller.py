@@ -60,11 +60,11 @@ def update_tipo_notificacion(id: int, tipo_notificacion: TipoNotificacionUpdate,
         raise HTTPException(status_code=404, detail="TipoNotificacion not found")
     return obj
 
-@router.delete("/{id}", response_model=TipoNotificacionOut)
+@router.delete("/{id}")
 def delete_tipo_notificacion(id: int, db: Session = Depends(get_db)):
     service = TipoNotificacionService(db)
-    obj = service.delete_tipo_notificacion(id)
-    if not obj:
+    deleted = service.delete_tipo_notificacion(id)
+    if not deleted:
         raise HTTPException(status_code=404, detail="TipoNotificacion not found")
-    return obj
+    return {"message": "TipoNotificacion deleted successfully", "id": id}
 
