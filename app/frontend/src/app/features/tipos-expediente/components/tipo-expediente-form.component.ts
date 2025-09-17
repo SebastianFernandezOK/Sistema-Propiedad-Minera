@@ -25,12 +25,15 @@ import { TipoExpediente, TipoExpedienteCreate } from '../models/tipo-expediente.
   template: `
     <div class="form-container">
       <mat-card>
-        <mat-card-header>
-          <mat-card-title>
-            <mat-icon>{{ isEdit ? 'edit' : 'add' }}</mat-icon>
-            {{ isEdit ? 'Editar Tipo de Expediente' : 'Crear Nuevo Tipo de Expediente' }}
+        <div class="form-header">
+          <mat-card-title class="form-title">
+            {{ isEdit ? 'Editar Tipo de Expediente' : 'Nuevo Tipo de Expediente' }}
           </mat-card-title>
-        </mat-card-header>
+          <button mat-raised-button color="primary" type="button" (click)="onCancel()" class="back-button">
+            <mat-icon>arrow_back</mat-icon>
+            Volver
+          </button>
+        </div>
 
         <mat-card-content>
           <form [formGroup]="tipoExpedienteForm" (ngSubmit)="onSubmit()" class="tipo-expediente-form">
@@ -96,32 +99,20 @@ import { TipoExpediente, TipoExpedienteCreate } from '../models/tipo-expediente.
               <div class="audit-field">
                 <strong>ID:</strong> {{ initialData.IdTipoExpediente }}
               </div>
-              <div class="audit-field" *ngIf="initialData.AudFecha">
-                <strong>Última modificación:</strong> 
-                {{ initialData.AudFecha | date:'dd/MM/yyyy HH:mm:ss' }}
-              </div>
               <div class="audit-field" *ngIf="initialData.AudUsuario">
                 <strong>Usuario:</strong> {{ initialData.AudUsuario }}
               </div>
             </div>
 
-            <!-- Botones de acción -->
+            <!-- Botón de acción -->
             <div class="form-actions">
-              <button type="button" 
-                      mat-button 
-                      (click)="onCancel()"
-                      [disabled]="loading">
-                <mat-icon>cancel</mat-icon>
-                Cancelar
-              </button>
-              
               <button type="submit" 
                       mat-raised-button 
                       color="primary"
                       [disabled]="tipoExpedienteForm.invalid || loading">
                 <mat-spinner *ngIf="loading" diameter="20"></mat-spinner>
                 <mat-icon *ngIf="!loading">{{ isEdit ? 'save' : 'add' }}</mat-icon>
-                {{ loading ? 'Guardando...' : (isEdit ? 'Actualizar' : 'Crear Tipo de Expediente') }}
+                {{ loading ? 'Guardando...' : (isEdit ? 'Guardar cambios' : 'Guardar') }}
               </button>
             </div>
 
@@ -257,7 +248,7 @@ import { TipoExpediente, TipoExpedienteCreate } from '../models/tipo-expediente.
 
     .form-actions {
       display: flex;
-      justify-content: flex-end;
+      justify-content: center;
       gap: 1rem;
       margin-top: 2rem;
       padding-top: 1rem;
@@ -280,21 +271,36 @@ import { TipoExpediente, TipoExpedienteCreate } from '../models/tipo-expediente.
       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
 
-    mat-card-header {
+    .form-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       background: #f8f9fa;
       padding: 1.5rem;
-      margin: -1rem -1rem 0 -1rem;
+      margin: -1.5rem -1.5rem 1.5rem -1.5rem;
       border-bottom: 1px solid #e0e0e0;
     }
 
-    mat-card-title {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
+    .form-title {
       color: #416759;
       font-size: 1.25rem;
       font-weight: 600;
       margin: 0;
+    }
+
+    .back-button {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: #416759;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 0.95rem;
+    }
+
+    .back-button:hover {
+      background: #355a4c;
     }
 
     mat-card-content {

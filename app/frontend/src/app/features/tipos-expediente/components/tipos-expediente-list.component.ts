@@ -92,16 +92,6 @@ import { TipoExpediente } from '../models/tipo-expediente.model';
                 </td>
               </ng-container>
 
-              <!-- Fecha Auditoría Column -->
-              <ng-container matColumnDef="AudFecha">
-                <th mat-header-cell *matHeaderCellDef>Fecha Auditoría</th>
-                <td mat-cell *matCellDef="let tipo">
-                  <span class="fecha-audit">
-                    {{ tipo.AudFecha ? (tipo.AudFecha | date:'dd/MM/yyyy HH:mm') : '-' }}
-                  </span>
-                </td>
-              </ng-container>
-
               <!-- Acciones Column -->
               <ng-container matColumnDef="acciones">
                 <th mat-header-cell *matHeaderCellDef class="actions-column">Acciones</th>
@@ -302,7 +292,7 @@ import { TipoExpediente } from '../models/tipo-expediente.model';
 })
 export class TiposExpedienteListComponent implements OnInit {
   dataSource: TipoExpediente[] = [];
-  displayedColumns: string[] = ['IdTipoExpediente', 'Nombre', 'Descripcion', 'Activo', 'AudFecha', 'acciones'];
+  displayedColumns: string[] = ['IdTipoExpediente', 'Nombre', 'Descripcion', 'Activo', 'acciones'];
   loading = false;
   error: string | null = null;
   

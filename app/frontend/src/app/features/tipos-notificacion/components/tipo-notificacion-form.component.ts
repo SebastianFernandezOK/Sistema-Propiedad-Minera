@@ -5,6 +5,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
 import { TipoNotificacionCreate } from '../models/tipo-notificacion.model';
 
 @Component({
@@ -17,13 +18,20 @@ import { TipoNotificacionCreate } from '../models/tipo-notificacion.model';
     MatFormFieldModule, 
     MatInputModule, 
     MatButtonModule, 
-    MatCardModule
+    MatCardModule,
+    MatIconModule
   ],
   template: `
     <mat-card class="tipo-notificacion-form-card">
-      <mat-card-title class="form-title">
-        {{ modo === 'editar' ? 'Editar Tipo de Notificación' : 'Nuevo Tipo de Notificación' }}
-      </mat-card-title>
+      <div class="form-header">
+        <mat-card-title class="form-title">
+          {{ modo === 'editar' ? 'Editar Tipo de Notificación' : 'Nuevo Tipo de Notificación' }}
+        </mat-card-title>
+        <button mat-raised-button color="primary" type="button" (click)="onCancel()" class="back-button">
+          <mat-icon>arrow_back</mat-icon>
+          Volver
+        </button>
+      </div>
       <form [formGroup]="form" (ngSubmit)="onSubmit()" class="tipo-notificacion-form-grid" autocomplete="off" novalidate>
         
         <!-- Descripción -->
@@ -54,7 +62,7 @@ import { TipoNotificacionCreate } from '../models/tipo-notificacion.model';
 
         <div class="form-actions full-width">
           <button mat-raised-button color="primary" type="submit" [disabled]="!form.valid">
-            {{ modo === 'editar' ? 'Guardar cambios' : 'Crear Tipo de Notificación' }}
+            {{ modo === 'editar' ? 'Guardar cambios' : 'Guardar' }}
           </button>
         </div>
       </form>
@@ -74,8 +82,29 @@ import { TipoNotificacionCreate } from '../models/tipo-notificacion.model';
       color: #416759;
       font-size: 1.5rem;
       font-weight: 700;
+      margin: 0;
+    }
+
+    .form-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       margin-bottom: 1.5rem;
-      text-align: center;
+    }
+
+    .back-button {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: #416759;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 0.95rem;
+    }
+
+    .back-button:hover {
+      background: #355a4c;
     }
 
     .tipo-notificacion-form-grid {
@@ -145,6 +174,7 @@ import { TipoNotificacionCreate } from '../models/tipo-notificacion.model';
 export class TipoNotificacionFormComponent implements OnInit, OnChanges {
   @Output() create = new EventEmitter<TipoNotificacionCreate>();
   @Output() edit = new EventEmitter<any>();
+  @Output() cancel = new EventEmitter<void>();
   @Input() form!: FormGroup;
   @Input() tipoNotificacion: any = null;
   @Input() modo: 'crear' | 'editar' = 'crear';
@@ -191,5 +221,9 @@ export class TipoNotificacionFormComponent implements OnInit, OnChanges {
         this.create.emit(formData);
       }
     }
+  }
+
+  onCancel(): void {
+    this.cancel.emit();
   }
 }
