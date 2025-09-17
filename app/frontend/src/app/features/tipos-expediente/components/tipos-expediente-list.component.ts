@@ -108,13 +108,13 @@ import { TipoExpediente } from '../models/tipo-expediente.model';
                 <td mat-cell *matCellDef="let tipo" class="actions-column">
                   <button mat-icon-button 
                           color="primary" 
-                          (click)="editarTipoExpediente(tipo.IdTipoExpediente)"
+                          (click)="editarTipoExpediente(tipo.IdTipoExpediente); $event.stopPropagation()"
                           matTooltip="Editar tipo de expediente">
                     <mat-icon>edit</mat-icon>
                   </button>
                   <button mat-icon-button 
                           color="warn" 
-                          (click)="eliminarTipoExpediente(tipo.IdTipoExpediente)"
+                          (click)="eliminarTipoExpediente(tipo.IdTipoExpediente); $event.stopPropagation()"
                           matTooltip="Eliminar tipo de expediente">
                     <mat-icon>delete</mat-icon>
                   </button>

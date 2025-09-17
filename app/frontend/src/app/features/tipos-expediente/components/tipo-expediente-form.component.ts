@@ -35,48 +35,50 @@ import { TipoExpediente, TipoExpedienteCreate } from '../models/tipo-expediente.
         <mat-card-content>
           <form [formGroup]="tipoExpedienteForm" (ngSubmit)="onSubmit()" class="tipo-expediente-form">
             <!-- Campo Nombre -->
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Nombre del Tipo de Expediente</mat-label>
-              <input matInput 
-                     formControlName="Nombre"
-                     placeholder="Ingrese el nombre del tipo de expediente"
-                     maxlength="100">
-              <mat-hint align="start">
-                <strong>{{ tipoExpedienteForm.get('Nombre')?.value?.length || 0 }}/100</strong>
-              </mat-hint>
-              <mat-error *ngIf="tipoExpedienteForm.get('Nombre')?.hasError('required')">
-                El nombre es requerido
-              </mat-error>
-              <mat-error *ngIf="tipoExpedienteForm.get('Nombre')?.hasError('minlength')">
-                El nombre debe tener al menos 3 caracteres
-              </mat-error>
-              <mat-error *ngIf="tipoExpedienteForm.get('Nombre')?.hasError('maxlength')">
-                El nombre no puede superar los 100 caracteres
-              </mat-error>
-            </mat-form-field>
+            <div class="form-field">
+              <label class="field-label">Nombre del Tipo de Expediente</label>
+              <mat-form-field appearance="outline" class="full-width">
+                <input matInput 
+                       formControlName="Nombre"
+                       maxlength="100">
+                <mat-hint align="start">
+                  <strong>{{ tipoExpedienteForm.get('Nombre')?.value?.length || 0 }}/100</strong>
+                </mat-hint>
+                <mat-error *ngIf="tipoExpedienteForm.get('Nombre')?.hasError('required')">
+                  El nombre es requerido
+                </mat-error>
+                <mat-error *ngIf="tipoExpedienteForm.get('Nombre')?.hasError('minlength')">
+                  El nombre debe tener al menos 3 caracteres
+                </mat-error>
+                <mat-error *ngIf="tipoExpedienteForm.get('Nombre')?.hasError('maxlength')">
+                  El nombre no puede superar los 100 caracteres
+                </mat-error>
+              </mat-form-field>
+            </div>
 
             <!-- Campo Descripción -->
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Descripción</mat-label>
-              <textarea matInput 
-                        formControlName="Descripcion"
-                        placeholder="Ingrese la descripción del tipo de expediente"
-                        rows="4"
-                        maxlength="500">
-              </textarea>
-              <mat-hint align="start">
-                <strong>{{ tipoExpedienteForm.get('Descripcion')?.value?.length || 0 }}/500</strong>
-              </mat-hint>
-              <mat-error *ngIf="tipoExpedienteForm.get('Descripcion')?.hasError('required')">
-                La descripción es requerida
-              </mat-error>
-              <mat-error *ngIf="tipoExpedienteForm.get('Descripcion')?.hasError('minlength')">
-                La descripción debe tener al menos 3 caracteres
-              </mat-error>
-              <mat-error *ngIf="tipoExpedienteForm.get('Descripcion')?.hasError('maxlength')">
-                La descripción no puede superar los 500 caracteres
-              </mat-error>
-            </mat-form-field>
+            <div class="form-field">
+              <label class="field-label">Descripción</label>
+              <mat-form-field appearance="outline" class="full-width">
+                <textarea matInput 
+                          formControlName="Descripcion"
+                          rows="4"
+                          maxlength="500">
+                </textarea>
+                <mat-hint align="start">
+                  <strong>{{ tipoExpedienteForm.get('Descripcion')?.value?.length || 0 }}/500</strong>
+                </mat-hint>
+                <mat-error *ngIf="tipoExpedienteForm.get('Descripcion')?.hasError('required')">
+                  La descripción es requerida
+                </mat-error>
+                <mat-error *ngIf="tipoExpedienteForm.get('Descripcion')?.hasError('minlength')">
+                  La descripción debe tener al menos 3 caracteres
+                </mat-error>
+                <mat-error *ngIf="tipoExpedienteForm.get('Descripcion')?.hasError('maxlength')">
+                  La descripción no puede superar los 500 caracteres
+                </mat-error>
+              </mat-form-field>
+            </div>
 
             <!-- Campo Activo -->
             <div class="activo-field">
@@ -150,6 +152,19 @@ import { TipoExpediente, TipoExpedienteCreate } from '../models/tipo-expediente.
 
     .full-width {
       width: 100%;
+    }
+
+    .form-field {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .field-label {
+      font-weight: 500;
+      color: #333;
+      font-size: 0.95rem;
+      margin-bottom: 0.25rem;
     }
 
     .activo-field {
