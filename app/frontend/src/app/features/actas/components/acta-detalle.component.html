@@ -1,0 +1,204 @@
+<div class="acta-detail-container">
+    <div *ngIf="loading" class="loading-container">
+        <mat-progress-spinner mode="indeterminate" diameter="40"></mat-progress-spinner>
+        <p>Cargando acta...</p>
+    </div>
+    <div *ngIf="!loading && acta">
+        <div class="detail-header">
+            <button mat-icon-button (click)="goBack()" class="back-button">
+                <mat-icon>arrow_back</mat-icon>
+            </button>
+            <h1>Acta {{ acta.Descripcion || 'Acta' }}</h1>
+        </div>
+        <!-- Custom Tabs Header (fixed) -->
+        <div class="custom-tab-header-wrapper">
+            <div class="custom-tab-header">
+                <div *ngFor="let tab of tabs; let i = index" #tabLabel class="custom-tab-label"
+                    [class.active]="selectedTabIndex === i" (click)="selectTab(i)">
+                    <mat-icon *ngIf="tab.icon">{{tab.icon}}</mat-icon>
+                    {{tab.label}}
+                    <mat-chip *ngIf="tab.chip && tab.chipValue" class="count-chip">{{tab.chipValue}}</mat-chip>
+                </div>
+                <div class="custom-tab-underline" [style.width.px]="underlineWidth"
+                    [style.transform]="'translateX(' + underlineLeft + 'px)'">
+                </div>
+            </div>
+        </div>
+        <!-- Custom Tabs Content (animated) -->
+        <div class="custom-tab-content-wrapper">
+            <div [@slideContent]="selectedTabIndex">
+                <ng-container [ngSwitch]="selectedTabIndex">
+                    <!-- Información General -->
+                    <ng-container *ngSwitchCase="0">
+                        <div class="tab-content">
+                            <mat-card>
+                                <mat-card-header>
+                                    <mat-card-title>Datos Básicos</mat-card-title>
+                                </mat-card-header>
+                                <mat-card-content>
+                                    <div class="info-grid">
+                                        <div class="info-item">
+                                            <label>Fecha del Acta:</label>
+                                            <span>{{ acta.Fecha ? (acta.Fecha | date:'dd/MM/yyyy') : 'Sin fecha'
+                                                }}</span>
+                                        </div>
+                                        <div class="info-item">
+                                            <label>Tipo de Acta:</label>
+                                            <span>{{ acta.IdTipoActa || 'Sin tipo' }}</span>
+                                        </div>
+                                        <div class="info-item">
+                                            <label>Descripción:</label>
+                                            <span>{{ acta.Descripcion || 'Sin descripción' }}</span>
+                                        </div>
+                                        <div class="info-item">
+                                            <label>Lugar:</label>
+                                            <span>{{ acta.Lugar || 'Sin lugar' }}</span>
+                                        </div>
+                                        <div class="info-item">
+                                            <label>Autoridad:</label>
+                                            <span>{{ autoridadNombre || 'Sin autoridad' }}</span>
+                                        </div>
+                                        <div class="info-item">
+                                            <label>Observaciones:</label>
+                                            <span>{{ acta.Obs || 'Sin observaciones' }}</span>
+                                        </div>
+                                    </div>
+                                </mat-card-content>
+                            </mat-card>
+                        </div>
+                    </ng-container>
+                    <!-- Alertas -->
+                    <ng-container *ngSwitchCase="1">
+                        <div class="tab-content">
+                            <app-alertas-list [idTransaccion]="acta.IdTransaccion ?? null"></app-alertas-list>
+                        </div>
+                    </ng-container>
+                    <!-- Observaciones -->
+                    <ng-container *ngSwitchCase="2">
+                        <div class="tab-content">
+                            <app-observaciones-tab [idTransaccion]="acta.IdTransaccion ?? null"></app-observaciones-tab>
+                        </div>
+                    </ng-container>
+                    <!-- Archivos -->
+                    <ng-container *ngSwitchCase="3">
+                        <div class="tab-content">
+                            <mat-card>
+                                <mat-card-content>
+                                    <div class="archivos-header">
+                                        <h3>Archivos del Acta</h3>
+                                        <div *ngIf="!mostrarFormularioArchivoActa">
+                                            <button mat-raised-button color="primary"
+                                                (click)="mostrarFormularioArchivoActa = true">
+                                                <mat-icon>cloud_upload</mat-icon>
+                                                Subir Archivo
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <mat-card class="archivo-form" *ngIf="mostrarFormularioArchivoActa">
+                                        <mat-card-header>
+                                            <mat-card-title>Subir Archivo</mat-card-title>
+                                        </mat-card-header>
+                                        <mat-card-content>
+                                            <form (ngSubmit)="subirArchivoActa()" #formArchivoActa="ngForm"
+                                                autocomplete="off">
+                                                <div class="file-input-container">
+                                                    <mat-form-field appearance="outline"
+                                                        style="width: 100%; margin-bottom: 16px;">
+                                                        <mat-label>Archivo seleccionado</mat-label>
+                                                        <input matInput [value]="archivoSeleccionadoActa?.name || ''"
+                                                            readonly placeholder="Selecciona un archivo">
+                                                        <button mat-icon-button matSuffix type="button"
+                                                            (click)="fileInputActa.click()">
+                                                            <mat-icon>attach_file</mat-icon>
+                                                        </button>
+                                                    </mat-form-field>
+                                                    <input type="file" #fileInputActa
+                                                        (change)="onArchivoSeleccionado($event)"
+                                                        accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.xlsx,.xls"
+                                                        style="display: none">
+                                                </div>
+                                                <mat-form-field appearance="outline"
+                                                    style="width: 100%; margin-bottom: 16px;">
+                                                    <mat-label>Descripción (opcional)</mat-label>
+                                                    <textarea matInput [(ngModel)]="descripcionArchivoActa"
+                                                        name="descripcionArchivoActa" rows="3"
+                                                        placeholder="Descripción del archivo" maxlength="150"></textarea>
+                                                </mat-form-field>
+                                                <div *ngIf="loadingArchivoActa" class="upload-progress">
+                                                    <p>Subiendo archivo...</p>
+                                                    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+                                                </div>
+                                                <div class="form-actions"
+                                                    style="display: flex; gap: 16px; justify-content: flex-end; margin-top: 16px;">
+                                                    <button mat-button type="button"
+                                                        (click)="cancelarSubidaArchivoActa()"
+                                                        [disabled]="loadingArchivoActa">Cancelar</button>
+                                                    <button mat-raised-button color="primary" type="submit"
+                                                        [disabled]="!archivoSeleccionadoActa || loadingArchivoActa">
+                                                        <mat-icon>cloud_upload</mat-icon>
+                                                        Subir Archivo
+                                                    </button>
+                                                </div>
+                                                <div *ngIf="errorArchivoActa" class="error-msg">{{ errorArchivoActa }}
+                                                </div>
+                                            </form>
+                                        </mat-card-content>
+                                    </mat-card>
+                                    <ng-container *ngIf="!mostrarFormularioArchivoActa">
+                                        <app-archivo-edit *ngIf="archivoActaEnEdicion" [archivo]="archivoActaEnEdicion"
+                                            (archivoActualizado)="onArchivoActaActualizado($event)"
+                                            (cancelar)="archivoActaEnEdicion = null">
+                                        </app-archivo-edit>
+                                        <table mat-table [dataSource]="dataSourceArchivosActa" class="full-width-table"
+                                            *ngIf="archivosActa.length > 0 && !archivoActaEnEdicion">
+                                            <ng-container matColumnDef="nombre">
+                                                <th mat-header-cell *matHeaderCellDef>Nombre</th>
+                                                <td mat-cell *matCellDef="let archivo">{{ archivo.Nombre }}</td>
+                                            </ng-container>
+                                            <ng-container matColumnDef="descripcion">
+                                                <th mat-header-cell *matHeaderCellDef>Descripción</th>
+                                                <td mat-cell *matCellDef="let archivo">{{ archivo.Descripcion || 'Sin
+                                                    descripción' }}</td>
+                                            </ng-container>
+                                            <ng-container matColumnDef="fecha">
+                                                <th mat-header-cell *matHeaderCellDef>Fecha</th>
+                                                <td mat-cell *matCellDef="let archivo">{{
+                                                    formatFechaArgentina(archivo.AudFecha) }}</td>
+                                            </ng-container>
+                                            <ng-container matColumnDef="acciones">
+                                                <th mat-header-cell *matHeaderCellDef>Acciones</th>
+                                                <td mat-cell *matCellDef="let archivo">
+                                                    <button mat-icon-button (click)="descargarArchivoActa(archivo)"
+                                                        title="Descargar">
+                                                        <mat-icon>download</mat-icon>
+                                                    </button>
+                                                    <button mat-icon-button (click)="editarArchivoActa(archivo)"
+                                                        title="Editar">
+                                                        <mat-icon>edit</mat-icon>
+                                                    </button>
+                                                </td>
+                                            </ng-container>
+                                            <tr mat-header-row *matHeaderRowDef="displayedColumnsArchivosActa"></tr>
+                                            <tr mat-row *matRowDef="let row; columns: displayedColumnsArchivosActa;">
+                                            </tr>
+                                        </table>
+                                        <div *ngIf="archivosActa.length === 0 && !archivoActaEnEdicion"
+                                            class="no-archivos">
+                                            <mat-icon>folder_open</mat-icon>
+                                            <p>No hay archivos subidos para este acta</p>
+                                        </div>
+                                        <mat-paginator [length]="totalArchivosActa" [pageSize]="pageSizeArchivosActa"
+                                            [pageSizeOptions]="[5, 10, 20, 50]"
+                                            [pageIndex]="paginaActualArchivosActa - 1"
+                                            (page)="onPageChangeArchivosActa($event)" showFirstLastButtons>
+                                        </mat-paginator>
+                                    </ng-container>
+                                </mat-card-content>
+                            </mat-card>
+                        </div>
+                    </ng-container>
+                </ng-container>
+            </div>
+        </div>
+    </div>
+</div>

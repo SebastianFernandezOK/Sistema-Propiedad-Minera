@@ -29,9 +29,15 @@ class ArchivoService:
         return self.repo.get_by_expediente(id_transaccion, codigo_expediente)
 
     def create_archivo(self, archivo: ArchivoCreate):
+        # Truncar descripción si es necesario
+        if hasattr(archivo, 'Descripcion') and archivo.Descripcion:
+            archivo.Descripcion = archivo.Descripcion[:150]
         return self.repo.create(archivo)
 
     def update_archivo(self, id_archivo: int, archivo: ArchivoUpdate):
+        # Truncar descripción si es necesario
+        if hasattr(archivo, 'Descripcion') and archivo.Descripcion:
+            archivo.Descripcion = archivo.Descripcion[:150]
         return self.repo.update(id_archivo, archivo)
 
     def delete_archivo(self, id_archivo: int):
