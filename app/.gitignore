@@ -53,10 +53,3 @@ node_modules/
 __pycache__/
 .Python
 
-# Angular cache and build files
-/app/frontend/dist/
-/app/frontend/tmp/
-/app/frontend/out-tsc/
-/app/frontend/.angular/
-/app/frontend/.angular/cache/
-.angular/
