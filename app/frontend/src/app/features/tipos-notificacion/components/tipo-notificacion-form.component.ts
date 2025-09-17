@@ -27,26 +27,30 @@ import { TipoNotificacionCreate } from '../models/tipo-notificacion.model';
       <form [formGroup]="form" (ngSubmit)="onSubmit()" class="tipo-notificacion-form-grid" autocomplete="off" novalidate>
         
         <!-- Descripción -->
-        <mat-form-field appearance="fill" class="full-width">
-          <mat-label>Descripción *</mat-label>
-          <input matInput formControlName="Descripcion" maxlength="255" required>
-          <mat-error *ngIf="form.get('Descripcion')?.hasError('required')">
-            La descripción es requerida
-          </mat-error>
-          <mat-error *ngIf="form.get('Descripcion')?.hasError('maxlength')">
-            La descripción no puede exceder 255 caracteres
-          </mat-error>
-        </mat-form-field>
+        <div class="form-field full-width">
+          <label class="field-label">Descripción *</label>
+          <mat-form-field appearance="outline" class="full-width">
+            <input matInput formControlName="Descripcion" maxlength="255" required>
+            <mat-error *ngIf="form.get('Descripcion')?.hasError('required')">
+              La descripción es requerida
+            </mat-error>
+            <mat-error *ngIf="form.get('Descripcion')?.hasError('maxlength')">
+              La descripción no puede exceder 255 caracteres
+            </mat-error>
+          </mat-form-field>
+        </div>
 
         <!-- Descripción Corta -->
-        <mat-form-field appearance="fill" class="full-width">
-          <mat-label>Descripción Corta</mat-label>
-          <input matInput formControlName="DescCorta" maxlength="50">
-          <mat-hint>Opcional - Máximo 50 caracteres</mat-hint>
-          <mat-error *ngIf="form.get('DescCorta')?.hasError('maxlength')">
-            La descripción corta no puede exceder 50 caracteres
-          </mat-error>
-        </mat-form-field>
+        <div class="form-field full-width">
+          <label class="field-label">Descripción Corta</label>
+          <mat-form-field appearance="outline" class="full-width">
+            <input matInput formControlName="DescCorta" maxlength="50">
+            <mat-hint>Opcional - Máximo 50 caracteres</mat-hint>
+            <mat-error *ngIf="form.get('DescCorta')?.hasError('maxlength')">
+              La descripción corta no puede exceder 50 caracteres
+            </mat-error>
+          </mat-form-field>
+        </div>
 
         <div class="form-actions full-width">
           <button mat-raised-button color="primary" type="submit" [disabled]="!form.valid">
@@ -82,6 +86,19 @@ import { TipoNotificacionCreate } from '../models/tipo-notificacion.model';
 
     .full-width {
       grid-column: 1 / -1;
+    }
+
+    .form-field {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .field-label {
+      font-weight: 500;
+      color: #333;
+      font-size: 0.95rem;
+      margin-bottom: 0.25rem;
     }
 
     .form-actions {

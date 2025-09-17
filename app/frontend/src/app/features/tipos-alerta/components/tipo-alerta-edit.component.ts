@@ -19,7 +19,8 @@ import { TipoAlerta, TipoAlertaCreate } from '../models/tipo-alerta.model';
       [modo]="'editar'"
       [tipoAlerta]="tipoAlertaData"
       [form]="tipoAlertaForm"
-      (edit)="onSubmit($event)">
+      (edit)="onSubmit($event)"
+      (cancel)="onCancel()">
     </app-tipo-alerta-form>
   `
 })
