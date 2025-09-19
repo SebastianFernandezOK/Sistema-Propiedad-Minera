@@ -11,7 +11,7 @@ import pytz
 from fastapi.responses import FileResponse
 
 router = APIRouter(prefix="/archivos", tags=["archivos"])
-BASE_UPLOAD_DIR = r"C:\Users\marcc\OneDrive\Documentos\JULIAN\Aisa\Sistema-Propiedad-Minera\app\backend\uploads"
+BASE_UPLOAD_DIR = r"C:\Users\SebastianCarlosFerna\Documents\sistema-propiedad-minera-main\Sistema-Propiedad-Minera\app\backend\uploads"
 os.makedirs(BASE_UPLOAD_DIR, exist_ok=True)
 
 # Endpoint genérico para subir archivos por entidad
@@ -114,13 +114,15 @@ def _upload_archivo_expediente(id_expediente: int, file: UploadFile, descripcion
     
     try:
         # Crear registro en la base de datos primero
+        argentina_tz = pytz.timezone('America/Argentina/San_Juan')
+        fecha_local = datetime.now(argentina_tz)
         archivo_data = ArchivoCreate(
             IdTransaccion=expediente.IdTransaccion,
             Nombre=temp_nombre,  # Nombre temporal
             Descripcion=descripcion,
             Tipo="expediente",
             Link="/uploads/expedientes/",
-            AudFecha=datetime.utcnow(),
+            AudFecha=fecha_local,
             AudUsuario=aud_usuario
         )
         
@@ -345,13 +347,22 @@ def get_archivos_entidad(
 # Endpoint para descargar archivos
 @router.get("/download")
 def download_archivo(link: str, nombre: str):
-    # El link ya incluye el nombre del archivo, solo quitar el prefijo /uploads/
-    file_path = os.path.join(BASE_UPLOAD_DIR, link.replace("/uploads/", ""))
+    # Quitar el prefijo y barras iniciales/finales del link
+    carpeta_o_archivo = link.replace("/uploads/", "").strip("/\\")
+    partes = carpeta_o_archivo.split("/")
+    # Si el link incluye el nombre del archivo, lo separamos
+    if partes and partes[-1] == nombre:
+        carpeta = "/".join(partes[:-1])
+    else:
+        carpeta = carpeta_o_archivo
+    # Construir la ruta completa al archivo
+    file_path = os.path.join(BASE_UPLOAD_DIR, carpeta, nombre)
     file_path = os.path.normpath(file_path)
-    
+    # Seguridad: evitar path traversal
+    if not file_path.startswith(os.path.abspath(BASE_UPLOAD_DIR)):
+        raise HTTPException(status_code=400, detail="Ruta de archivo no permitida")
     if not os.path.isfile(file_path):
         raise HTTPException(status_code=404, detail="Archivo no encontrado")
-    
     return FileResponse(file_path, media_type='application/octet-stream', filename=nombre)
 
 # Endpoint para actualizar archivo (por ejemplo, descripción)
