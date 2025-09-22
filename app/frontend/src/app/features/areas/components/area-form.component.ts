@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, OnChanges, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -221,7 +221,7 @@ import { Area, AreaCreate } from '../models/area.model';
     }
   `]
 })
-export class AreaFormComponent implements OnInit {
+export class AreaFormComponent implements OnInit, OnChanges {
   @Input() isEdit = false;
   @Input() initialData: Area | null = null;
   @Input() loading = false;
@@ -237,9 +237,11 @@ export class AreaFormComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    if (this.isEdit && this.initialData) {
-      this.loadInitialData();
-    }
+    this.loadInitialData();
+  }
+
+  ngOnChanges(): void {
+    this.loadInitialData();
   }
 
   private createForm(): FormGroup {
@@ -253,10 +255,16 @@ export class AreaFormComponent implements OnInit {
   }
 
   private loadInitialData(): void {
-    if (this.initialData) {
+    if (this.isEdit && this.initialData) {
       this.areaForm.patchValue({
-        Descripcion: this.initialData.Descripcion
+        Descripcion: this.initialData.Descripcion || ''
       });
+      
+      // Marcar el formulario como pristine después de cargar los datos iniciales
+      this.areaForm.markAsPristine();
+    } else if (!this.isEdit) {
+      // Si no es edición, limpiar el formulario
+      this.areaForm.reset();
     }
   }
 
