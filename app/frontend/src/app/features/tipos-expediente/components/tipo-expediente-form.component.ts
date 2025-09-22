@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, OnChanges, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -333,7 +333,7 @@ import { TipoExpediente, TipoExpedienteCreate } from '../models/tipo-expediente.
     }
   `]
 })
-export class TipoExpedienteFormComponent implements OnInit {
+export class TipoExpedienteFormComponent implements OnInit, OnChanges {
   @Input() isEdit = false;
   @Input() initialData: TipoExpediente | null = null;
   @Input() loading = false;
@@ -349,9 +349,11 @@ export class TipoExpedienteFormComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    if (this.isEdit && this.initialData) {
-      this.loadInitialData();
-    }
+    this.loadInitialData();
+  }
+
+  ngOnChanges(): void {
+    this.loadInitialData();
   }
 
   private createForm(): FormGroup {
@@ -371,12 +373,19 @@ export class TipoExpedienteFormComponent implements OnInit {
   }
 
   private loadInitialData(): void {
-    if (this.initialData) {
+    if (this.isEdit && this.initialData) {
       this.tipoExpedienteForm.patchValue({
-        Nombre: this.initialData.Nombre,
-        Descripcion: this.initialData.Descripcion,
-        Activo: this.initialData.Activo
+        Nombre: this.initialData.Nombre || '',
+        Descripcion: this.initialData.Descripcion || '',
+        Activo: this.initialData.Activo !== undefined ? this.initialData.Activo : true
       });
+      
+      // Marcar el formulario como pristine después de cargar los datos iniciales
+      this.tipoExpedienteForm.markAsPristine();
+    } else if (!this.isEdit) {
+      // Si no es edición, limpiar el formulario
+      this.tipoExpedienteForm.reset();
+      this.tipoExpedienteForm.patchValue({ Activo: true });
     }
   }
 
