@@ -34,7 +34,6 @@ class UsuarioUpdate(BaseModel):
     Password: Optional[str] = None
     Rol: Optional[str] = None
     Activo: Optional[bool] = None
-    FechaCreacion: Optional[date] = None
     UltimaConexion: Optional[datetime] = None
     Telefono: Optional[str] = None
     Observacion: Optional[str] = None
