@@ -6,6 +6,11 @@ from backend.database.connection import get_db
 from typing import List
 from fastapi import Query, APIRouter, Request
 import json
+from sqlalchemy import or_, func
+from sqlalchemy.dialects.postgresql import UUID
+from backend.models.expediente_model import Expediente
+from sqlalchemy import or_, func, String as SAString
+from backend.models.expediente_model import Expediente
 
 router = APIRouter(prefix="/propiedades-mineras", tags=["Propiedades Mineras"])
 
@@ -24,12 +29,33 @@ def listar_propiedades(
         filters = json.loads(filter)
         nombre = filters.get("Nombre")
         provincia = filters.get("Provincia")
+        id_titular = filters.get("IdTitular")
+        expediente = filters.get("Expediente")
+        print(f"[DEBUG] Filtro recibido - IdTitular: {id_titular} (type: {type(id_titular)})")
         
         if nombre:
             items = [item for item in items if nombre.lower() in (item.Nombre or "").lower()]
         
         if provincia:
             items = [item for item in items if item.Provincia == provincia]
+        
+        if id_titular:
+            try:
+                id_titular_int = int(id_titular)
+                print(f"[DEBUG] Aplicando filtro por IdTitular: {id_titular_int}")
+                items = [item for item in items if item.IdTitular == id_titular_int]
+            except Exception as e:
+                print(f"[DEBUG] Error al convertir IdTitular: {e}")
+                pass
+
+        if expediente:
+            
+            expedientes = db.query(Expediente).filter(
+                or_(func.lower(Expediente.CodigoExpediente).like(f"%{expediente.lower()}%"),
+                    func.cast(Expediente.IdExpediente, SAString) == expediente)
+            ).all()
+            ids_propiedad = set(e.IdPropiedadMinera for e in expedientes if e.IdPropiedadMinera)
+            items = [item for item in items if item.IdPropiedadMinera in ids_propiedad]
 
     total = len(items)
     start, end = 0, total - 1

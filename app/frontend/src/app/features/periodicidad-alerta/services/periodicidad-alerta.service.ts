@@ -2,12 +2,13 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { PeriodicidadAlerta, PeriodicidadAlertaCreate, PeriodicidadAlertaUpdate } from '../models/periodicidad-alerta.model';
+import { API_BASE_URL } from '../../../core/api.constants';
 
 @Injectable({
   providedIn: 'root'
 })
 export class PeriodicidadAlertaService {
-  private apiUrl = 'http://localhost:9000/periodicidad-alerta';
+  private apiUrl = `${API_BASE_URL}/periodicidad-alerta`;
 
   constructor(private http: HttpClient) {}
 

@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { API_BASE_URL } from '../../../core/api.constants';
 
 export interface TitularMinero {
   IdTitular: number;
@@ -34,7 +35,7 @@ export interface TitularMineroCreate {
 
 @Injectable({ providedIn: 'root' })
 export class TitularMineroService {
-  private apiUrl = 'http://localhost:9000/titulares-mineros';
+  private apiUrl = `${API_BASE_URL}/titulares-mineros`;
 
   constructor(private http: HttpClient) {}
 

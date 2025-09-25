@@ -9,49 +9,61 @@ import os
 from datetime import datetime
 import pytz
 from fastapi.responses import FileResponse
+import logging
 
 router = APIRouter(prefix="/archivos", tags=["archivos"])
-BASE_UPLOAD_DIR = r"C:\Users\SebastianCarlosFerna\Documents\sistema-propiedad-minera-main\Sistema-Propiedad-Minera\app\backend\uploads"
+BASE_UPLOAD_DIR = r"E:\Sistema-Propiedad-Minera-main\app\backend\uploads"
 os.makedirs(BASE_UPLOAD_DIR, exist_ok=True)
 
 # Endpoint genérico para subir archivos por entidad
 @router.post("/upload/{entidad}/{id_entidad}", response_model=ArchivoOut, status_code=status.HTTP_201_CREATED)
 def upload_archivo_entidad(
     entidad: str,
-    id_entidad: int,
+    id_entidad: int,  # SIEMPRE es IdTransaccion
     file: UploadFile = File(...),
     descripcion: Optional[str] = Form(None),
     aud_usuario: int = Form(1),
     db: Session = Depends(get_db)
 ):
-    # Validar entidades permitidas
-    entidades_permitidas = ["expediente", "acta", "resolucion"]
+    entidades_permitidas = ["expediente", "acta", "resolucion", "propiedad-minera"]
     if entidad not in entidades_permitidas:
         raise HTTPException(status_code=400, detail=f"Entidad '{entidad}' no permitida. Entidades válidas: {entidades_permitidas}")
-
     try:
         if entidad == "expediente":
-            return _upload_archivo_expediente(id_entidad, file, descripcion, aud_usuario, db)
+            from backend.models.expediente_model import Expediente
+            expediente = db.query(Expediente).filter_by(IdTransaccion=id_entidad).first()
+            if not expediente:
+                raise HTTPException(status_code=404, detail="Expediente no encontrado para ese IdTransaccion")
+            return _upload_archivo_expediente(expediente.IdTransaccion, file, descripcion, aud_usuario, db, expediente.CodigoExpediente)
         elif entidad == "acta":
-            # id_entidad es el id de transaccion de acta
-            return _upload_archivo_acta(id_entidad, file, descripcion, aud_usuario, db)
+            from backend.models.acta_model import Acta
+            acta = db.query(Acta).filter_by(IdTransaccion=id_entidad).first()
+            if not acta:
+                raise HTTPException(status_code=404, detail="Acta no encontrada para ese IdTransaccion")
+            return _upload_archivo_acta(acta.IdTransaccion, file, descripcion, aud_usuario, db, acta.Descripcion)
         elif entidad == "resolucion":
-            # id_entidad es el id de transaccion de resolucion
-            return _upload_archivo_resolucion(id_entidad, file, descripcion, aud_usuario, db)
+            from backend.models.resolucion_model import Resolucion
+            resolucion = db.query(Resolucion).filter_by(IdTransaccion=id_entidad).first()
+            if not resolucion:
+                raise HTTPException(status_code=404, detail="Resolución no encontrada para ese IdTransaccion")
+            return _upload_archivo_resolucion(resolucion.IdTransaccion, file, descripcion, aud_usuario, db, resolucion.Titulo)
+        elif entidad == "propiedad-minera":
+            from backend.models.propiedad_minera_model import PropiedadMinera
+            propiedad = db.query(PropiedadMinera).filter_by(IdTransaccion=id_entidad).first()
+            if not propiedad:
+                raise HTTPException(status_code=404, detail="Propiedad minera no encontrada para ese IdTransaccion")
+            return _upload_archivo_propiedad_minera(propiedad.IdTransaccion, file, descripcion, aud_usuario, db, propiedad.Nombre)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error al subir archivo: {str(e)}")
-def _upload_archivo_resolucion(id_resolucion: int, file: UploadFile, descripcion: Optional[str], aud_usuario: int, db: Session):
+
+def _upload_archivo_resolucion(id_transaccion: int, file: UploadFile, descripcion: Optional[str], aud_usuario: int, db: Session, titulo_resolucion: Optional[str]):
     archivo_service = ArchivoService(db)
     resolucion_folder = os.path.join(BASE_UPLOAD_DIR, "resoluciones")
     os.makedirs(resolucion_folder, exist_ok=True)
-
-    # Obtener la resolución por id_transaccion
-    from backend.models.resolucion_model import Resolucion
-    resolucion = db.query(Resolucion).filter_by(IdTransaccion=id_resolucion).first()
-    descripcion_resolucion = (resolucion.Titulo or "RESOLUCION").replace(" ", "_") if resolucion else f"RESOLUCION_{id_resolucion}"
+    descripcion_r = (titulo_resolucion or "RESOLUCION").replace(" ", "_")
     file_extension = os.path.splitext(file.filename)[1] if file.filename else ""
     original_name_without_ext = os.path.splitext(file.filename)[0] if file.filename else "archivo"
-    temp_nombre = f"{descripcion_resolucion}_{original_name_without_ext}{file_extension}"
+    temp_nombre = f"{descripcion_r}_{original_name_without_ext}{file_extension}"
 
     temp_file_path = os.path.join(resolucion_folder, temp_nombre)
     with open(temp_file_path, "wb") as buffer:
@@ -61,7 +73,7 @@ def _upload_archivo_resolucion(id_resolucion: int, file: UploadFile, descripcion
         argentina_tz = pytz.timezone('America/Argentina/San_Juan')
         fecha_local = datetime.now(argentina_tz)
         archivo_data = ArchivoCreate(
-            IdTransaccion=id_resolucion,  # id_resolucion es el id de transaccion
+            IdTransaccion=id_transaccion,
             Nombre=temp_nombre,
             Descripcion=descripcion,
             Tipo="resolucion",
@@ -71,7 +83,7 @@ def _upload_archivo_resolucion(id_resolucion: int, file: UploadFile, descripcion
         )
         archivo_creado = archivo_service.create_archivo(archivo_data)
 
-        nuevo_nombre = f"{archivo_creado.IdArchivo}_{descripcion_resolucion}_{original_name_without_ext}{file_extension}"
+        nuevo_nombre = f"{archivo_creado.IdArchivo}_{descripcion_r}_{original_name_without_ext}{file_extension}"
         if len(nuevo_nombre) > 255:
             max_name_length = 255 - len(file_extension)
             nuevo_nombre = nuevo_nombre[:max_name_length] + file_extension
@@ -90,98 +102,63 @@ def _upload_archivo_resolucion(id_resolucion: int, file: UploadFile, descripcion
             os.remove(temp_file_path)
         raise HTTPException(status_code=500, detail=f"Error al crear registro en BD: {str(e)}")
 
-def _upload_archivo_expediente(id_expediente: int, file: UploadFile, descripcion: Optional[str], aud_usuario: int, db: Session):
-    # Obtener datos del expediente
-    expediente_service = ExpedienteService(db)
-    expediente = expediente_service.get_by_id(id_expediente)
-    if not expediente:
-        raise HTTPException(status_code=404, detail="Expediente no encontrado")
-    
-    # Crear carpeta de expedientes si no existe
+def _upload_archivo_expediente(id_transaccion: int, file: UploadFile, descripcion: Optional[str], aud_usuario: int, db: Session, codigo_expediente: Optional[str]):
+    archivo_service = ArchivoService(db)
     expediente_folder = os.path.join(BASE_UPLOAD_DIR, "expedientes")
     os.makedirs(expediente_folder, exist_ok=True)
-    
-    # Generar nombre temporal del archivo
-    codigo_expediente = expediente.CodigoExpediente or f"EXP-{id_expediente}"
+    codigo = codigo_expediente or f"EXP-{id_transaccion}"
     file_extension = os.path.splitext(file.filename)[1] if file.filename else ""
     original_name_without_ext = os.path.splitext(file.filename)[0] if file.filename else "archivo"
-    temp_nombre = f"{codigo_expediente}_{original_name_without_ext}{file_extension}"
-    
-    # Guardar archivo temporalmente
+    temp_nombre = f"{codigo}_{original_name_without_ext}{file_extension}"
     temp_file_path = os.path.join(expediente_folder, temp_nombre)
     with open(temp_file_path, "wb") as buffer:
         buffer.write(file.file.read())
-    
     try:
-        # Crear registro en la base de datos primero
         argentina_tz = pytz.timezone('America/Argentina/San_Juan')
         fecha_local = datetime.now(argentina_tz)
         archivo_data = ArchivoCreate(
-            IdTransaccion=expediente.IdTransaccion,
-            Nombre=temp_nombre,  # Nombre temporal
+            IdTransaccion=id_transaccion,
+            Nombre=temp_nombre,
             Descripcion=descripcion,
             Tipo="expediente",
             Link="/uploads/expedientes/",
             AudFecha=fecha_local,
             AudUsuario=aud_usuario
         )
-        
-        archivo_service = ArchivoService(db)
         archivo_creado = archivo_service.create_archivo(archivo_data)
-        
-        # Ahora generar el nombre final con el ID del archivo
-        nuevo_nombre = f"{archivo_creado.IdArchivo}_{codigo_expediente}_{original_name_without_ext}{file_extension}"
-        
-        # Asegurar que el nombre no exceda 255 caracteres para la BD
+        nuevo_nombre = f"{archivo_creado.IdArchivo}_{codigo}_{original_name_without_ext}{file_extension}"
         if len(nuevo_nombre) > 255:
-            # Truncar el nombre manteniendo la extensión y el ID
             max_name_length = 255 - len(file_extension)
             nuevo_nombre = nuevo_nombre[:max_name_length] + file_extension
-        
-        # Renombrar el archivo físico
         nuevo_file_path = os.path.join(expediente_folder, nuevo_nombre)
         os.rename(temp_file_path, nuevo_file_path)
-        
-        # Actualizar el nombre en la base de datos
         archivo_creado.Nombre = nuevo_nombre
+        archivo_creado.Link = f"/uploads/expedientes/{nuevo_nombre}"
         db.commit()
         db.refresh(archivo_creado)
-        
         return archivo_creado
-        
     except Exception as e:
-        # Si falla algo, eliminar el archivo físico
         if os.path.exists(temp_file_path):
             os.remove(temp_file_path)
         raise HTTPException(status_code=500, detail=f"Error al crear registro en BD: {str(e)}")
 
-def _upload_archivo_acta(id_acta: int, file: UploadFile, descripcion: Optional[str], aud_usuario: int, db: Session):
+def _upload_archivo_acta(id_transaccion: int, file: UploadFile, descripcion: Optional[str], aud_usuario: int, db: Session, descripcion_acta: Optional[str]):
     archivo_service = ArchivoService(db)
     acta_folder = os.path.join(BASE_UPLOAD_DIR, "actas")
     os.makedirs(acta_folder, exist_ok=True)
-
-    # Generar nombre temporal del archivo
-    # Usar la descripción de la acta para el nombre
-    from backend.services.acta_service import ActaService
-    acta_service = ActaService(db)
-    acta = acta_service.get_by_transaccion(id_acta)
-    descripcion_acta = (acta.Descripcion or "ACTA").replace(" ", "_") if acta else f"ACTA_{id_acta}"
+    descripcion_a = (descripcion_acta or "ACTA").replace(" ", "_")
     file_extension = os.path.splitext(file.filename)[1] if file.filename else ""
     original_name_without_ext = os.path.splitext(file.filename)[0] if file.filename else "archivo"
-    temp_nombre = f"{descripcion_acta}_{original_name_without_ext}{file_extension}"
-
-    # Guardar archivo temporalmente
+    temp_nombre = f"{descripcion_a}_{original_name_without_ext}{file_extension}"
     temp_file_path = os.path.join(acta_folder, temp_nombre)
     with open(temp_file_path, "wb") as buffer:
         buffer.write(file.file.read())
-
     try:
-        # Crear registro en la base de datos primero
         argentina_tz = pytz.timezone('America/Argentina/San_Juan')
         fecha_local = datetime.now(argentina_tz)
         archivo_data = ArchivoCreate(
-            IdTransaccion=id_acta,  # id_acta es el id de transaccion
-            Nombre=temp_nombre,  # Nombre temporal
+            IdTransaccion=id_transaccion,
+            Nombre=temp_nombre,
             Descripcion=descripcion,
             Tipo="acta",
             Link="/uploads/actas/",
@@ -189,160 +166,99 @@ def _upload_archivo_acta(id_acta: int, file: UploadFile, descripcion: Optional[s
             AudUsuario=aud_usuario
         )
         archivo_creado = archivo_service.create_archivo(archivo_data)
-
-        # Generar el nombre final con el ID del archivo
-        nuevo_nombre = f"{archivo_creado.IdArchivo}_{descripcion_acta}_{original_name_without_ext}{file_extension}"
+        nuevo_nombre = f"{archivo_creado.IdArchivo}_{descripcion_a}_{original_name_without_ext}{file_extension}"
         if len(nuevo_nombre) > 255:
             max_name_length = 255 - len(file_extension)
             nuevo_nombre = nuevo_nombre[:max_name_length] + file_extension
-
-        # Renombrar el archivo físico
         nuevo_file_path = os.path.join(acta_folder, nuevo_nombre)
         os.rename(temp_file_path, nuevo_file_path)
-
-        # Actualizar el nombre en la base de datos
         archivo_creado.Nombre = nuevo_nombre
         archivo_creado.Link = f"/uploads/actas/{nuevo_nombre}"
         db.commit()
         db.refresh(archivo_creado)
-
         return archivo_creado
     except Exception as e:
         if os.path.exists(temp_file_path):
             os.remove(temp_file_path)
         raise HTTPException(status_code=500, detail=f"Error al crear registro en BD: {str(e)}")
+
+def _upload_archivo_propiedad_minera(id_transaccion: int, file: UploadFile, descripcion: Optional[str], aud_usuario: int, db: Session, nombre_propiedad: Optional[str]):
+    archivo_service = ArchivoService(db)
+    propiedad_folder = os.path.join(BASE_UPLOAD_DIR, "propiedad-minera")
+    os.makedirs(propiedad_folder, exist_ok=True)
+    nombre_p = (nombre_propiedad or "PROPIEDAD_MINERA").replace(" ", "_")
+    file_extension = os.path.splitext(file.filename)[1] if file.filename else ""
+    original_name_without_ext = os.path.splitext(file.filename)[0] if file.filename else "archivo"
+    temp_nombre = f"{nombre_p}_{original_name_without_ext}{file_extension}"
+    temp_file_path = os.path.join(propiedad_folder, temp_nombre)
+    with open(temp_file_path, "wb") as buffer:
+        buffer.write(file.file.read())
+    try:
+        argentina_tz = pytz.timezone('America/Argentina/San_Juan')
+        fecha_local = datetime.now(argentina_tz)
+        archivo_data = ArchivoCreate(
+            IdTransaccion=id_transaccion,
+            Nombre=temp_nombre,
+            Descripcion=descripcion,
+            Tipo="propiedad-minera",
+            Link="/uploads/propiedad-minera/",
+            AudFecha=fecha_local,
+            AudUsuario=aud_usuario
+        )
+        archivo_creado = archivo_service.create_archivo(archivo_data)
+        nuevo_nombre = f"{archivo_creado.IdArchivo}_{nombre_p}_{original_name_without_ext}{file_extension}"
+        if len(nuevo_nombre) > 255:
+            max_name_length = 255 - len(file_extension)
+            nuevo_nombre = nuevo_nombre[:max_name_length] + file_extension
+        nuevo_file_path = os.path.join(propiedad_folder, nuevo_nombre)
+        os.rename(temp_file_path, nuevo_file_path)
+        archivo_creado.Nombre = nuevo_nombre
+        archivo_creado.Link = f"/uploads/propiedad-minera/{nuevo_nombre}"
+        db.commit()
+        db.refresh(archivo_creado)
+        return archivo_creado
+    except Exception as e:
+        if os.path.exists(temp_file_path):
+            os.remove(temp_file_path)
+        raise HTTPException(status_code=500, detail=f"Error al crear registro en BD: {str(e)}")
+
 # Endpoint genérico para obtener archivos por entidad con paginación
 @router.get("/{entidad}/{id_entidad}", response_model=ArchivosPaginatedResponse)
 def get_archivos_entidad(
     entidad: str, 
-    id_entidad: int, 
+    id_entidad: int,  # SIEMPRE es IdTransaccion
     page: int = 1, 
     limit: int = 10, 
     db: Session = Depends(get_db)
 ):
-    # Validar entidades permitidas
-    entidades_permitidas = ["expediente", "acta", "resolucion"]
+    entidades_permitidas = ["expediente", "acta", "resolucion", "propiedad-minera"]
     if entidad not in entidades_permitidas:
         raise HTTPException(status_code=400, detail=f"Entidad '{entidad}' no permitida")
-
-    # Validar parámetros de paginación
     if page < 1:
         raise HTTPException(status_code=400, detail="La página debe ser mayor a 0")
     if limit < 1 or limit > 100:
         raise HTTPException(status_code=400, detail="El límite debe estar entre 1 y 100")
-
-    if entidad == "expediente":
-        expediente_service = ExpedienteService(db)
-        expediente = expediente_service.get_by_id(id_entidad)
-        if not expediente:
-            raise HTTPException(status_code=404, detail="Expediente no encontrado")
-        archivo_service = ArchivoService(db)
-        skip = (page - 1) * limit
-        archivos = archivo_service.get_archivos_by_transaccion_and_tipo_paginated(
-            expediente.IdTransaccion, "expediente", skip, limit
-        )
-        total_archivos = archivo_service.count_archivos_by_transaccion_and_tipo(
-            expediente.IdTransaccion, "expediente"
-        )
-        total_pages = (total_archivos + limit - 1) // limit
-        return ArchivosPaginatedResponse(
-            archivos=[ArchivoOut.model_validate(archivo) for archivo in archivos],
-            pagination={
-                "current_page": page,
-                "total_pages": total_pages,
-                "total_items": total_archivos,
-                "items_per_page": limit,
-                "has_next": page < total_pages,
-                "has_previous": page > 1
-            }
-        )
-    elif entidad == "acta":
-        from backend.services.acta_service import ActaService
-        acta_service = ActaService(db)
-        acta = db.query(acta_service.repository.model).filter_by(IdTransaccion=id_entidad).first()
-        if not acta:
-            raise HTTPException(status_code=404, detail="Acta no encontrada para ese IdTransaccion")
-        archivo_service = ArchivoService(db)
-        skip = (page - 1) * limit
-        archivos = archivo_service.get_archivos_by_transaccion_and_tipo_paginated(
-            acta.IdTransaccion, "acta", skip, limit
-        )
-        total_archivos = archivo_service.count_archivos_by_transaccion_and_tipo(
-            acta.IdTransaccion, "acta"
-        )
-        total_pages = (total_archivos + limit - 1) // limit
-        return ArchivosPaginatedResponse(
-            archivos=[ArchivoOut.model_validate(archivo) for archivo in archivos],
-            pagination={
-                "current_page": page,
-                "total_pages": total_pages,
-                "total_items": total_archivos,
-                "items_per_page": limit,
-                "has_next": page < total_pages,
-                "has_previous": page > 1
-            }
-        )
-    elif entidad == "resolucion":
-        from backend.models.resolucion_model import Resolucion
-        resolucion = db.query(Resolucion).filter_by(IdTransaccion=id_entidad).first()
-        if not resolucion:
-            raise HTTPException(status_code=404, detail="Resolución no encontrada para ese IdTransaccion")
-        archivo_service = ArchivoService(db)
-        skip = (page - 1) * limit
-        archivos = archivo_service.get_archivos_by_transaccion_and_tipo_paginated(
-            resolucion.IdTransaccion, "resolucion", skip, limit
-        )
-        total_archivos = archivo_service.count_archivos_by_transaccion_and_tipo(
-            resolucion.IdTransaccion, "resolucion"
-        )
-        total_pages = (total_archivos + limit - 1) // limit
-        return ArchivosPaginatedResponse(
-            archivos=[ArchivoOut.model_validate(archivo) for archivo in archivos],
-            pagination={
-                "current_page": page,
-                "total_pages": total_pages,
-                "total_items": total_archivos,
-                "items_per_page": limit,
-                "has_next": page < total_pages,
-                "has_previous": page > 1
-            }
-        )
-        total_pages = (total_archivos + limit - 1) // limit
-        return ArchivosPaginatedResponse(
-            archivos=[ArchivoOut.model_validate(archivo) for archivo in archivos],
-            pagination={
-                "current_page": page,
-                "total_pages": total_pages,
-                "total_items": total_archivos,
-                "items_per_page": limit,
-                "has_next": page < total_pages,
-                "has_previous": page > 1
-            }
-        )
-        acta_service = ActaService(db)
-        acta = db.query(acta_service.repository.model).filter_by(IdTransaccion=id_entidad).first()
-        if not acta:
-            raise HTTPException(status_code=404, detail="Acta no encontrada para ese IdTransaccion")
-        archivo_service = ArchivoService(db)
-        skip = (page - 1) * limit
-        archivos = archivo_service.get_archivos_by_transaccion_and_tipo_paginated(
-            acta.IdTransaccion, "acta", skip, limit
-        )
-        total_archivos = archivo_service.count_archivos_by_transaccion_and_tipo(
-            acta.IdTransaccion, "acta"
-        )
-        total_pages = (total_archivos + limit - 1) // limit
-        return ArchivosPaginatedResponse(
-            archivos=[ArchivoOut.model_validate(archivo) for archivo in archivos],
-            pagination={
-                "current_page": page,
-                "total_pages": total_pages,
-                "total_items": total_archivos,
-                "items_per_page": limit,
-                "has_next": page < total_pages,
-                "has_previous": page > 1
-            }
-        )
+    archivo_service = ArchivoService(db)
+    skip = (page - 1) * limit
+    # Buscar archivos por IdTransaccion y tipo
+    archivos = archivo_service.get_archivos_by_transaccion_and_tipo_paginated(
+        id_entidad, entidad, skip, limit
+    )
+    total_archivos = archivo_service.count_archivos_by_transaccion_and_tipo(
+        id_entidad, entidad
+    )
+    total_pages = (total_archivos + limit - 1) // limit
+    return ArchivosPaginatedResponse(
+        archivos=[ArchivoOut.model_validate(archivo) for archivo in archivos],
+        pagination={
+            "current_page": page,
+            "total_pages": total_pages,
+            "total_items": total_archivos,
+            "items_per_page": limit,
+            "has_next": page < total_pages,
+            "has_previous": page > 1
+        }
+    )
 
 # Endpoint para descargar archivos
 @router.get("/download")

@@ -10,6 +10,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatTableModule } from '@angular/material/table';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatPaginatorModule } from '@angular/material/paginator';
 import { PropiedadMineraService } from '../services/propiedad-minera.service';
 import { ReqMineroMovService, ReqMineroMov, ReqMineroMovCreate } from '../services/req-minero-mov.service';
 import { ReqMineroService, ReqMinero } from '../services/req-minero.service';
@@ -17,6 +18,11 @@ import { TitularMineroService } from '../../titulares/services/titular.service';
 import { PropiedadMinera } from '../models/propiedad-minera.model';
 import { ReqMineroMovCreateComponent } from './req-minero-mov/req-minero-mov-create.component';
 import { ReqMineroMovEditComponent } from './req-minero-mov/req-minero-mov-edit.component';
+import { ExpedienteService } from '../../expedientes/services/expediente.service';
+import { Expediente } from '../../expedientes/models/expediente.model';
+import { AlertasListComponent } from '../../alertas/components/alertas-list.component';
+import { ObservacionesTabComponent } from '../../observaciones/components/observaciones-tab.component';
+import { ArchivosExpedienteComponent } from '../../expedientes/components/archivos/archivos-expediente.component';
 
 @Component({
   selector: 'app-propiedad-detail',
@@ -32,8 +38,12 @@ import { ReqMineroMovEditComponent } from './req-minero-mov/req-minero-mov-edit.
     MatTableModule,
     MatChipsModule,
     MatMenuModule,
+    MatPaginatorModule,
     ReqMineroMovCreateComponent,
-    ReqMineroMovEditComponent
+    ReqMineroMovEditComponent,
+    AlertasListComponent,
+    ObservacionesTabComponent,
+    ArchivosExpedienteComponent
   ],
   template: `
     <div class="detail-container">
@@ -227,6 +237,97 @@ import { ReqMineroMovEditComponent } from './req-minero-mov/req-minero-mov-edit.
                       <p>Aún no se han agregado requerimientos para esta propiedad minera.</p>
                     </div>
                   </div>
+                </mat-card-content>
+              </mat-card>
+            </div>
+          </mat-tab>
+
+          <!-- Tab 3: Expediente -->
+          <mat-tab label="Expediente">
+            <div class="tab-content">
+              <mat-card class="info-card">
+                <mat-card-header>
+                  <mat-card-title>Expedientes de la Propiedad Minera</mat-card-title>
+                </mat-card-header>
+                <mat-card-content>
+                  <div *ngIf="loadingExpedientes">
+                    <mat-spinner></mat-spinner>
+                    <p>Cargando expedientes...</p>
+                  </div>
+                  <table mat-table [dataSource]="expedientesPaged" *ngIf="!loadingExpedientes && expedientes.length > 0" class="full-width-table">
+                    <ng-container matColumnDef="codigo">
+                      <th mat-header-cell *matHeaderCellDef>Código</th>
+                      <td mat-cell *matCellDef="let exp">{{ exp.CodigoExpediente }}</td>
+                    </ng-container>
+                    <ng-container matColumnDef="caratula">
+                      <th mat-header-cell *matHeaderCellDef>Carátula</th>
+                      <td mat-cell *matCellDef="let exp">{{ exp.Caratula }}</td>
+                    </ng-container>
+                    <ng-container matColumnDef="estado">
+                      <th mat-header-cell *matHeaderCellDef>Estado</th>
+                      <td mat-cell *matCellDef="let exp">{{ exp.Estado }}</td>
+                    </ng-container>
+                    <ng-container matColumnDef="ano">
+                      <th mat-header-cell *matHeaderCellDef>Año</th>
+                      <td mat-cell *matCellDef="let exp">{{ exp.Ano }}</td>
+                    </ng-container>
+                    <tr mat-header-row *matHeaderRowDef="expedientesColumns"></tr>
+                    <tr mat-row *matRowDef="let row; columns: expedientesColumns;" (click)="irADetalleExpediente(row)" style="cursor:pointer"></tr>
+                  </table>
+                  <mat-paginator
+                    [length]="expedientesTotal"
+                    [pageSize]="expedientesPageSize"
+                    [pageIndex]="expedientesPageIndex"
+                    [pageSizeOptions]="[5, 10, 20, 50]"
+                    (page)="onExpedientesPageChange($event)"
+                    *ngIf="!loadingExpedientes && expedientesTotal > expedientesPageSize">
+                  </mat-paginator>
+                  <div *ngIf="!loadingExpedientes && expedientes.length === 0">
+                    <mat-icon>assignment</mat-icon>
+                    <h3>No hay expedientes registrados para esta propiedad minera.</h3>
+                  </div>
+                </mat-card-content>
+              </mat-card>
+            </div>
+          </mat-tab>
+
+          <!-- Tab 4: Alertas -->
+          <mat-tab label="Alertas">
+            <div class="tab-content">
+              <mat-card class="info-card">
+                <mat-card-header>
+                  <mat-card-title>Alertas asociadas a la propiedad minera</mat-card-title>
+                </mat-card-header>
+                <mat-card-content>
+                  <app-alertas-list [idTransaccion]="propiedad.IdTransaccion ?? null"></app-alertas-list>
+                </mat-card-content>
+              </mat-card>
+            </div>
+          </mat-tab>
+
+          <!-- Tab 5: Observaciones -->
+          <mat-tab label="Observaciones">
+            <div class="tab-content">
+              <mat-card class="info-card">
+                <mat-card-header>
+                  <mat-card-title>Observaciones asociadas a la propiedad minera</mat-card-title>
+                </mat-card-header>
+                <mat-card-content>
+                  <app-observaciones-tab [idTransaccion]="propiedad.IdTransaccion ?? null"></app-observaciones-tab>
+                </mat-card-content>
+              </mat-card>
+            </div>
+          </mat-tab>
+
+          <!-- Tab 6: Archivos -->
+          <mat-tab label="Archivos">
+            <div class="tab-content">
+              <mat-card class="info-card">
+                <mat-card-header>
+                  <mat-card-title>Archivos asociados a la propiedad minera</mat-card-title>
+                </mat-card-header>
+                <mat-card-content>
+                  <app-archivos-expediente [idEntidad]="propiedad.IdTransaccion ?? 0" [entidad]="'propiedad-minera'"></app-archivos-expediente>
                 </mat-card-content>
               </mat-card>
             </div>
@@ -677,13 +778,23 @@ export class PropiedadDetailComponent implements OnInit {
   mostrandoFormularioEdicion = false;
   requerimientoEnEdicion: ReqMineroMov | null = null;
 
+  // Expedientes
+  expedientes: Expediente[] = [];
+  expedientesPaged: Expediente[] = [];
+  expedientesColumns: string[] = ['codigo', 'caratula', 'estado', 'ano'];
+  loadingExpedientes = false;
+  expedientesTotal = 0;
+  expedientesPageSize = 10;
+  expedientesPageIndex = 0;
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private propiedadService: PropiedadMineraService,
     private reqMineroMovService: ReqMineroMovService,
     private reqMineroService: ReqMineroService,
-    private titularService: TitularMineroService
+    private titularService: TitularMineroService,
+    private expedienteService: ExpedienteService
   ) {}
 
   ngOnInit() {
@@ -712,6 +823,8 @@ export class PropiedadDetailComponent implements OnInit {
         if (propiedad.IdTitular) {
           this.cargarTitular(propiedad.IdTitular);
         }
+        // Cargar expedientes
+        this.cargarExpedientes();
       },
       error: (error: any) => {
         console.error('Error al cargar propiedad:', error);
@@ -851,6 +964,38 @@ export class PropiedadDetailComponent implements OnInit {
     });
   }
 
+  // Cargar expedientes relacionados con la propiedad minera
+  cargarExpedientes(): void {
+    if (!this.propiedadId) return;
+    this.loadingExpedientes = true;
+    this.expedienteService.getExpedientesPorPropiedadMinera(this.propiedadId).subscribe({
+      next: (data) => {
+        this.expedientes = data;
+        this.expedientesTotal = data.length;
+        this.setExpedientesPaged();
+        this.loadingExpedientes = false;
+      },
+      error: () => {
+        this.expedientes = [];
+        this.expedientesTotal = 0;
+        this.setExpedientesPaged();
+        this.loadingExpedientes = false;
+      }
+    });
+  }
+
+  setExpedientesPaged(): void {
+    const start = this.expedientesPageIndex * this.expedientesPageSize;
+    const end = start + this.expedientesPageSize;
+    this.expedientesPaged = this.expedientes.slice(start, end);
+  }
+
+  onExpedientesPageChange(event: any): void {
+    this.expedientesPageIndex = event.pageIndex;
+    this.expedientesPageSize = event.pageSize;
+    this.setExpedientesPaged();
+  }
+
   // Métodos para acciones de requerimientos
   agregarRequerimiento() {
     this.mostrarFormularioCreacion();
@@ -904,5 +1049,9 @@ export class PropiedadDetailComponent implements OnInit {
     if (this.propiedadId) {
       this.router.navigate(['/propiedades', this.propiedadId, 'editar']);
     }
+  }
+
+  irADetalleExpediente(expediente: Expediente): void {
+    this.router.navigate(['/expedientes', expediente.IdExpediente]);
   }
 }

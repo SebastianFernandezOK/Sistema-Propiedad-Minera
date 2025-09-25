@@ -31,8 +31,7 @@ import { TitularMineroService, TitularMinero } from '../../titulares/services/ti
     <mat-card class="propiedad-form-card">
       <h2 class="form-title">{{ modo === 'editar' ? 'Editar' : 'Crear' }} Propiedad Minera</h2>
       <form [formGroup]="form" (ngSubmit)="onSubmit()" class="propiedad-form-grid">
-        
-        <!-- Fila 1: Nombre, Titular, Transacción -->
+        <!-- Fila 1: Nombre, Provincia -->
         <mat-form-field appearance="fill">
           <mat-label>Nombre de la Propiedad</mat-label>
           <input matInput formControlName="Nombre" placeholder="Ingrese el nombre">
@@ -42,22 +41,22 @@ import { TitularMineroService, TitularMinero } from '../../titulares/services/ti
         </mat-form-field>
 
         <mat-form-field appearance="fill">
-          <mat-label>Titular Minero</mat-label>
-          <mat-select formControlName="IdTitular">
-            <mat-option value="">Seleccione un titular</mat-option>
-            <mat-option *ngFor="let titular of titulares" [value]="titular.IdTitular">
-              {{titular.Nombre}} - {{titular.DniCuit}}
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
-
-        <!-- Fila 2: Provincia, Área -->
-        <mat-form-field appearance="fill">
           <mat-label>Provincia</mat-label>
           <mat-select formControlName="Provincia">
             <mat-option value="">Seleccione una provincia</mat-option>
             <mat-option *ngFor="let provincia of provincias" [value]="provincia">
               {{provincia}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <!-- Fila 2: Titular, Área -->
+        <mat-form-field appearance="fill">
+          <mat-label>Titular Minero</mat-label>
+          <mat-select formControlName="IdTitular">
+            <mat-option value="">Seleccione un titular</mat-option>
+            <mat-option *ngFor="let titular of titulares" [value]="titular.IdTitular">
+              {{titular.Nombre}} - {{titular.DniCuit}}
             </mat-option>
           </mat-select>
         </mat-form-field>

@@ -3,12 +3,13 @@ import { HttpClient, HttpParams, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Expediente, ExpedienteCreate, ExpedienteFilter, ExpedienteResponse } from '../models/expediente.model';
+import { API_BASE_URL } from '../../../core/api.constants';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ExpedienteService {
-  private readonly baseUrl = 'http://localhost:9000/expedientes';
+  private readonly baseUrl = `${API_BASE_URL}/expedientes`;
 
   constructor(private http: HttpClient) {}
 
@@ -100,5 +101,42 @@ export class ExpedienteService {
   private extractTotalFromRange(contentRange: string): number {
     const match = contentRange.match(/\/(\d+)$/);
     return match ? parseInt(match[1], 10) : 0;
+  }
+
+  /**
+   * Obtiene expedientes filtrados por propiedad minera (IdPropiedadMinera)
+   */
+  getExpedientesByPropiedadMinera(
+    idPropiedadMinera: number,
+    page: number = 0,
+    size: number = 10
+  ): Observable<ExpedienteResponse> {
+    const start = page * size;
+    const end = start + size - 1;
+    let params = new HttpParams()
+      .set('range', `[${start},${end}]`)
+      .set('filter', JSON.stringify({ IdPropiedadMinera: idPropiedadMinera }));
+    return this.http.get<any[]>(this.baseUrl, {
+      params,
+      observe: 'response'
+    }).pipe(
+      map((response: HttpResponse<any[]>) => {
+        const contentRange = response.headers.get('Content-Range') || '';
+        const total = this.extractTotalFromRange(contentRange);
+        const mappedData = (response.body || []).map((item: any) => ({ ...item }));
+        return {
+          data: mappedData,
+          total: total,
+          range: contentRange
+        };
+      })
+    );
+  }
+
+  /**
+   * Obtiene expedientes por propiedad minera usando el endpoint exclusivo
+   */
+  getExpedientesPorPropiedadMinera(idPropiedadMinera: number): Observable<Expediente[]> {
+    return this.http.get<Expediente[]>(`${this.baseUrl}/propiedad-minera/${idPropiedadMinera}`);
   }
 }

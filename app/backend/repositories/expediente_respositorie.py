@@ -37,3 +37,6 @@ class ExpedienteRepository:
         self.db.delete(expediente)
         self.db.commit()
         return True
+
+    def get_by_propiedad_minera(self, id_propiedad: int):
+        return self.db.query(Expediente).filter(Expediente.IdPropiedadMinera == id_propiedad).all()

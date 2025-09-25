@@ -3,10 +3,11 @@ import { HttpClient, HttpResponse, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { TipoAlerta, TipoAlertaCreate } from '../models/tipo-alerta.model';
+import { API_BASE_URL } from '../../../core/api.constants';
 
 @Injectable({ providedIn: 'root' })
 export class TipoAlertaService {
-  private apiUrl = 'http://localhost:9000/tipo-alerta';
+  private apiUrl = `${API_BASE_URL}/tipo-alerta`;
 
   constructor(private http: HttpClient) {}
 

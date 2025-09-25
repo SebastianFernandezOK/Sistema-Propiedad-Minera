@@ -30,5 +30,6 @@ export interface PropiedadMineraFilter {
   Nombre?: string;
   Provincia?: string;
   IdTitular?: number;
+  Expediente?: string;
   range?: [number, number];
 }

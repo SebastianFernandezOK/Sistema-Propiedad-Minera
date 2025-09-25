@@ -10,7 +10,7 @@ router = APIRouter(
     tags=["Tipo Notificacion"]
 )
 
-@router.get("/", response_model=List[TipoNotificacionOut])
+@router.get("/", response_model=None)
 def list_tipos_notificacion(
     db: Session = Depends(get_db),
     response: Response = None,
@@ -33,7 +33,7 @@ def list_tipos_notificacion(
         response.headers["Content-Range"] = f"tipos-notificacion {start}-{end}/{total}"
         print(f"Controller: Setting Content-Range header: tipos-notificacion {start}-{end}/{total}")
     print(f"Controller: Returning {len(paginated_items)} paginated items")
-    return paginated_items
+    return {"data": paginated_items, "total": total}
 
 @router.get("/{id}", response_model=TipoNotificacionOut)
 def get_tipo_notificacion(id: int, db: Session = Depends(get_db)):

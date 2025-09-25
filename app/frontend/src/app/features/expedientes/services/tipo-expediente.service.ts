@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { API_BASE_URL } from '../../../core/api.constants';
 
 export interface TipoExpediente {
   IdTipoExpediente: number;
@@ -11,7 +12,7 @@ export interface TipoExpediente {
 
 @Injectable({ providedIn: 'root' })
 export class TipoExpedienteService {
-  private readonly baseUrl = 'http://localhost:9000/tipos-expediente';
+  private readonly baseUrl = `${API_BASE_URL}/tipos-expediente`;
 
   constructor(private http: HttpClient) {}
 

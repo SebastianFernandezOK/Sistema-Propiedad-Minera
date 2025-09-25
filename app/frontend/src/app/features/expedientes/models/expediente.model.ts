@@ -36,6 +36,7 @@ export interface ExpedienteCreate {
 
 export interface ExpedienteFilter {
   CodigoExpediente?: string;
+  IdPropiedadMinera?: number;
 }
 
 export interface Alerta {

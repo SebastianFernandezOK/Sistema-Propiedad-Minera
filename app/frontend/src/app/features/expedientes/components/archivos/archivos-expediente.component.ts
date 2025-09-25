@@ -46,7 +46,8 @@ import { ArchivoEditComponent } from './archivo-edit.component';
       <!-- Formulario de creación -->
       <app-archivo-create
         *ngIf="mostrandoFormCreacion"
-        [idExpediente]="idExpediente"
+        [idEntidad]="idEntidad"
+        [entidad]="entidad"
         (archivoCreado)="onArchivoCreado($event)"
         (cancelar)="onCancelarCreacion()">
       </app-archivo-create>
@@ -166,14 +167,8 @@ import { ArchivoEditComponent } from './archivo-edit.component';
   `]
 })
 export class ArchivosExpedienteComponent implements OnInit {
-  // ...existing code...
-  // Método para manejar el cambio de página y tamaño
-  onPageChange(event: any) {
-    this.pageSize = event.pageSize;
-    this.paginaActual = event.pageIndex + 1;
-    this.cargarArchivos();
-  }
-  @Input() idExpediente!: number;
+  @Input() idEntidad!: number;
+  @Input() entidad: string = 'expediente';
 
   archivos: Archivo[] = [];
   loading = false;
@@ -190,14 +185,14 @@ export class ArchivosExpedienteComponent implements OnInit {
   constructor(private archivoService: ArchivoService) {}
 
   ngOnInit() {
-    if (this.idExpediente) {
+    if (this.idEntidad) {
       this.cargarArchivos();
     }
   }
 
   cargarArchivos() {
     this.loading = true;
-    this.archivoService.getArchivosByEntidad('expediente', this.idExpediente, this.paginaActual, this.pageSize).subscribe({
+    this.archivoService.getArchivosByEntidad(this.entidad, this.idEntidad, this.paginaActual, this.pageSize).subscribe({
       next: (response: any) => {
         this.archivos = response.archivos || [];
         // Leer paginación desde response.pagination
@@ -213,7 +208,6 @@ export class ArchivosExpedienteComponent implements OnInit {
         this.loading = false;
       }
     });
-
   }
 
   mostrarFormularioCreacion() {
@@ -305,4 +299,10 @@ export class ArchivosExpedienteComponent implements OnInit {
     }
   }
 
+  // Método para manejar el cambio de página y tamaño
+  onPageChange(event: any) {
+    this.pageSize = event.pageSize;
+    this.paginaActual = event.pageIndex + 1;
+    this.cargarArchivos();
+  }
 }

@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { API_BASE_URL } from '../../../core/api.constants';
 
 export interface ReqMinero {
   IdReqMinero: number;
@@ -26,7 +27,7 @@ export interface ReqMineroFilter {
   providedIn: 'root'
 })
 export class ReqMineroService {
-  private apiUrl = 'http://localhost:9000';
+  private apiUrl = API_BASE_URL;
 
   constructor(private http: HttpClient) { }
 

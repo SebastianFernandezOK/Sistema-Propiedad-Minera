@@ -3,10 +3,11 @@ import { HttpClient, HttpResponse, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { TipoNotificacion, TipoNotificacionCreate } from '../models/tipo-notificacion.model';
+import { API_BASE_URL } from '../../../core/api.constants';
 
 @Injectable({ providedIn: 'root' })
 export class TipoNotificacionService {
-  private apiUrl = 'http://localhost:9000/tipos-notificacion';
+  private apiUrl = `${API_BASE_URL}/tipos-notificacion`;
 
   constructor(private http: HttpClient) {}
 

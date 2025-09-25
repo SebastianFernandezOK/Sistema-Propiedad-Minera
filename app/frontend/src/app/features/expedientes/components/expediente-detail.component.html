@@ -108,7 +108,7 @@
             <!-- Archivos -->
             <ng-container *ngSwitchCase="5">
               <div class="tab-content">
-                <app-archivos-expediente [idExpediente]="expediente.IdExpediente"></app-archivos-expediente>
+                <app-archivos-expediente [idEntidad]="expediente.IdTransaccion ?? 0"></app-archivos-expediente>
               </div>
             </ng-container>
           </ng-container>

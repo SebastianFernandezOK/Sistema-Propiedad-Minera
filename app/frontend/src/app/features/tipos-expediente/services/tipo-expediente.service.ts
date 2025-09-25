@@ -3,10 +3,11 @@ import { HttpClient, HttpResponse, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { TipoExpediente, TipoExpedienteCreate } from '../models/tipo-expediente.model';
+import { API_BASE_URL } from '../../../core/api.constants';
 
 @Injectable({ providedIn: 'root' })
 export class TipoExpedienteService {
-  private apiUrl = 'http://localhost:9000/tipos-expediente';
+  private apiUrl = `${API_BASE_URL}/tipos-expediente`;
 
   constructor(private http: HttpClient) {}
 

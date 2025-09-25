@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { API_BASE_URL } from '../../../core/api.constants';
 
 export interface Alerta {
   idAlerta: number;
@@ -33,7 +34,7 @@ export interface ResolucionDetalleResponse extends Resolucion {
   providedIn: 'root'
 })
 export class ResolucionService {
-  private readonly baseUrl = 'http://localhost:9000/resoluciones';
+  private readonly baseUrl = `${API_BASE_URL}/resoluciones`;
 
   constructor(private http: HttpClient) {}
 

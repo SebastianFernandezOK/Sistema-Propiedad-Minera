@@ -3,12 +3,13 @@ import { HttpClient, HttpParams, HttpHeaders, HttpResponse } from '@angular/comm
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { PropiedadMinera, PropiedadMineraCreate, PropiedadMineraFilter } from '../../shared/models/propiedad-minera.model';
+import { API_BASE_URL } from '../api.constants';
 
 @Injectable({
   providedIn: 'root'
 })
 export class PropiedadMineraService {
-  private apiUrl = 'http://localhost:9000';
+  private apiUrl = API_BASE_URL;
 
   constructor(private http: HttpClient) { }
 

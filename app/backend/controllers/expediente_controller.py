@@ -100,3 +100,9 @@ def borrar_expediente(id_expediente: int, db: Session = Depends(get_db)):
     if not deleted:
         raise HTTPException(status_code=404, detail="Expediente no encontrado")
     return {"ok": True}
+
+@router.get("/propiedad-minera/{id_propiedad}", response_model=List[ExpedienteRead])
+def listar_expedientes_por_propiedad_minera(id_propiedad: int, db: Session = Depends(get_db)):
+    service = ExpedienteService(db)
+    items = service.get_by_propiedad_minera(id_propiedad)
+    return [ExpedienteRead.from_orm(e).dict() for e in items]
