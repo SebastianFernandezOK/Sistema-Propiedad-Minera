@@ -10,7 +10,7 @@ router = APIRouter(
     tags=["Tipo Notificacion"]
 )
 
-@router.get("/", response_model=None)
+@router.get("/", response_model=List[TipoNotificacionOut])
 def list_tipos_notificacion(
     db: Session = Depends(get_db),
     response: Response = None,
@@ -33,7 +33,7 @@ def list_tipos_notificacion(
         response.headers["Content-Range"] = f"tipos-notificacion {start}-{end}/{total}"
         print(f"Controller: Setting Content-Range header: tipos-notificacion {start}-{end}/{total}")
     print(f"Controller: Returning {len(paginated_items)} paginated items")
-    return {"data": paginated_items, "total": total}
+    return paginated_items
 
 @router.get("/{id}", response_model=TipoNotificacionOut)
 def get_tipo_notificacion(id: int, db: Session = Depends(get_db)):
@@ -67,4 +67,3 @@ def delete_tipo_notificacion(id: int, db: Session = Depends(get_db)):
     if not deleted:
         raise HTTPException(status_code=404, detail="TipoNotificacion not found")
     return {"message": "TipoNotificacion deleted successfully", "id": id}
-
