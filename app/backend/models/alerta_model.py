@@ -21,5 +21,5 @@ class Alerta(Base):
     AudFecha = Column(DateTime, nullable=True)
     AudUsuario = Column(SmallInteger, nullable=True)
     Obs = Column(String(5000), nullable=True)
-
+    DiasPers = Column(Integer, nullable=True)
     estado = relationship('EstadoAlerta', backref='alertas')
