@@ -66,19 +66,24 @@ import { SharedDatepickerModule } from '../../../../shared/shared-datepicker.mod
             </div>
           </div>
 
+          <!-- Fila de Fecha eliminada -->
+
+          <!-- Fila Fecha Inicio -->
           <div class="form-row">
             <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Fecha</mat-label>
-              <input matInput 
-                     [matDatepicker]="picker" 
-                     formControlName="Fecha"
-                     placeholder="Seleccione la fecha"
-                     appDateFormat>
-              <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-              <mat-datepicker #picker></mat-datepicker>
-              <mat-error *ngIf="reqMineroForm.get('Fecha')?.hasError('required')">
-                La fecha es requerida
-              </mat-error>
+              <mat-label>Fecha Inicio</mat-label>
+              <input matInput [matDatepicker]="pickerInicio" formControlName="FechaInicio" placeholder="Seleccione la fecha de inicio" appDateFormat>
+              <mat-datepicker-toggle matIconSuffix [for]="pickerInicio"></mat-datepicker-toggle>
+              <mat-datepicker #pickerInicio></mat-datepicker>
+            </mat-form-field>
+          </div>
+          <!-- Fila Fecha Fin -->
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Fecha Fin</mat-label>
+              <input matInput [matDatepicker]="pickerFin" formControlName="FechaFin" placeholder="Seleccione la fecha de fin" appDateFormat>
+              <mat-datepicker-toggle matIconSuffix [for]="pickerFin"></mat-datepicker-toggle>
+              <mat-datepicker #pickerFin></mat-datepicker>
             </mat-form-field>
           </div>
 
@@ -113,16 +118,6 @@ import { SharedDatepickerModule } from '../../../../shared/shared-datepicker.mod
                 El importe debe ser mayor a 0
               </mat-error>
             </mat-form-field>
-          </div>
-
-          <div class="audit-info" *ngIf="reqMineroMov?.AudFecha">
-            <div class="audit-item">
-              <strong>Última modificación:</strong> 
-              {{ reqMineroMov?.AudFecha | date:'dd/MM/yyyy HH:mm' }}
-            </div>
-            <div class="audit-item" *ngIf="reqMineroMov?.AudUsuario">
-              <strong>Usuario:</strong> {{ reqMineroMov?.AudUsuario }}
-            </div>
           </div>
 
           <div class="form-actions">
@@ -350,9 +345,11 @@ export class ReqMineroMovEditComponent implements OnInit, OnChanges {
   private createForm(): FormGroup {
     return this.fb.group({
       IdReqMinero: [null, [Validators.required, Validators.min(1)]],
-      Fecha: [null, [Validators.required]],
+      FechaInicio: [null],
+      FechaFin: [null],
       Descripcion: ['', [Validators.required, Validators.maxLength(500)]],
       Importe: [null, [Validators.min(0)]]
+      // AudFecha eliminado
     });
   }
 
@@ -360,9 +357,12 @@ export class ReqMineroMovEditComponent implements OnInit, OnChanges {
     if (this.reqMineroMov) {
       const formData = {
         IdReqMinero: this.reqMineroMov.IdReqMinero,
-        Fecha: this.reqMineroMov.Fecha ? new Date(this.reqMineroMov.Fecha) : null,
+        // Fecha: this.reqMineroMov.Fecha ? new Date(this.reqMineroMov.Fecha) : null, // Eliminado
+        FechaInicio: this.reqMineroMov.FechaInicio ? new Date(this.reqMineroMov.FechaInicio) : null,
+        FechaFin: this.reqMineroMov.FechaFin ? new Date(this.reqMineroMov.FechaFin) : null,
         Descripcion: this.reqMineroMov.Descripcion || '',
         Importe: this.reqMineroMov.Importe
+        // AudFecha eliminado
       };
 
       this.reqMineroForm.patchValue(formData);
@@ -386,9 +386,11 @@ export class ReqMineroMovEditComponent implements OnInit, OnChanges {
       const reqMineroData: Partial<ReqMineroMovCreate> = {
         IdPropiedadMinera: this.reqMineroMov?.IdPropiedadMinera,
         IdReqMinero: formValue.IdReqMinero,
-        Fecha: formValue.Fecha,
+        FechaInicio: formValue.FechaInicio,
+        FechaFin: formValue.FechaFin,
         Descripcion: formValue.Descripcion?.trim(),
         Importe: formValue.Importe
+        // AudFecha eliminado
       };
 
       this.update.emit(reqMineroData);

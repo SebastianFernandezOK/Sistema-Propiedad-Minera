@@ -66,19 +66,24 @@ import { SharedDatepickerModule } from '../../../../shared/shared-datepicker.mod
             </div>
           </div>
 
+          <!-- Fila de Fecha eliminada -->
+
+          <!-- Fila Fecha Inicio -->
           <div class="form-row">
             <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Fecha</mat-label>
-              <input matInput 
-                     [matDatepicker]="picker" 
-                     formControlName="Fecha"
-                     placeholder="Seleccione la fecha"
-                     appDateFormat>
-              <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-              <mat-datepicker #picker></mat-datepicker>
-              <mat-error *ngIf="reqMineroForm.get('Fecha')?.hasError('required')">
-                La fecha es requerida
-              </mat-error>
+              <mat-label>Fecha Inicio</mat-label>
+              <input matInput [matDatepicker]="pickerInicio" formControlName="FechaInicio" placeholder="Seleccione la fecha de inicio" appDateFormat>
+              <mat-datepicker-toggle matIconSuffix [for]="pickerInicio"></mat-datepicker-toggle>
+              <mat-datepicker #pickerInicio></mat-datepicker>
+            </mat-form-field>
+          </div>
+          <!-- Fila Fecha Fin -->
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Fecha Fin</mat-label>
+              <input matInput [matDatepicker]="pickerFin" formControlName="FechaFin" placeholder="Seleccione la fecha de fin" appDateFormat>
+              <mat-datepicker-toggle matIconSuffix [for]="pickerFin"></mat-datepicker-toggle>
+              <mat-datepicker #pickerFin></mat-datepicker>
             </mat-form-field>
           </div>
 
@@ -338,25 +343,28 @@ export class ReqMineroMovCreateComponent implements OnInit {
     return this.fb.group({
       IdPropiedadMinera: [null],
       IdReqMinero: [null, [Validators.required, Validators.min(1)]],
-      Fecha: [new Date(), [Validators.required]],
+      FechaInicio: [null],
+      FechaFin: [null],
       Descripcion: ['', [Validators.required, Validators.maxLength(500)]],
       Importe: [null, [Validators.min(0)]]
+      // AudFecha eliminado
     });
   }
 
   onSubmit() {
     if (this.reqMineroForm.valid && !this.isSubmitting) {
       this.isSubmitting = true;
-      
       const formValue = this.reqMineroForm.value;
       const reqMineroData: ReqMineroMovCreate = {
         IdPropiedadMinera: this.idPropiedadMinera || formValue.IdPropiedadMinera,
         IdReqMinero: formValue.IdReqMinero,
-        Fecha: formValue.Fecha,
+        // Fecha: formValue.Fecha, // Eliminado
+        FechaInicio: formValue.FechaInicio,
+        FechaFin: formValue.FechaFin,
         Descripcion: formValue.Descripcion?.trim(),
         Importe: formValue.Importe
+        // AudFecha eliminado
       };
-
       this.create.emit(reqMineroData);
       
       // Reset form after successful submission
@@ -366,7 +374,8 @@ export class ReqMineroMovCreateComponent implements OnInit {
         if (this.idPropiedadMinera) {
           this.reqMineroForm.patchValue({
             IdPropiedadMinera: this.idPropiedadMinera,
-            Fecha: new Date()
+            FechaInicio: null,
+            FechaFin: null
           });
         }
       }, 1000);

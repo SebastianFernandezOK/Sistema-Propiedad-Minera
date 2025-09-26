@@ -76,7 +76,7 @@ import { ArchivosExpedienteComponent } from '../../expedientes/components/archiv
                 <mat-card-header>
                   <mat-card-title>Información General</mat-card-title>
                   <div class="spacer"></div>
-                  <button mat-raised-button color="primary" (click)="editPropiedad()" *ngIf="propiedad">
+                  <button mat-flat-button class="editar-prop-btn" (click)="editPropiedad()" *ngIf="propiedad">
                     <mat-icon>edit</mat-icon>
                     Editar Propiedad
                   </button>
@@ -102,6 +102,10 @@ import { ArchivosExpedienteComponent } from '../../expedientes/components/archiv
                     <div class="info-item">
                       <label>Descubrimiento Directo:</label>
                       <span>{{ propiedad.DescubrimientoDirecto || 'No especificado' }}</span>
+                    </div>
+                    <div class="info-item">
+                      <label>Referente:</label>
+                      <span>{{ propiedad.Referente === true ? 'Sí' : propiedad.Referente === false ? 'No' : 'No especificado' }}</span>
                     </div>
                   </div>
                 </mat-card-content>
@@ -162,10 +166,10 @@ import { ArchivosExpedienteComponent } from '../../expedientes/components/archiv
                   <mat-card-title>Requerimientos Mineros</mat-card-title>
                   <mat-card-subtitle>Documentos y requisitos de la propiedad minera</mat-card-subtitle>
                   <div class="spacer"></div>
-                  <button mat-raised-button 
-                          color="accent" 
+                  <button mat-flat-button 
+                          class="editar-prop-btn"
                           (click)="mostrarFormularioCreacion()"
-                          class="btn-nuevo-requerimiento">
+                          *ngIf="!mostrandoFormularioCreacion && !mostrandoFormularioEdicion">
                     <mat-icon>add</mat-icon>
                     Nuevo Requerimiento
                   </button>
@@ -180,19 +184,27 @@ import { ArchivosExpedienteComponent } from '../../expedientes/components/archiv
                   <!-- Tabla de requerimientos -->
                   <div *ngIf="!loadingRequerimientos" class="requerimientos-table">
                     <table mat-table [dataSource]="requerimientos" class="full-width-table">
+                      <!-- Columna Fecha Inicio -->
+                      <ng-container matColumnDef="fechaInicio">
+                        <th mat-header-cell *matHeaderCellDef>Fecha Inicio</th>
+                        <td mat-cell *matCellDef="let req">
+                          {{ req.FechaInicio ? (req.FechaInicio | date:'dd/MM/yyyy') : '-' }}
+                        </td>
+                      </ng-container>
+
+                      <!-- Columna Fecha Fin -->
+                      <ng-container matColumnDef="fechaFin">
+                        <th mat-header-cell *matHeaderCellDef>Fecha Fin</th>
+                        <td mat-cell *matCellDef="let req">
+                          {{ req.FechaFin ? (req.FechaFin | date:'dd/MM/yyyy') : '-' }}
+                        </td>
+                      </ng-container>
+
                       <!-- Columna Nombre Requerimiento Minero -->
                       <ng-container matColumnDef="nombreReqMinero">
                         <th mat-header-cell *matHeaderCellDef>Tipo de Requerimiento</th>
                         <td mat-cell *matCellDef="let req">
                           {{ req.IdReqMinero ? getTipoRequerimientoNombre(req.IdReqMinero) : 'Sin tipo especificado' }}
-                        </td>
-                      </ng-container>
-
-                      <!-- Columna Fecha -->
-                      <ng-container matColumnDef="fecha">
-                        <th mat-header-cell *matHeaderCellDef>Fecha</th>
-                        <td mat-cell *matCellDef="let req">
-                          {{ formatDate(req.Fecha) }}
                         </td>
                       </ng-container>
 
@@ -204,14 +216,14 @@ import { ArchivosExpedienteComponent } from '../../expedientes/components/archiv
                         </td>
                       </ng-container>
 
-                      <!-- Columna Importe -->
+                      <!-- Columna Importe (solo si es Canon) -->
                       <ng-container matColumnDef="importe">
                         <th mat-header-cell *matHeaderCellDef>Importe</th>
                         <td mat-cell *matCellDef="let req">
-                          <span *ngIf="req.Importe" class="importe">
+                          <span *ngIf="getTipoRequerimientoNombre(req.IdReqMinero) === 'Canon' && req.Importe">
                             {{ formatCurrency(req.Importe) }}
                           </span>
-                          <span *ngIf="!req.Importe" class="no-importe">-</span>
+                          <span *ngIf="getTipoRequerimientoNombre(req.IdReqMinero) !== 'Canon' || !req.Importe">-</span>
                         </td>
                       </ng-container>
 
@@ -659,53 +671,39 @@ import { ArchivosExpedienteComponent } from '../../expedientes/components/archiv
       margin-top: 16px;
     }
 
+    .requerimientos-table table.full-width-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+    }
+    .requerimientos-table th, .requerimientos-table td {
+      border-right: 1px solid #888;
+      padding: 8px 12px;
+    }
+    .requerimientos-table tr {
+      border-bottom: 1px solid #888;
+    }
+    .requerimientos-table th {
+      background: #f5f5f5;
+      font-weight: 600;
+      text-align: left;
+    }
+    .requerimientos-table tr {
+      border-bottom: 1px solid #e0e0e0;
+    }
+    .requerimientos-table tr:last-child {
+      border-bottom: none;
+    }
+    .importe {
+      font-weight: bold;
+      color: #2e7d32;
+    }
+    .no-importe {
+      color: #aaa;
+    }
     .full-width-table {
       width: 100%;
     }
-
-    .full-width-table th,
-    .full-width-table td {
-      padding: 12px 8px;
-    }
-
-    .importe {
-      font-weight: 500;
-      color: #2e7d32;
-    }
-
-    .no-importe {
-      color: #999;
-      font-style: italic;
-    }
-
-    .no-requerimientos {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 60px 20px;
-      text-align: center;
-      color: #666;
-    }
-
-    .no-requerimientos mat-icon {
-      font-size: 48px;
-      width: 48px;
-      height: 48px;
-      margin-bottom: 16px;
-      color: #ccc;
-    }
-
-    .no-requerimientos h3 {
-      margin: 0 0 8px 0;
-      font-weight: 500;
-    }
-
-    .no-requerimientos p {
-      margin: 0;
-      font-size: 0.9rem;
-    }
-
     .error-container {
       display: flex;
       flex-direction: column;
@@ -757,6 +755,26 @@ import { ArchivosExpedienteComponent } from '../../expedientes/components/archiv
         grid-template-columns: 1fr;
       }
     }
+
+    .editar-prop-btn {
+      background: #fff !important;
+      color: #219653 !important;
+      border: 2px solid #219653 !important;
+      box-shadow: none !important;
+      opacity: 1 !important;
+      filter: none !important;
+      font-weight: 700;
+    }
+    .editar-prop-btn mat-icon {
+      color: #219653 !important;
+    }
+    .editar-prop-btn:hover,
+    .editar-prop-btn:focus {
+      background: #e8f5e9 !important;
+      color: #17693b !important;
+      border-color: #17693b !important;
+      box-shadow: 0 0 0 2px #e8f5e9 !important;
+    }
   `]
 })
 export class PropiedadDetailComponent implements OnInit {
@@ -768,7 +786,14 @@ export class PropiedadDetailComponent implements OnInit {
   // Requerimientos
   requerimientos: ReqMineroMov[] = [];
   loadingRequerimientos = false;
-  requerimientosColumns: string[] = ['nombreReqMinero', 'fecha', 'descripcion', 'importe', 'acciones'];
+  requerimientosColumns: string[] = [
+    'fechaInicio',
+    'fechaFin',
+    'nombreReqMinero',
+    'descripcion',
+    'importe',
+    'acciones'
+  ];
   
   // Lista de tipos de requerimientos para hacer el mapeo
   tiposRequerimientos: ReqMinero[] = [];

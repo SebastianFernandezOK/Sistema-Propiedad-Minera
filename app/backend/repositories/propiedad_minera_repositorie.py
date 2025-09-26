@@ -7,7 +7,8 @@ class PropiedadMineraRepositorie:
         self.db = db
 
     def get_all(self):
-        return self.db.query(PropiedadMinera).all()
+        # Ordenar por Referente descendente (True primero, luego False, luego NULL)
+        return self.db.query(PropiedadMinera).order_by(PropiedadMinera.Referente.desc()).all()
 
     def get_by_id(self, id_propiedad: int):
         return self.db.query(PropiedadMinera).filter(PropiedadMinera.IdPropiedadMinera == id_propiedad).first()

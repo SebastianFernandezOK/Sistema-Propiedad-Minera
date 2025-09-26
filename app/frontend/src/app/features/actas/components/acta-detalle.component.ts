@@ -53,10 +53,6 @@ import { MatSnackBar } from '@angular/material/snack-bar';
     MatProgressBarModule,
     ArchivoEditComponent
   ],
-  providers: [
-    { provide: MAT_DATE_LOCALE, useValue: 'es' },
-    { provide: MAT_DATE_FORMATS, useValue: 'DD/MM/YYYY' }
-  ],
   animations: [
     trigger('slideContent', [
       transition(':increment', [

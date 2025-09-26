@@ -9,11 +9,12 @@ class ReqMineroMov(Base):
     IdPropiedadMinera = Column(Integer, ForeignKey('PropiedadMinera.IdPropiedadMinera'), nullable=True)
     IdReqMinero = Column(Integer, ForeignKey('ReqMinero.IdReqMinero'), nullable=True)
     IdTransaccion = Column(Integer, ForeignKey('Transaccion.IdTransaccion'), nullable=True)
-    Fecha = Column(DateTime, nullable=True)
     Descripcion = Column(String(500), nullable=True)
     Importe = Column(Numeric(19, 2), nullable=True)
     AudFecha = Column(DateTime, nullable=True)
     AudUsuario = Column(Integer, nullable=True)
+    FechaInicio = Column(DateTime, nullable=True)
+    FechaFin = Column(DateTime, nullable=True)
 
     # Relaciones (opcional - descomenta si necesitas las relaciones)
     # propiedad_minera = relationship("PropiedadMinera", back_populates="req_minero_movs")

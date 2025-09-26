@@ -16,7 +16,8 @@ export interface ReqMineroMov {
   IdPropiedadMinera?: number;
   IdReqMinero?: number;
   IdTransaccion?: number;
-  Fecha?: Date;
+  FechaInicio?: Date;
+  FechaFin?: Date;
   Descripcion?: string;
   Importe?: number;
   AudFecha?: Date;
@@ -27,7 +28,8 @@ export interface ReqMineroMovCreate {
   IdPropiedadMinera?: number;
   IdReqMinero?: number;
   IdTransaccion?: number;
-  Fecha?: Date;
+  FechaInicio?: Date;
+  FechaFin?: Date;
   Descripcion?: string;
   Importe?: number;
   AudFecha?: Date;

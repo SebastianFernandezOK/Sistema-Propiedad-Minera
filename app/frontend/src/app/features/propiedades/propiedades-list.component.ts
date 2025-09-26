@@ -157,6 +157,23 @@ import { PropiedadMinera, PropiedadMineraFilter } from './models/propiedad-miner
                 </td>
               </ng-container>
 
+              <!-- Referente Column -->
+              <ng-container matColumnDef="Referente">
+                <th mat-header-cell *matHeaderCellDef>Referente</th>
+                <td mat-cell *matCellDef="let propiedad">
+                  <mat-icon
+                    class="referente-star"
+                    [ngClass]="{
+                      'star-on': propiedad.Referente === true,
+                      'star-off': propiedad.Referente === false
+                    }"
+                    matTooltip="{{ propiedad.Referente === true ? 'Referente' : 'No referente' }}"
+                  >
+                    {{ propiedad.Referente === true ? 'star' : 'star_border' }}
+                  </mat-icon>
+                </td>
+              </ng-container>
+
               <!-- Actions Column -->
               <ng-container matColumnDef="actions">
                 <th mat-header-cell *matHeaderCellDef>Acciones</th>
@@ -338,6 +355,26 @@ import { PropiedadMinera, PropiedadMineraFilter } from './models/propiedad-miner
       width: 100%;
     }
 
+    .referente-star {
+      font-size: 1.2rem;
+      vertical-align: middle;
+    }
+
+    .star-on {
+      color: gold;
+    }
+
+    .star-off {
+      color: transparent;
+      border: 1px solid #416759;
+      border-radius: 50%;
+      display: inline-block;
+      width: 24px;
+      height: 24px;
+      text-align: center;
+      line-height: 24px;
+    }
+
     @media (max-width: 768px) {
       .filter-row {
         grid-template-columns: 1fr;
@@ -358,6 +395,7 @@ export class PropiedadesListComponent implements OnInit {
   filterForm: FormGroup;
   displayedColumns: string[] = [
     'Nombre',
+    'Referente',
     'Provincia',
     'AreaHectareas',
     'Solicitud',
@@ -420,6 +458,7 @@ export class PropiedadesListComponent implements OnInit {
 
     this.propiedadService.getPropiedades(paginatedFilters).subscribe({
       next: (response) => {
+        // Ordenar: primero los que tienen Referente true (removido, ahora lo hace el backend)
         this.propiedades = response.data;
         this.totalRecords = response.total;
       },

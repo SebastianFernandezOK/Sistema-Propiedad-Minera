@@ -17,6 +17,7 @@ class PropiedadMinera(Base):
     Mensura = Column(DateTime, nullable=True)
     AreaHectareas = Column(Float, nullable=True)
     DescubrimientoDirecto = Column(String(50), nullable=True)
+    Referente = Column(Integer, nullable=True)  # bit en SQL Server, usar Integer (0/1) en SQLAlchemy
     
     # Relación con TitularMinero (sin foreign key constraint para evitar problemas)
     def get_titular_nombre(self, db):

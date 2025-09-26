@@ -106,6 +106,16 @@ import { TitularMineroService, TitularMinero } from '../../titulares/services/ti
                     placeholder="Describa el descubrimiento directo" rows="3"></textarea>
         </mat-form-field>
 
+        <!-- Fila Referente -->
+        <mat-form-field appearance="fill">
+          <mat-label>Referente</mat-label>
+          <mat-select formControlName="Referente">
+            <mat-option [value]="null">No especificado</mat-option>
+            <mat-option [value]="true">Sí</mat-option>
+            <mat-option [value]="false">No</mat-option>
+          </mat-select>
+        </mat-form-field>
+
         <!-- Botones -->
         <div class="form-actions full-width">
           <button mat-raised-button color="primary" type="submit">
@@ -175,7 +185,8 @@ export class PropiedadFormComponent implements OnInit, OnChanges {
       Provincia: [''],
       Mensura: [null],
       AreaHectareas: [null],
-      DescubrimientoDirecto: ['']
+      DescubrimientoDirecto: [''],
+      Referente: [null]
     });
   }
 
@@ -222,7 +233,8 @@ export class PropiedadFormComponent implements OnInit, OnChanges {
         Provincia: this.propiedad.Provincia,
         Mensura: this.propiedad.Mensura,
         AreaHectareas: this.propiedad.AreaHectareas,
-        DescubrimientoDirecto: this.propiedad.DescubrimientoDirecto
+        DescubrimientoDirecto: this.propiedad.DescubrimientoDirecto,
+        Referente: this.propiedad.Referente
       });
     }
   }

@@ -19,3 +19,19 @@ th[_ngcontent-ng-c2596952125],
 .mat-mdc-header-cell[class*='mat-mdc-header-cell'] {
   color: #fff !important;
 }
+.referente-star {
+  font-size: 28px;
+  vertical-align: middle;
+  transition: color 0.2s, border 0.2s;
+}
+.star-on {
+  color: #FFD600 !important; /* dorado */
+  text-shadow: 0 0 4px #FFD60099;
+}
+.star-off {
+  color: #fff !important;
+  border: 2px solid #219653;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 0 1px #219653;
+}
