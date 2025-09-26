@@ -53,9 +53,9 @@ import { MatMenuModule } from '@angular/material/menu';
               <mat-icon>people</mat-icon>
               <span>Titulares Mineros</span>
             </button>
-            <button mat-menu-item routerLink="/auditoria">
-              <mat-icon>history</mat-icon>
-              <span>Auditoría</span>
+            <button mat-menu-item routerLink="/usuarios">
+              <mat-icon>people</mat-icon>
+              <span>Usuarios</span>
             </button>
             <button mat-menu-item routerLink="/areas">
               <mat-icon>business</mat-icon>
