@@ -15,3 +15,13 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
             detail="Token inválido o expirado",
             headers={"WWW-Authenticate": "Bearer"},
         )
+
+def require_role(required_role: str):
+    def role_dependency(current_user=Depends(get_current_user)):
+        if current_user.get('rol') != required_role:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"No tiene permisos suficientes. Se requiere rol: {required_role}"
+            )
+        return current_user
+    return role_dependency

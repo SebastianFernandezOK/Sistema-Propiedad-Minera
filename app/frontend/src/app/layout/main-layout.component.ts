@@ -45,11 +45,11 @@ import { AuthService } from '../features/auth/auth.service';
             <span matListItemTitle>Alertas</span>
           </a>
           <mat-divider></mat-divider>
-          <mat-list-item [matMenuTriggerFor]="maestrosMenu" *ngIf="userRole === 'admin'">
+          <mat-list-item [matMenuTriggerFor]="maestrosMenu" *ngIf="userRole === 'Administrador'">
             <mat-icon matListItemIcon>menu_book</mat-icon>
             <span matListItemTitle>Maestros</span>
           </mat-list-item>
-          <mat-menu #maestrosMenu="matMenu" *ngIf="userRole === 'admin'">
+          <mat-menu #maestrosMenu="matMenu" *ngIf="userRole === 'Administrador'">
             <button mat-menu-item routerLink="/titulares">
               <mat-icon>people</mat-icon>
               <span>Titulares Mineros</span>
