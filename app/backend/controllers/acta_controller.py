@@ -7,6 +7,7 @@ from typing import List
 from fastapi import Query
 from backend.models.alerta_model import Alerta
 from backend.schemas.alerta_schema import AlertaOut
+from backend.services.auth_jwt import get_current_user
 
 router = APIRouter(prefix="/actas", tags=["Actas"])
 
@@ -16,7 +17,8 @@ def listar_actas(
     db: Session = Depends(get_db),
     response: Response = None,
     range: str = Query(None, alias="range"),
-    filter: str = Query(None)
+    filter: str = Query(None),
+    current_user=Depends(get_current_user)
 ):
     service = ActaService(db)
     items = service.get_all()
@@ -59,7 +61,7 @@ def listar_actas(
     return paginated_items
 
 @router.get("/{id_acta}", response_model=dict)
-def obtener_acta(id_acta: int, db: Session = Depends(get_db)):
+def obtener_acta(id_acta: int, db: Session = Depends(get_db), current_user=Depends(get_current_user)):
     service = ActaService(db)
     acta = service.get_by_id(id_acta)
     if not acta:
@@ -81,12 +83,12 @@ def obtener_acta(id_acta: int, db: Session = Depends(get_db)):
     return acta_data
 
 @router.post("", response_model=ActaRead)
-def crear_acta(acta_data: ActaCreate, db: Session = Depends(get_db)):
+def crear_acta(acta_data: ActaCreate, db: Session = Depends(get_db), current_user=Depends(get_current_user)):
     service = ActaService(db)
     return service.create(acta_data)
 
 @router.put("/{id_acta}", response_model=ActaRead)
-def actualizar_acta(id_acta: int, acta_data: dict, db: Session = Depends(get_db)):
+def actualizar_acta(id_acta: int, acta_data: dict, db: Session = Depends(get_db), current_user=Depends(get_current_user)):
     service = ActaService(db)
     updated = service.update(id_acta, acta_data)
     if not updated:
@@ -94,7 +96,7 @@ def actualizar_acta(id_acta: int, acta_data: dict, db: Session = Depends(get_db)
     return updated
 
 @router.delete("/{id_acta}")
-def borrar_acta(id_acta: int, db: Session = Depends(get_db)):
+def borrar_acta(id_acta: int, db: Session = Depends(get_db), current_user=Depends(get_current_user)):
     service = ActaService(db)
     deleted = service.delete(id_acta)
     if not deleted:

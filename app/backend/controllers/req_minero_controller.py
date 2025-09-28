@@ -5,6 +5,7 @@ from backend.services.req_minero_service import ReqMineroService
 from backend.schemas.req_minero_schema import ReqMinero, ReqMineroCreate, ReqMineroUpdate
 from typing import List, Optional
 import json
+from backend.services.auth_jwt import get_current_user
 
 router = APIRouter()
 
@@ -14,7 +15,8 @@ def get_req_mineros(
     limit: int = Query(100, ge=1, le=1000, description="Número máximo de registros a retornar"),
     filter: Optional[str] = Query(None, description="Filtros en formato JSON"),
     range: Optional[List[int]] = Query(None, description="Rango de registros en formato [inicio, fin]"),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user)
 ):
     service = ReqMineroService(db)
     
@@ -40,7 +42,8 @@ def get_req_mineros(
 @router.get("/req-mineros/{id_req_minero}", response_model=ReqMinero)
 def get_req_minero(
     id_req_minero: int = Path(..., description="ID del requerimiento minero"),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user)
 ):
     service = ReqMineroService(db)
     req_minero = service.get_by_id(id_req_minero)
@@ -53,7 +56,8 @@ def get_req_mineros_by_transaccion(
     id_transaccion: int = Path(..., description="ID de la transacción"),
     skip: int = Query(0, ge=0, description="Número de registros a omitir"),
     limit: int = Query(100, ge=1, le=1000, description="Número máximo de registros a retornar"),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user)
 ):
     service = ReqMineroService(db)
     req_mineros = service.get_by_transaccion(id_transaccion, skip, limit)
@@ -62,7 +66,8 @@ def get_req_mineros_by_transaccion(
 @router.post("/req-mineros", response_model=ReqMinero)
 def create_req_minero(
     req_minero: ReqMineroCreate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user)
 ):
     service = ReqMineroService(db)
     try:
@@ -74,7 +79,8 @@ def create_req_minero(
 def update_req_minero(
     id_req_minero: int = Path(..., description="ID del requerimiento minero"),
     req_minero: ReqMineroUpdate = ...,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user)
 ):
     service = ReqMineroService(db)
     updated_req_minero = service.update(id_req_minero, req_minero)
@@ -85,7 +91,8 @@ def update_req_minero(
 @router.delete("/req-mineros/{id_req_minero}")
 def delete_req_minero(
     id_req_minero: int = Path(..., description="ID del requerimiento minero"),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user)
 ):
     service = ReqMineroService(db)
     success = service.delete(id_req_minero)

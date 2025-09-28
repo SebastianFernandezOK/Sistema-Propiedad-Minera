@@ -455,17 +455,6 @@ body ::ng-deep .mat-mdc-form-field .mdc-text-field--filled {
   background: #ffffff !important;
 }
 
-body ::ng-deep .mdc-text-field--filled {
-  background-color: #ffffff !important;
-  background: #ffffff !important;
-}
-
-/* Para los input elements específicos */
-body ::ng-deep .mdc-text-field__input {
-  background-color: #ffffff !important;
-  background: #ffffff !important;
-}
-
 /* ===== SOLUCIÓN CENTRALIZADA PARA FORM FIELDS ===== */
 /* Eliminando todos los estilos conflictivos y creando una solución única */
 
@@ -747,8 +736,9 @@ html body .cdk-overlay-pane .mat-mdc-select-panel {
   min-width: 300px !important;
   overflow-x: hidden !important;
   white-space: normal !important;
-  max-height: none !important;
-  overflow-y: visible !important;
+  /* Habilitar scroll vertical y limitar altura */
+  max-height: 250px !important;
+  overflow-y: auto !important;
 }
 
 /* Targeting específico para overlay containers sin afectar datepickers */
@@ -1057,4 +1047,9 @@ html body .mat-form-field-infix {
   display: block !important;
   word-wrap: break-word !important;
   line-height: 1.4 !important;
+}
+
+::ng-deep .mat-select-panel {
+  max-height: 250px !important;
+  overflow-y: auto !important;
 }

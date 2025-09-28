@@ -11,6 +11,7 @@ from sqlalchemy.dialects.postgresql import UUID
 from backend.models.expediente_model import Expediente
 from sqlalchemy import or_, func, String as SAString
 from backend.models.expediente_model import Expediente
+from backend.services.auth_jwt import get_current_user
 
 router = APIRouter(prefix="/propiedades-mineras", tags=["Propiedades Mineras"])
 

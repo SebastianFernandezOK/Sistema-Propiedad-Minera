@@ -10,6 +10,7 @@ from datetime import datetime
 import pytz
 from fastapi.responses import FileResponse
 import logging
+from backend.services.auth_jwt import get_current_user
 
 router = APIRouter(prefix="/archivos", tags=["archivos"])
 BASE_UPLOAD_DIR = r"E:\Sistema-Propiedad-Minera-main\app\backend\uploads"

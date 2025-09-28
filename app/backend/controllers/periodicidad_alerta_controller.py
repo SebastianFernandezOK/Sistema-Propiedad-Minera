@@ -4,16 +4,17 @@ from backend.services.periodicidad_alerta_service import PeriodicidadAlertaServi
 from backend.schemas.periodicidad_alerta_schema import PeriodicidadAlertaRead, PeriodicidadAlertaCreate, PeriodicidadAlertaUpdate
 from backend.database.connection import get_db
 from typing import List
+from backend.services.auth_jwt import get_current_user
 
 router = APIRouter(prefix="/periodicidad-alerta", tags=["Periodicidad Alerta"])
 
 @router.get("", response_model=List[PeriodicidadAlertaRead])
-def listar_periodicidades(db: Session = Depends(get_db)):
+def listar_periodicidades(db: Session = Depends(get_db), _=Depends(get_current_user)):
     service = PeriodicidadAlertaService(db)
     return service.get_all()
 
 @router.get("/{id_periodicidad}", response_model=PeriodicidadAlertaRead)
-def obtener_periodicidad(id_periodicidad: int, db: Session = Depends(get_db)):
+def obtener_periodicidad(id_periodicidad: int, db: Session = Depends(get_db), _=Depends(get_current_user)):
     service = PeriodicidadAlertaService(db)
     periodicidad = service.get_by_id(id_periodicidad)
     if not periodicidad:
@@ -21,12 +22,12 @@ def obtener_periodicidad(id_periodicidad: int, db: Session = Depends(get_db)):
     return periodicidad
 
 @router.post("", response_model=PeriodicidadAlertaRead)
-def crear_periodicidad(periodicidad: PeriodicidadAlertaCreate, db: Session = Depends(get_db)):
+def crear_periodicidad(periodicidad: PeriodicidadAlertaCreate, db: Session = Depends(get_db), _=Depends(get_current_user)):
     service = PeriodicidadAlertaService(db)
     return service.create(periodicidad)
 
 @router.put("/{id_periodicidad}", response_model=PeriodicidadAlertaRead)
-def actualizar_periodicidad(id_periodicidad: int, periodicidad: PeriodicidadAlertaUpdate, db: Session = Depends(get_db)):
+def actualizar_periodicidad(id_periodicidad: int, periodicidad: PeriodicidadAlertaUpdate, db: Session = Depends(get_db), _=Depends(get_current_user)):
     service = PeriodicidadAlertaService(db)
     updated_periodicidad = service.update(id_periodicidad, periodicidad)
     if not updated_periodicidad:
@@ -34,7 +35,7 @@ def actualizar_periodicidad(id_periodicidad: int, periodicidad: PeriodicidadAler
     return updated_periodicidad
 
 @router.delete("/{id_periodicidad}")
-def eliminar_periodicidad(id_periodicidad: int, db: Session = Depends(get_db)):
+def eliminar_periodicidad(id_periodicidad: int, db: Session = Depends(get_db), _=Depends(get_current_user)):
     service = PeriodicidadAlertaService(db)
     if not service.delete(id_periodicidad):
         raise HTTPException(status_code=404, detail="Periodicidad no encontrada")

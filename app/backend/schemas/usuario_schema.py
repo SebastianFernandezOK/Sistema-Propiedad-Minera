@@ -46,5 +46,5 @@ class UsuarioOut(UsuarioBase):
         orm_mode = True
 
 class UsuarioLogin(BaseModel):
-    NombreUsuario: str
+    usuario: str  # Puede ser nombre de usuario o email
     Password: str

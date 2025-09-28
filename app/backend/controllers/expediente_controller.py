@@ -11,6 +11,7 @@ from backend.database.connection import get_db
 from typing import List
 from fastapi import Query
 from typing import Dict, Any
+from backend.services.auth_jwt import get_current_user
 
 router = APIRouter(prefix="/expedientes", tags=["Expedientes"])
 

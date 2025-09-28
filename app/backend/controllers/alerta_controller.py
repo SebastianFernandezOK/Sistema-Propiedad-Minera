@@ -12,6 +12,7 @@ from backend.database.connection import get_db
 from typing import List, Any, Optional
 from backend.models.alerta_model import Alerta
 from fastapi.responses import JSONResponse
+from backend.services.auth_jwt import get_current_user
 # Endpoint flexible para traer alertas por el IdTransaccion del padre
 router = APIRouter(
     prefix="/alertas",

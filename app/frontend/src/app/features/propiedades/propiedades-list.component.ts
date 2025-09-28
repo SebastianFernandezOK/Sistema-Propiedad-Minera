@@ -164,8 +164,7 @@ import { PropiedadMinera, PropiedadMineraFilter } from './models/propiedad-miner
                   <mat-icon
                     class="referente-star"
                     [ngClass]="{
-                      'star-on': propiedad.Referente === true,
-                      'star-off': propiedad.Referente === false
+                      'star-on': propiedad.Referente === true
                     }"
                     matTooltip="{{ propiedad.Referente === true ? 'Referente' : 'No referente' }}"
                   >
@@ -362,17 +361,6 @@ import { PropiedadMinera, PropiedadMineraFilter } from './models/propiedad-miner
 
     .star-on {
       color: gold;
-    }
-
-    .star-off {
-      color: transparent;
-      border: 1px solid #416759;
-      border-radius: 50%;
-      display: inline-block;
-      width: 24px;
-      height: 24px;
-      text-align: center;
-      line-height: 24px;
     }
 
     @media (max-width: 768px) {

@@ -264,6 +264,23 @@ export class TitularCreateFormComponent {
     });
   }
 
+  private formatDateToISO(date: any): string {
+    if (!date) return '';
+    if (date instanceof Date) {
+      const year = date.getFullYear();
+      const month = (date.getMonth() + 1).toString().padStart(2, '0');
+      const day = date.getDate().toString().padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+    if (typeof date === 'string') {
+      const parsedDate = new Date(date);
+      if (!isNaN(parsedDate.getTime())) {
+        return this.formatDateToISO(parsedDate);
+      }
+    }
+    return '';
+  }
+
   onSubmit() {
     console.log('onSubmit llamado');
     console.log('Form valid:', this.form.valid);
@@ -273,8 +290,8 @@ export class TitularCreateFormComponent {
     if (this.form.valid) {
       console.log('Formulario válido, iniciando creación...');
       this.loading = true;
-      const titularData: TitularMineroCreate = this.form.value;
-      
+      const titularData: TitularMineroCreate = { ...this.form.value };
+      titularData.FechaAsignacion = this.formatDateToISO(titularData.FechaAsignacion);
       this.titularService.create(titularData).subscribe({
         next: (response: TitularMinero) => {
           console.log('Titular creado exitosamente:', response);

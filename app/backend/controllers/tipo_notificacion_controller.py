@@ -4,6 +4,7 @@ from backend.services.tipo_notificacion_service import TipoNotificacionService
 from backend.schemas.tipo_notificacion_schema import TipoNotificacionCreate, TipoNotificacionUpdate, TipoNotificacionOut
 from backend.database.connection import get_db
 from typing import List
+from backend.services.auth_jwt import get_current_user
 
 router = APIRouter(
     prefix="/tipos-notificacion",
@@ -14,7 +15,8 @@ router = APIRouter(
 def list_tipos_notificacion(
     db: Session = Depends(get_db),
     response: Response = None,
-    range: str = Query(None, alias="range")
+    range: str = Query(None, alias="range"),
+    current_user: dict = Depends(get_current_user)
 ):
     print(f"Controller: list_tipos_notificacion called with range={range}")
     service = TipoNotificacionService(db)
@@ -36,7 +38,7 @@ def list_tipos_notificacion(
     return paginated_items
 
 @router.get("/{id}", response_model=TipoNotificacionOut)
-def get_tipo_notificacion(id: int, db: Session = Depends(get_db)):
+def get_tipo_notificacion(id: int, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)):
     service = TipoNotificacionService(db)
     obj = service.get_tipo_notificacion(id)
     if not obj:
@@ -44,7 +46,7 @@ def get_tipo_notificacion(id: int, db: Session = Depends(get_db)):
     return obj
 
 @router.post("/", response_model=TipoNotificacionOut)
-def create_tipo_notificacion(tipo_notificacion: TipoNotificacionCreate, db: Session = Depends(get_db)):
+def create_tipo_notificacion(tipo_notificacion: TipoNotificacionCreate, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)):
     service = TipoNotificacionService(db)
     created = service.create_tipo_notificacion(tipo_notificacion)
     if not created:
@@ -53,7 +55,7 @@ def create_tipo_notificacion(tipo_notificacion: TipoNotificacionCreate, db: Sess
 
 @router.put("/{id}", response_model=TipoNotificacionOut)
 def update_tipo_notificacion(id: int, tipo_notificacion: TipoNotificacionUpdate, db
-    : Session = Depends(get_db)):
+    : Session = Depends(get_db), current_user: dict = Depends(get_current_user)):
     service = TipoNotificacionService(db)
     obj = service.update_tipo_notificacion(id, tipo_notificacion)
     if not obj:
@@ -61,7 +63,7 @@ def update_tipo_notificacion(id: int, tipo_notificacion: TipoNotificacionUpdate,
     return obj
 
 @router.delete("/{id}")
-def delete_tipo_notificacion(id: int, db: Session = Depends(get_db)):
+def delete_tipo_notificacion(id: int, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)):
     service = TipoNotificacionService(db)
     deleted = service.delete_tipo_notificacion(id)
     if not deleted:

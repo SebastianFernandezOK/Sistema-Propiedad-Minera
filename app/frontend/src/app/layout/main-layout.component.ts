@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -6,7 +6,8 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import { MatMenuModule } from '@angular/material/menu';
+import { MatMenuModule, MatMenu } from '@angular/material/menu';
+import { AuthService } from '../features/auth/auth.service';
 
 @Component({
   selector: 'app-main-layout',
@@ -44,11 +45,11 @@ import { MatMenuModule } from '@angular/material/menu';
             <span matListItemTitle>Alertas</span>
           </a>
           <mat-divider></mat-divider>
-          <mat-list-item [matMenuTriggerFor]="maestrosMenu">
+          <mat-list-item [matMenuTriggerFor]="maestrosMenu" *ngIf="userRole === 'admin'">
             <mat-icon matListItemIcon>menu_book</mat-icon>
             <span matListItemTitle>Maestros</span>
           </mat-list-item>
-          <mat-menu #maestrosMenu="matMenu">
+          <mat-menu #maestrosMenu="matMenu" *ngIf="userRole === 'admin'">
             <button mat-menu-item routerLink="/titulares">
               <mat-icon>people</mat-icon>
               <span>Titulares Mineros</span>
@@ -90,27 +91,17 @@ import { MatMenuModule } from '@angular/material/menu';
           </div>
           
           <span class="spacer"></span>
-          
-          <!-- User menu -->
-          <button mat-icon-button [matMenuTriggerFor]="userMenu">
-            <mat-icon>account_circle</mat-icon>
+          <span *ngIf="userName" class="user-name-navbar">
+            <mat-icon>person</mat-icon> {{ userName }}
+          </span>
+          <!-- Solo un icono de perfil -->
+          <!-- <button mat-icon-button aria-label="Perfil" routerLink="/perfil">
+            <mat-icon>person</mat-icon>
+          </button> -->
+          <!-- Quitar el icono de configuración -->
+          <button mat-icon-button aria-label="Cerrar Sesión" (click)="logout()">
+            <mat-icon>logout</mat-icon>
           </button>
-          
-          <mat-menu #userMenu="matMenu">
-            <button mat-menu-item>
-              <mat-icon>person</mat-icon>
-              <span>Perfil</span>
-            </button>
-            <button mat-menu-item>
-              <mat-icon>settings</mat-icon>
-              <span>Configuración</span>
-            </button>
-            <mat-divider></mat-divider>
-            <button mat-menu-item>
-              <mat-icon>logout</mat-icon>
-              <span>Cerrar Sesión</span>
-            </button>
-          </mat-menu>
         </mat-toolbar>
 
         <!-- Page content -->
@@ -328,8 +319,30 @@ import { MatMenuModule } from '@angular/material/menu';
       color: #222 !important;
       font-weight: 600;
     }
+
+    .user-name-navbar {
+      font-weight: 600;
+      color: #416759;
+      margin-right: 18px;
+      font-size: 1.08rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
   `]
 })
 export class MainLayoutComponent {
-  // No longer need pageTitle since we're using the company logo
+  @ViewChild('maestrosMenu') maestrosMenu!: MatMenu;
+  userName: string = '';
+  userRole: string | null = null;
+
+  constructor(private authService: AuthService) {
+    const decoded = this.authService.decodeToken();
+    this.userName = decoded?.nombre_completo || decoded?.nombre || '';
+    this.userRole = decoded?.rol || null;
+  }
+
+  logout() {
+    this.authService.logout();
+  }
 }

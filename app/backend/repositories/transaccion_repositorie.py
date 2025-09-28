@@ -20,11 +20,13 @@ class TransaccionRepositorie:
         self.db.refresh(db_obj)
         return db_obj
 
-    def update(self, id_transaccion: int, transaccion: TransaccionUpdate) -> Optional[Transaccion]:
+    def update(self, id_transaccion: int, transaccion) -> Optional[Transaccion]:
         db_obj = self.get(id_transaccion)
         if not db_obj:
             return None
-        for field, value in transaccion.model_dump(exclude_unset=True).items():
+        # Permitir dict o Pydantic
+        update_data = transaccion.model_dump(exclude_unset=True) if hasattr(transaccion, 'model_dump') else transaccion
+        for field, value in update_data.items():
             setattr(db_obj, field, value)
         self.db.commit()
         self.db.refresh(db_obj)

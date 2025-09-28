@@ -5,6 +5,11 @@ from backend.services import usuario_service
 from backend.database.connection import get_db
 from typing import List
 from pydantic import BaseModel
+from jose import jwt
+from datetime import datetime, timedelta
+from fastapi import status
+from backend.services.auth_jwt import get_current_user
+from backend.config_jwt import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
 
 router = APIRouter(
     prefix="/usuarios",
@@ -22,7 +27,8 @@ class ActivarUsuarioRequest(BaseModel):
 def listar_usuarios(
     db: Session = Depends(get_db),
     response: Response = None,
-    range: str = Query(None, alias="range")
+    range: str = Query(None, alias="range"),
+    current_user=Depends(get_current_user)
 ):
     try:
         items = usuario_service.get_usuarios(db)
@@ -43,7 +49,7 @@ def listar_usuarios(
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/{id_usuario}", response_model=UsuarioOut)
-def obtener_usuario(id_usuario: int, db: Session = Depends(get_db)):
+def obtener_usuario(id_usuario: int, db: Session = Depends(get_db), current_user=Depends(get_current_user)):
     try:
         usuario = usuario_service.get_usuario(db, id_usuario)
         if usuario is None:
@@ -53,7 +59,7 @@ def obtener_usuario(id_usuario: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/username/{nombre_usuario}", response_model=UsuarioOut)
-def obtener_usuario_por_username(nombre_usuario: str, db: Session = Depends(get_db)):
+def obtener_usuario_por_username(nombre_usuario: str, db: Session = Depends(get_db), current_user=Depends(get_current_user)):
     try:
         usuario = usuario_service.get_usuario_by_username(db, nombre_usuario)
         if usuario is None:
@@ -63,7 +69,7 @@ def obtener_usuario_por_username(nombre_usuario: str, db: Session = Depends(get_
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.post("", response_model=UsuarioOut)
-def crear_usuario(usuario: UsuarioCreate, db: Session = Depends(get_db)):
+def crear_usuario(usuario: UsuarioCreate, db: Session = Depends(get_db), current_user=Depends(get_current_user)):
     try:
         nuevo_usuario = usuario_service.create_usuario(db, usuario)
         return nuevo_usuario
@@ -73,7 +79,7 @@ def crear_usuario(usuario: UsuarioCreate, db: Session = Depends(get_db)):
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.put("/{id_usuario}", response_model=UsuarioOut)
-def actualizar_usuario(id_usuario: int, usuario: UsuarioUpdate, db: Session = Depends(get_db)):
+def actualizar_usuario(id_usuario: int, usuario: UsuarioUpdate, db: Session = Depends(get_db), current_user=Depends(get_current_user)):
     try:
         usuario_actualizado = usuario_service.update_usuario(db, id_usuario, usuario)
         if usuario_actualizado is None:
@@ -85,7 +91,7 @@ def actualizar_usuario(id_usuario: int, usuario: UsuarioUpdate, db: Session = De
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.delete("/{id_usuario}")
-def eliminar_usuario(id_usuario: int, db: Session = Depends(get_db)):
+def eliminar_usuario(id_usuario: int, db: Session = Depends(get_db), current_user=Depends(get_current_user)):
     try:
         resultado = usuario_service.delete_usuario(db, id_usuario)
         if not resultado:
@@ -94,23 +100,40 @@ def eliminar_usuario(id_usuario: int, db: Session = Depends(get_db)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.post("/login", response_model=UsuarioOut)
+@router.post("/login")
 def login_usuario(usuario_login: UsuarioLogin, db: Session = Depends(get_db)):
     try:
         usuario = usuario_service.authenticate_usuario(db, usuario_login)
         if usuario is None:
-            raise HTTPException(status_code=401, detail="Credenciales incorrectas")
-        return usuario
+            raise HTTPException(status_code=401, detail="Usuario, email o contraseña incorrectos")
+        # Generar JWT solo con sub, rol, nombre y exp
+        data = {
+            "sub": usuario.NombreUsuario,
+            "rol": usuario.Rol,
+            "nombre": usuario.NombreCompleto,
+            "exp": datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+        }
+        access_token = jwt.encode(data, SECRET_KEY, algorithm=ALGORITHM)
+        return {"access_token": access_token, "token_type": "bearer", "user": {
+            "nombre": usuario.NombreCompleto,
+            "rol": usuario.Rol
+        }}
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=400, detail=f"Error de validación: {str(e)}")
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        import traceback
+        print("Error en login_usuario:", traceback.format_exc())
+        # Si el error es 401, mostrar solo el mensaje simple
+        if isinstance(e, HTTPException) and e.status_code == 401:
+            raise HTTPException(status_code=401, detail="Usuario, email o contraseña incorrectos")
+        raise HTTPException(status_code=500, detail="Error interno del servidor: {str(e)}")
 
 @router.put("/{id_usuario}/cambiar-password", response_model=UsuarioOut)
 def cambiar_password(
     id_usuario: int, 
     request: CambiarPasswordRequest, 
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user)
 ):
     try:
         usuario_actualizado = usuario_service.cambiar_password(
@@ -128,7 +151,8 @@ def cambiar_password(
 def activar_desactivar_usuario(
     id_usuario: int, 
     request: ActivarUsuarioRequest, 
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user)
 ):
     try:
         usuario_actualizado = usuario_service.activar_desactivar_usuario(

@@ -4,6 +4,9 @@ from backend.services.notificacion_service import NotificacionService
 from backend.schemas.notificacion_schema import NotificacionCreate, NotificacionUpdate, NotificacionOut
 from backend.database.connection import get_db
 from typing import List
+from backend.services.auth_jwt import get_current_user
+
+
 
 
 router = APIRouter(
@@ -20,7 +23,8 @@ router = APIRouter(
 def list_notificaciones(
     db: Session = Depends(get_db),
     response: Response = None,
-    range: str = Query(None, alias="range")
+    range: str = Query(None, alias="range"),
+    current_user: int = Depends(get_current_user)
 ):
     service = NotificacionService(db)
     items = service.get_notificaciones()
@@ -38,7 +42,7 @@ def list_notificaciones(
     return paginated_items
 
 @router.get("/{id}", response_model=NotificacionOut)
-def get_notificacion(id: int, db: Session = Depends(get_db)):
+def get_notificacion(id: int, db: Session = Depends(get_db), current_user: int = Depends(get_current_user)):
     service = NotificacionService(db)
     obj = service.get_notificacion(id)
     if not obj:
@@ -46,12 +50,12 @@ def get_notificacion(id: int, db: Session = Depends(get_db)):
     return obj
 
 @router.post("/", response_model=NotificacionOut)
-def create_notificacion(notificacion: NotificacionCreate, db: Session = Depends(get_db)):
+def create_notificacion(notificacion: NotificacionCreate, db: Session = Depends(get_db), current_user: int = Depends(get_current_user)):
     service = NotificacionService(db)
     return service.create_notificacion(notificacion)
 
 @router.put("/{id}", response_model=NotificacionOut)
-def update_notificacion(id: int, notificacion: NotificacionUpdate, db: Session = Depends(get_db)):
+def update_notificacion(id: int, notificacion: NotificacionUpdate, db: Session = Depends(get_db), current_user: int = Depends(get_current_user)):
     service = NotificacionService(db)
     obj = service.update_notificacion(id, notificacion)
     if not obj:
@@ -59,7 +63,7 @@ def update_notificacion(id: int, notificacion: NotificacionUpdate, db: Session =
     return obj
 
 @router.delete("/{id}", response_model=NotificacionOut)
-def delete_notificacion(id: int, db: Session = Depends(get_db)):
+def delete_notificacion(id: int, db: Session = Depends(get_db), current_user: int = Depends(get_current_user)):
     service = NotificacionService(db)
     obj = service.delete_notificacion(id)
     if not obj:
