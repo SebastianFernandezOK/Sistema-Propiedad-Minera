@@ -9,6 +9,7 @@ from jose import jwt
 from datetime import datetime, timedelta
 from fastapi import status
 from backend.services.auth_jwt import get_current_user
+from backend.services.auth_jwt import require_role
 from backend.config_jwt import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
 
 router = APIRouter(
@@ -28,7 +29,7 @@ def listar_usuarios(
     db: Session = Depends(get_db),
     response: Response = None,
     range: str = Query(None, alias="range"),
-    current_user=Depends(get_current_user)
+    current_user=Depends(require_role('Administrador'))
 ):
     try:
         items = usuario_service.get_usuarios(db)
@@ -49,7 +50,7 @@ def listar_usuarios(
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/{id_usuario}", response_model=UsuarioOut)
-def obtener_usuario(id_usuario: int, db: Session = Depends(get_db), current_user=Depends(get_current_user)):
+def obtener_usuario(id_usuario: int, db: Session = Depends(get_db), current_user=Depends(require_role('Administrador'))):
     try:
         usuario = usuario_service.get_usuario(db, id_usuario)
         if usuario is None:
@@ -59,7 +60,7 @@ def obtener_usuario(id_usuario: int, db: Session = Depends(get_db), current_user
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/username/{nombre_usuario}", response_model=UsuarioOut)
-def obtener_usuario_por_username(nombre_usuario: str, db: Session = Depends(get_db), current_user=Depends(get_current_user)):
+def obtener_usuario_por_username(nombre_usuario: str, db: Session = Depends(get_db), current_user=Depends(require_role('Administrador'))):
     try:
         usuario = usuario_service.get_usuario_by_username(db, nombre_usuario)
         if usuario is None:
@@ -69,7 +70,7 @@ def obtener_usuario_por_username(nombre_usuario: str, db: Session = Depends(get_
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.post("", response_model=UsuarioOut)
-def crear_usuario(usuario: UsuarioCreate, db: Session = Depends(get_db), current_user=Depends(get_current_user)):
+def crear_usuario(usuario: UsuarioCreate, db: Session = Depends(get_db), current_user=Depends(require_role('Administrador'))):
     try:
         nuevo_usuario = usuario_service.create_usuario(db, usuario)
         return nuevo_usuario
@@ -79,7 +80,7 @@ def crear_usuario(usuario: UsuarioCreate, db: Session = Depends(get_db), current
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.put("/{id_usuario}", response_model=UsuarioOut)
-def actualizar_usuario(id_usuario: int, usuario: UsuarioUpdate, db: Session = Depends(get_db), current_user=Depends(get_current_user)):
+def actualizar_usuario(id_usuario: int, usuario: UsuarioUpdate, db: Session = Depends(get_db), current_user=Depends(require_role('Administrador'))):
     try:
         usuario_actualizado = usuario_service.update_usuario(db, id_usuario, usuario)
         if usuario_actualizado is None:
@@ -91,7 +92,7 @@ def actualizar_usuario(id_usuario: int, usuario: UsuarioUpdate, db: Session = De
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.delete("/{id_usuario}")
-def eliminar_usuario(id_usuario: int, db: Session = Depends(get_db), current_user=Depends(get_current_user)):
+def eliminar_usuario(id_usuario: int, db: Session = Depends(get_db), current_user=Depends(require_role('Administrador'))):
     try:
         resultado = usuario_service.delete_usuario(db, id_usuario)
         if not resultado:

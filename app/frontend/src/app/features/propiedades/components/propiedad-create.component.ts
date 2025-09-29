@@ -36,7 +36,7 @@ import { PropiedadMineraService } from '../services/propiedad-minera.service';
         ✅ Propiedad minera creada correctamente
       </div>
       <div *ngIf="error" class="error-message">
-        ❌ Ocurrió un error al crear la propiedad minera
+        ❌ {{ errorMessage || 'Ocurrió un error al crear la propiedad minera' }}
       </div>
     </div>
   `,
@@ -99,6 +99,7 @@ import { PropiedadMineraService } from '../services/propiedad-minera.service';
 export class PropiedadCreateComponent implements OnInit {
   success = false;
   error = false;
+  errorMessage: string | null = null;
 
   constructor(
     private propiedadService: PropiedadMineraService,
@@ -114,6 +115,7 @@ export class PropiedadCreateComponent implements OnInit {
   onCreate(propiedad: PropiedadMineraCreate) {
     this.success = false;
     this.error = false;
+    this.errorMessage = null;
 
     this.propiedadService.createPropiedad(propiedad).subscribe({
       next: (result) => {
@@ -127,9 +129,17 @@ export class PropiedadCreateComponent implements OnInit {
       error: (error) => {
         console.error('Error creando propiedad:', error);
         this.error = true;
+        if (error?.error?.detail) {
+          this.errorMessage = error.error.detail;
+        } else if (error?.message) {
+          this.errorMessage = error.message;
+        } else {
+          this.errorMessage = null;
+        }
         // Limpiar mensaje de error después de 5 segundos
         setTimeout(() => {
           this.error = false;
+          this.errorMessage = null;
         }, 5000);
       }
     });

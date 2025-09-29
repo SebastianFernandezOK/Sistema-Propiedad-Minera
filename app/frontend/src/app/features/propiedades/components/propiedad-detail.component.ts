@@ -242,6 +242,15 @@ import { ArchivosExpedienteComponent } from '../../expedientes/components/archiv
                       <tr mat-row *matRowDef="let row; columns: requerimientosColumns;"></tr>
                     </table>
 
+                    <!-- Paginador de requerimientos -->
+                    <mat-paginator
+                      [length]="requerimientosTotal"
+                      [pageSize]="requerimientosPageSize"
+                      [pageIndex]="requerimientosPageIndex"
+                      [pageSizeOptions]="requerimientosPageSizeOptions"
+                      (page)="onRequerimientosPageChange($event)">
+                    </mat-paginator>
+
                     <!-- Mensaje si no hay requerimientos -->
                     <div *ngIf="requerimientos.length === 0" class="no-requerimientos">
                       <mat-icon>assignment</mat-icon>
@@ -794,6 +803,10 @@ export class PropiedadDetailComponent implements OnInit {
     'importe',
     'acciones'
   ];
+  requerimientosTotal = 0;
+  requerimientosPageSize = 10;
+  requerimientosPageIndex = 0;
+  requerimientosPageSizeOptions = [5, 10, 20, 50];
   
   // Lista de tipos de requerimientos para hacer el mapeo
   tiposRequerimientos: ReqMinero[] = [];
@@ -860,18 +873,29 @@ export class PropiedadDetailComponent implements OnInit {
 
   loadRequerimientos(idPropiedadMinera: number) {
     this.loadingRequerimientos = true;
-    this.reqMineroMovService.getReqMineroMovsByPropiedad(idPropiedadMinera).subscribe({
+    const skip = this.requerimientosPageIndex * this.requerimientosPageSize;
+    const limit = this.requerimientosPageSize;
+    this.reqMineroMovService.getReqMineroMovsByPropiedad(idPropiedadMinera, skip, limit).subscribe({
       next: (result) => {
         this.requerimientos = result.data;
-        console.log('Requerimientos cargados:', this.requerimientos);
+        this.requerimientosTotal = result.total;
         this.loadingRequerimientos = false;
       },
       error: (error: any) => {
         console.error('Error al cargar requerimientos:', error);
         this.requerimientos = [];
+        this.requerimientosTotal = 0;
         this.loadingRequerimientos = false;
       }
     });
+  }
+
+  onRequerimientosPageChange(event: any): void {
+    this.requerimientosPageIndex = event.pageIndex;
+    this.requerimientosPageSize = event.pageSize;
+    if (this.propiedadId) {
+      this.loadRequerimientos(this.propiedadId);
+    }
   }
 
   cargarTitular(idTitular: number) {

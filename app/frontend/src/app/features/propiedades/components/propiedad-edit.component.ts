@@ -180,7 +180,14 @@ export class PropiedadEditComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error actualizando propiedad:', error);
-        this.updateError = error.message || 'Error desconocido';
+        // Mostrar mensaje personalizado del backend si existe
+        if (error?.error?.detail) {
+          this.updateError = error.error.detail;
+        } else if (error?.message) {
+          this.updateError = error.message;
+        } else {
+          this.updateError = 'Error desconocido';
+        }
         // Limpiar mensaje de error después de 5 segundos
         setTimeout(() => {
           this.updateError = null;

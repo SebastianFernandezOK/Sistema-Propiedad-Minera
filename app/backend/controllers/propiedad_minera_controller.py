@@ -23,52 +23,30 @@ def listar_propiedades(
     filter: str = Query(None)
 ):
     service = PropiedadMineraService(db)
-    items = service.get_all()
-
-    # Procesar filtro
+    filters = {}
     if filter:
-        filters = json.loads(filter)
-        nombre = filters.get("Nombre")
-        provincia = filters.get("Provincia")
-        id_titular = filters.get("IdTitular")
-        expediente = filters.get("Expediente")
-        print(f"[DEBUG] Filtro recibido - IdTitular: {id_titular} (type: {type(id_titular)})")
-        
-        if nombre:
-            items = [item for item in items if nombre.lower() in (item.Nombre or "").lower()]
-        
-        if provincia:
-            items = [item for item in items if item.Provincia == provincia]
-        
-        if id_titular:
+        filters_json = json.loads(filter)
+        if "Nombre" in filters_json:
+            filters["nombre"] = filters_json["Nombre"]
+        if "Provincia" in filters_json:
+            filters["provincia"] = filters_json["Provincia"]
+        if "IdTitular" in filters_json:
             try:
-                id_titular_int = int(id_titular)
-                print(f"[DEBUG] Aplicando filtro por IdTitular: {id_titular_int}")
-                items = [item for item in items if item.IdTitular == id_titular_int]
-            except Exception as e:
-                print(f"[DEBUG] Error al convertir IdTitular: {e}")
+                filters["id_titular"] = int(filters_json["IdTitular"])
+            except Exception:
                 pass
-
-        if expediente:
-            
-            expedientes = db.query(Expediente).filter(
-                or_(func.lower(Expediente.CodigoExpediente).like(f"%{expediente.lower()}%"),
-                    func.cast(Expediente.IdExpediente, SAString) == expediente)
-            ).all()
-            ids_propiedad = set(e.IdPropiedadMinera for e in expedientes if e.IdPropiedadMinera)
-            items = [item for item in items if item.IdPropiedadMinera in ids_propiedad]
-
-    total = len(items)
-    start, end = 0, total - 1
+        if "Expediente" in filters_json:
+            filters["expediente"] = filters_json["Expediente"]
+    start, end = 0, 9
     if range:
         try:
             start, end = json.loads(range)
         except Exception:
             pass
-
-    paginated_items = items[start:end+1]
-    response.headers["Content-Range"] = f"propiedades-mineras {start}-{end}/{total}"
-    return paginated_items
+    limit = end - start + 1
+    items, total = service.get_filtered_paginated(filters, offset=start, limit=limit)
+    response.headers["Content-Range"] = f"propiedades-mineras {start}-{start+len(items)-1}/{total}"
+    return items
 
 @router.get("/{id_propiedad}", response_model=PropiedadMineraRead)
 def obtener_propiedad(id_propiedad: int, db: Session = Depends(get_db)):
@@ -83,16 +61,24 @@ def obtener_propiedad(id_propiedad: int, db: Session = Depends(get_db)):
 @router.post("", response_model=PropiedadMineraRead)
 def crear_propiedad(propiedad_data: PropiedadMineraCreate, db: Session = Depends(get_db)):
     service = PropiedadMineraService(db)
-    return service.create(propiedad_data)
+    try:
+        return service.create(propiedad_data)
+    except ValueError as e:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=400, detail=str(e))
 
 
 @router.put("/{id_propiedad}", response_model=PropiedadMineraRead)
 def actualizar_propiedad(id_propiedad: int, propiedad_data: dict, db: Session = Depends(get_db)):
     service = PropiedadMineraService(db)
-    updated = service.update(id_propiedad, propiedad_data)
-    if not updated:
-        raise HTTPException(status_code=404, detail="Propiedad no encontrada")
-    return updated
+    try:
+        updated = service.update(id_propiedad, propiedad_data)
+        if not updated:
+            raise HTTPException(status_code=404, detail="Propiedad no encontrada")
+        return updated
+    except ValueError as e:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=400, detail=str(e))
 
 
 @router.delete("/{id_propiedad}")

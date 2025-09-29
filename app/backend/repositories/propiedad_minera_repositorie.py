@@ -1,8 +1,33 @@
+from backend.models.expediente_model import Expediente
 from sqlalchemy.orm import Session
 from backend.models.propiedad_minera_model import PropiedadMinera
 from backend.schemas.propiedad_minera_schema import PropiedadMineraCreate
 
 class PropiedadMineraRepositorie:
+    model_class = PropiedadMinera
+    def get_filtered_paginated(self, filters=None, offset=0, limit=10):
+        query = self.db.query(PropiedadMinera)
+        if filters:
+            if filters.get("nombre"):
+                query = query.filter(PropiedadMinera.Nombre.ilike(f"%{filters['nombre']}%"))
+            if filters.get("provincia"):
+                query = query.filter(PropiedadMinera.Provincia == filters["provincia"])
+            if filters.get("id_titular"):
+                query = query.filter(PropiedadMinera.IdTitular == filters["id_titular"])
+            if filters.get("expediente"):
+                expediente_val = filters["expediente"]
+                # Join con Expediente y filtrar por CodigoExpediente o IdExpediente
+                query = query.join(Expediente, PropiedadMinera.IdPropiedadMinera == Expediente.IdPropiedadMinera)
+                from sqlalchemy import or_, cast, String as SAString
+                query = query.filter(
+                    or_(
+                        Expediente.CodigoExpediente.ilike(f"%{expediente_val}%"),
+                        cast(Expediente.IdExpediente, SAString) == str(expediente_val)
+                    )
+                )
+        total = query.distinct().count()
+        items = query.order_by(PropiedadMinera.Referente.desc()).offset(offset).limit(limit).all()
+        return items, total
     def __init__(self, db: Session):
         self.db = db
 
