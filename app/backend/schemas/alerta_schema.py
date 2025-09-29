@@ -16,7 +16,8 @@ class AlertaBase(BaseModel):
     AudFecha: Optional[datetime] = None
     AudUsuario: Optional[int] = None
     Obs: Optional[str] = None
-
+    DiasPers: Optional[int] = None
+    
 class AlertaCreate(AlertaBase):
     IdPeriodicidad: int  # Campo obligatorio
 

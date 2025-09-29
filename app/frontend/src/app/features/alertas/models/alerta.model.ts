@@ -6,6 +6,7 @@ export interface AlertaCreate {
   Mensaje?: string;
   Medio?: string;
   IdPeriodicidad: number;  // Cambiado: ahora es obligatorio y es un ID numérico
+  DiasPers?: number;       // Nuevo campo para días personalizados
   FechaInicio?: string;
   FechaFin?: string;
   Destinatarios?: string;  // Nuevo campo agregado
@@ -16,6 +17,7 @@ export interface AlertaCreate {
 
 export interface Alerta extends AlertaCreate {
   idAlerta: number;
+  DiasPers?: number;  // Asegurar que también esté en la interfaz Alerta
 }
 
 export interface AlertaUpdate {
@@ -26,6 +28,7 @@ export interface AlertaUpdate {
   Mensaje?: string;
   Medio?: string;
   IdPeriodicidad?: number;
+  DiasPers?: number;       // Nuevo campo para días personalizados
   FechaInicio?: string;
   FechaFin?: string;
   Destinatarios?: string;
