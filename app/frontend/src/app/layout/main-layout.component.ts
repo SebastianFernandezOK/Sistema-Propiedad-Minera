@@ -54,10 +54,6 @@ import { AuthService } from '../features/auth/auth.service';
               <mat-icon>people</mat-icon>
               <span>Titulares Mineros</span>
             </button>
-            <button mat-menu-item routerLink="/usuarios">
-              <mat-icon>people</mat-icon>
-              <span>Usuarios</span>
-            </button>
             <button mat-menu-item routerLink="/areas">
               <mat-icon>business</mat-icon>
               <span>Áreas</span>
@@ -74,6 +70,10 @@ import { AuthService } from '../features/auth/auth.service';
               <mat-icon matListItemIcon>folder</mat-icon>
               <span>Tipos de Expediente</span>
             </button> 
+            <button mat-menu-item routerLink="/usuarios">
+              <mat-icon>people</mat-icon>
+              <span>Usuarios</span>
+            </button>
           </mat-menu>
         </mat-nav-list>
       </mat-sidenav>
