@@ -1,1 +1,0 @@
-import"./chunk-TSRGIXR5.js";var t=[{path:"",loadComponent:()=>import("./chunk-HREGWGFA.js").then(o=>o.TitularesMinerosComponent)},{path:"crear",loadComponent:()=>import("./chunk-GRWIM74R.js").then(o=>o.TitularCreateFormComponent)},{path:"editar/:id",loadComponent:()=>import("./chunk-RLUF6CPP.js").then(o=>o.TitularEditFormComponent)}];export{t as TITULARES_ROUTES};

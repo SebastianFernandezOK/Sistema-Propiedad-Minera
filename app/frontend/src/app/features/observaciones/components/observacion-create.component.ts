@@ -16,11 +16,11 @@ import { trigger, transition, style, animate } from '@angular/animations';
     <form [@fadeInUp] [formGroup]="form" (ngSubmit)="onSubmit()" class="observacion-form">
       <mat-form-field appearance="fill">
         <mat-label>Descripción</mat-label>
-        <input matInput formControlName="Descripcion" required>
+  <input matInput formControlName="Descripcion" required maxlength="200">
       </mat-form-field>
       <mat-form-field appearance="fill">
         <mat-label>Observaciones</mat-label>
-        <textarea matInput formControlName="Observaciones"></textarea>
+  <textarea matInput formControlName="Observaciones" maxlength="5000"></textarea>
       </mat-form-field>
       <button mat-raised-button color="primary" type="submit">Crear Observación</button>
     </form>

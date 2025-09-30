@@ -186,7 +186,7 @@ import { ArchivosExpedienteComponent } from '../../expedientes/components/archiv
                     <table mat-table [dataSource]="requerimientos" class="full-width-table">
                       <!-- Columna Fecha Inicio -->
                       <ng-container matColumnDef="fechaInicio">
-                        <th mat-header-cell *matHeaderCellDef>Fecha Inicio</th>
+                        <th mat-header-cell *matHeaderCellDef>Desde</th>
                         <td mat-cell *matCellDef="let req">
                           {{ req.FechaInicio ? (req.FechaInicio | date:'dd/MM/yyyy') : '-' }}
                         </td>
@@ -194,7 +194,7 @@ import { ArchivosExpedienteComponent } from '../../expedientes/components/archiv
 
                       <!-- Columna Fecha Fin -->
                       <ng-container matColumnDef="fechaFin">
-                        <th mat-header-cell *matHeaderCellDef>Fecha Fin</th>
+                        <th mat-header-cell *matHeaderCellDef>Hasta</th>
                         <td mat-cell *matCellDef="let req">
                           {{ req.FechaFin ? (req.FechaFin | date:'dd/MM/yyyy') : '-' }}
                         </td>
@@ -784,6 +784,12 @@ import { ArchivosExpedienteComponent } from '../../expedientes/components/archiv
       border-color: #17693b !important;
       box-shadow: 0 0 0 2px #e8f5e9 !important;
     }
+
+    .mat-column-importe {
+      min-width: 120px;
+      max-width: 200px;
+      white-space: nowrap;
+    }
   `]
 })
 export class PropiedadDetailComponent implements OnInit {
@@ -952,10 +958,13 @@ export class PropiedadDetailComponent implements OnInit {
   }
 
   formatCurrency(amount: number): string {
+    // Formatea el número en formato argentino: puntos para miles, coma para decimales, siempre dos decimales
     return new Intl.NumberFormat('es-AR', {
       style: 'currency',
-      currency: 'ARS'
-    }).format(amount);
+      currency: 'ARS',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }).format(amount).replace(/\s/, '');
   }
 
   // Métodos para manejar formularios

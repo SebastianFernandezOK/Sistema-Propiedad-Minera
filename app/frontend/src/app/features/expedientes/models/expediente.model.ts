@@ -16,6 +16,8 @@ export interface Expediente {
   alertas?: Alerta[];
   actas?: Acta[];
   observaciones?: import('../../observaciones/models/observacion.model').Observacion[];
+  PropiedadMineraNombre?: string;
+  TipoExpedienteNombre?: string;
 }
 
 export interface ExpedienteCreate {

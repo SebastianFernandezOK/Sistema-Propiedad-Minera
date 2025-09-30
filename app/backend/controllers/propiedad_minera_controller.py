@@ -11,7 +11,7 @@ from sqlalchemy.dialects.postgresql import UUID
 from backend.models.expediente_model import Expediente
 from sqlalchemy import or_, func, String as SAString
 from backend.models.expediente_model import Expediente
-from backend.services.auth_jwt import get_current_user
+from backend.services.auth_jwt import get_current_user, require_role
 
 router = APIRouter(prefix="/propiedades-mineras", tags=["Propiedades Mineras"])
 
@@ -59,7 +59,11 @@ def obtener_propiedad(id_propiedad: int, db: Session = Depends(get_db)):
 
 @router.post("/", response_model=PropiedadMineraRead)
 @router.post("", response_model=PropiedadMineraRead)
-def crear_propiedad(propiedad_data: PropiedadMineraCreate, db: Session = Depends(get_db)):
+def crear_propiedad(
+    propiedad_data: PropiedadMineraCreate,
+    db: Session = Depends(get_db),
+    current_user=Depends(require_role(["admin", "maestro"]))
+):
     service = PropiedadMineraService(db)
     try:
         return service.create(propiedad_data)
@@ -69,7 +73,12 @@ def crear_propiedad(propiedad_data: PropiedadMineraCreate, db: Session = Depends
 
 
 @router.put("/{id_propiedad}", response_model=PropiedadMineraRead)
-def actualizar_propiedad(id_propiedad: int, propiedad_data: dict, db: Session = Depends(get_db)):
+def actualizar_propiedad(
+    id_propiedad: int,
+    propiedad_data: dict,
+    db: Session = Depends(get_db),
+    current_user=Depends(require_role(["admin", "maestro"]))
+):
     service = PropiedadMineraService(db)
     try:
         updated = service.update(id_propiedad, propiedad_data)

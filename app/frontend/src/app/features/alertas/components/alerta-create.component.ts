@@ -32,11 +32,11 @@ import { SharedDatepickerModule } from '../../../shared/shared-datepicker.module
         </mat-form-field>
         <mat-form-field appearance="fill" class="third-width">
           <mat-label>Asunto</mat-label>
-          <input matInput formControlName="Asunto" required>
+          <input matInput formControlName="Asunto" required maxlength="50">
         </mat-form-field>
         <mat-form-field appearance="fill" class="third-width">
           <mat-label>Mensaje</mat-label>
-          <textarea matInput formControlName="Mensaje" required></textarea>
+          <textarea matInput formControlName="Mensaje" required maxlength="5000"></textarea>
         </mat-form-field>
       </div>
       <div class="row-fields">
@@ -64,7 +64,7 @@ import { SharedDatepickerModule } from '../../../shared/shared-datepicker.module
       <div class="row-fields">
         <mat-form-field appearance="fill" class="full-width">
           <mat-label>Destinatarios</mat-label>
-          <textarea matInput formControlName="Destinatarios" rows="3"></textarea>
+          <textarea matInput formControlName="Destinatarios" rows="3" maxlength="5000"></textarea>
         </mat-form-field>
       </div>
       <div class="row-fields">
@@ -82,7 +82,7 @@ import { SharedDatepickerModule } from '../../../shared/shared-datepicker.module
         </mat-form-field>
         <mat-form-field appearance="fill" class="third-width">
           <mat-label>Observaciones</mat-label>
-          <textarea matInput formControlName="Obs"></textarea>
+          <textarea matInput formControlName="Obs" maxlength="5000"></textarea>
         </mat-form-field>
       </div>
       <div class="button-row">

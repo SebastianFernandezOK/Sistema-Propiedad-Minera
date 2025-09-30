@@ -1,1 +1,0 @@
-import{Qc as o,Y as r,aa as e}from"./chunk-FEQCTJNV.js";var a=class t{constructor(i){this.http=i}baseUrl="http://localhost:9000/estado-alerta";getEstadosAlerta(){return this.http.get(this.baseUrl)}static \u0275fac=function(s){return new(s||t)(e(o))};static \u0275prov=r({token:t,factory:t.\u0275fac,providedIn:"root"})};export{a};

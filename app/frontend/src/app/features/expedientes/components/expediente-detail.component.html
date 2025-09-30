@@ -76,6 +76,8 @@
                       <div class="info-item"><label>Carátula:</label><span>{{ expediente.Caratula || 'Sin carátula' }}</span></div>
                       <div class="info-item"><label>Descripción:</label><span>{{ expediente.Descripcion || 'Sin descripción' }}</span></div>
                       <div class="info-item"><label>Observaciones:</label><span>{{ expediente.Observaciones || 'Sin observaciones' }}</span></div>
+                      <div class="info-item"><label>Propiedad Minera:</label><span>{{ expediente.PropiedadMineraNombre || expediente.IdPropiedadMinera || 'Sin propiedad' }}</span></div>
+                      <div class="info-item"><label>Tipo de Expediente:</label><span>{{ expediente.TipoExpedienteNombre || expediente.IdTipoExpediente || 'Sin tipo' }}</span></div>
                     </div>
                   </mat-card-content>
                 </mat-card>
