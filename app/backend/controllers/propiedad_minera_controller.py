@@ -62,7 +62,7 @@ def obtener_propiedad(id_propiedad: int, db: Session = Depends(get_db)):
 def crear_propiedad(
     propiedad_data: PropiedadMineraCreate,
     db: Session = Depends(get_db),
-    current_user=Depends(require_role(["admin", "maestro"]))
+    current_user=Depends(get_current_user)
 ):
     service = PropiedadMineraService(db)
     try:
@@ -77,7 +77,7 @@ def actualizar_propiedad(
     id_propiedad: int,
     propiedad_data: dict,
     db: Session = Depends(get_db),
-    current_user=Depends(require_role(["admin", "maestro"]))
+    current_user=Depends(get_current_user)
 ):
     service = PropiedadMineraService(db)
     try:
