@@ -15,7 +15,7 @@ def listar_titulares(
     db: Session = Depends(get_db),
     response: Response = None,
     range: str = Query(None, alias="range"),
-    _: dict = Depends(require_role('Administrador'))
+    _: dict = Depends(get_current_user)
 ):
     service = TitularMineroService(db)
     items = service.get_all()
@@ -35,7 +35,7 @@ def listar_titulares(
     return paginated_items
 
 @router.get("/{id_titular}", response_model=TitularMineroRead)
-def obtener_titular(id_titular: int, db: Session = Depends(get_db), _: dict = Depends(require_role('Administrador'))):
+def obtener_titular(id_titular: int, db: Session = Depends(get_db), _: dict = Depends(get_current_user)):
     service = TitularMineroService(db)
     titular = service.get_by_id(id_titular)
     if not titular:
