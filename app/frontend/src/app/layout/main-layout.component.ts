@@ -8,6 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule, MatMenu } from '@angular/material/menu';
 import { AuthService } from '../features/auth/auth.service';
+import { APP_VERSION } from '../core/api.constants';
 
 @Component({
   selector: 'app-main-layout',
@@ -28,9 +29,7 @@ import { AuthService } from '../features/auth/auth.service';
       <mat-sidenav #drawer mode="side" opened class="sidenav">
         <div class="sidenav-header">
           <img src="assets/logo.jpeg" alt="Minas Argentinas S.A." class="sidebar-logo" />
-         
         </div>
-        
         <mat-nav-list>
           <a mat-list-item routerLink="/propiedades" routerLinkActive="active">
             <mat-icon matListItemIcon>terrain</mat-icon>
@@ -85,11 +84,10 @@ import { AuthService } from '../features/auth/auth.service';
           <button mat-icon-button (click)="drawer.toggle()" class="menu-button">
             <mat-icon>menu</mat-icon>
           </button>
-          
+          <span class="app-version-navbar">Versión {{ appVersion }}</span>
           <div class="logo-container">
             
           </div>
-          
           <span class="spacer"></span>
           <span *ngIf="userName" class="user-name-navbar">
             <mat-icon>person</mat-icon> {{ userName }}
@@ -329,12 +327,21 @@ import { AuthService } from '../features/auth/auth.service';
       align-items: center;
       gap: 6px;
     }
+
+    .app-version-navbar {
+      margin-left: 12px;
+      color: #416759;
+      font-size: 1.02rem;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+    }
   `]
 })
 export class MainLayoutComponent {
   @ViewChild('maestrosMenu') maestrosMenu!: MatMenu;
   userName: string = '';
   userRole: string | null = null;
+  appVersion = APP_VERSION;
 
   constructor(private authService: AuthService) {
     const decoded = this.authService.decodeToken();

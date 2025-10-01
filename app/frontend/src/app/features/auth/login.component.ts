@@ -24,8 +24,11 @@ import { MatIconModule } from '@angular/material/icon';
   ],
   template: `
     <div class="login-bg">
-      <div class="login-container">
-        <mat-card class="login-card">
+      <div class="login-center-box unified-login">
+        <div class="login-title-box">
+          <h1 class="login-title">Sistema de Gestión<br>Propiedad Minera</h1>
+        </div>
+        <mat-card class="login-card login-card-merged">
           <mat-card-header>
             <mat-card-title>
               <mat-icon class="login-avatar" color="primary">lock</mat-icon>
@@ -61,35 +64,82 @@ import { MatIconModule } from '@angular/material/icon';
       min-height: 100vh;
       width: 100vw;
       background: url('/assets/logo_Minas_Argentinas_web_2.png') center center/cover no-repeat, linear-gradient(135deg, #e8f4f1 0%, #3F6858 100%);
-      /* La imagen va primero, el gradiente encima con opacidad */
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
       animation: fadeInBg 1.2s;
       position: relative;
     }
-    /* Si quieres el gradiente más transparente, puedes usar un overlay extra */
-    .login-bg::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(135deg, #e8f4f100 0%, #3F685800 100%); /* 0% opacidad, overlay invisible */
-      pointer-events: none;
-      z-index: 1;
-    }
-    .login-container {
-      position: relative;
-      z-index: 2;
+    .unified-login {
       display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      justify-content: center;
+      gap: 0;
+      background: rgba(255,255,255,0.98);
+      border-radius: 24px;
+      box-shadow: 0 8px 32px rgba(65, 103, 89, 0.18);
+      padding: 0 0 32px 0;
+      max-width: 520px;
+      width: 100%;
+      margin: 48px auto 0 auto;
+      animation: popIn 0.8s cubic-bezier(.4,0,.2,1);
+    }
+    .login-title-box {
+      width: 100%;
+      text-align: center;
+      margin-bottom: 0;
+      background: linear-gradient(90deg, #3F6858 0%, #58ae9a 100%);
+      border-radius: 24px 24px 0 0;
+      box-shadow: none;
+      padding: 22px 36px 14px 36px;
+      max-width: 100%;
+      margin-left: 0;
+      margin-right: 0;
+      animation: fadeInTitle 1.1s cubic-bezier(.4,0,.2,1), glowTitle 2.5s infinite alternate;
+      box-sizing: border-box;
+    }
+    @keyframes fadeInTitle {
+      from { transform: translateY(-40px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    @keyframes glowTitle {
+      from { box-shadow: none; }
+      to { box-shadow: 0 0 32px 4px #58ae9a55; }
+    }
+    .login-title {
+      text-align: center;
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: #fff;
+      margin: 0;
+      letter-spacing: 0.5px;
+      font-family: 'Roboto', Arial, sans-serif;
+      line-height: 1.1;
+      text-shadow: 0 2px 8px rgba(65, 103, 89, 0.13), 0 0 12px #58ae9a55;
+      transition: text-shadow 0.3s;
+    }
+    .login-title-box:hover .login-title {
+      text-shadow: 0 2px 16px #58ae9a, 0 0 24px #3F6858;
+    }
+    .login-card.login-card-merged {
+      width: 100%;
+      border-radius: 0 0 24px 24px;
+      margin-top: 0;
+      box-shadow: none;
+      background: transparent;
+      padding: 32px 36px 28px 36px;
+      animation: none;
+      max-width: 100%;
+      box-sizing: border-box;
+    }
+    .login-center-box {
+      display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
-      width: 100vw;
-      min-height: 100vh;
-      animation: fadeIn 1.2s;
-    }
-    @keyframes fadeIn {
-      from { transform: translateY(40px); opacity: 0; }
-      to { transform: translateY(0); opacity: 1; }
+      z-index: 2;
     }
     .login-card {
       width: 370px;
