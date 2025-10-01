@@ -2,10 +2,11 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { EstadoAlerta } from '../models/estado-alerta.model';
+import { API_BASE_URL } from '../../../core/api.constants';
 
 @Injectable({ providedIn: 'root' })
 export class EstadoAlertaService {
-  private readonly baseUrl = 'http://localhost:9000/estado-alerta';
+  private readonly baseUrl = `${API_BASE_URL}/estado-alerta`;
 
   constructor(private http: HttpClient) {}
 

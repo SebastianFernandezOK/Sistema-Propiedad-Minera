@@ -3,10 +3,11 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable, of } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
+import { API_BASE_URL } from '../../core/api.constants';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private apiUrl = 'http://localhost:9000/usuarios/login'; // Cambiado para apuntar al backend en el puerto 9000
+  private apiUrl = `${API_BASE_URL}/usuarios/login`;
   private tokenKey = 'jwt_token';
 
   constructor(private http: HttpClient, private router: Router) {}
