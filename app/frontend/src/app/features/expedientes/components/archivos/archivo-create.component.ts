@@ -114,7 +114,8 @@ import { ArchivoService, Archivo, FileUploadProgress } from '../../../archivos/s
   `]
 })
 export class ArchivoCreateComponent {
-  @Input() idExpediente!: number;
+  @Input() entidad: string = 'expediente';
+  @Input() idEntidad!: number;
   @Output() archivoCreado = new EventEmitter<Archivo>();
   @Output() cancelar = new EventEmitter<void>();
 
@@ -142,7 +143,7 @@ export class ArchivoCreateComponent {
   }
 
   onSubmit() {
-    if (!this.selectedFile || !this.idExpediente) {
+    if (!this.selectedFile || !this.idEntidad) {
       return;
     }
 
@@ -153,8 +154,8 @@ export class ArchivoCreateComponent {
 
     this.archivoService.uploadArchivoEntidad(
       this.selectedFile,
-      'expediente',
-      this.idExpediente,
+      this.entidad,
+      this.idEntidad,
       descripcion
     ).subscribe({
       next: (progress: FileUploadProgress) => {

@@ -52,9 +52,17 @@ import { EstadoAlerta } from '../models/estado-alerta.model';
       </div>
       <div class="table-container" *ngIf="!loading && alertas.length > 0">
         <table mat-table [dataSource]="alertas" class="mat-elevation-2">
-          <ng-container matColumnDef="idAlerta">
+          <!-- <ng-container matColumnDef="idAlerta">
             <th mat-header-cell *matHeaderCellDef>ID</th>
             <td mat-cell *matCellDef="let alerta">{{ alerta.idAlerta }}</td>
+          </ng-container> -->
+          <ng-container matColumnDef="FechaInicio">
+            <th mat-header-cell *matHeaderCellDef>Fecha de inicio</th>
+            <td mat-cell *matCellDef="let alerta">{{ alerta.FechaInicio ? (alerta.FechaInicio | date:'dd/MM/yyyy HH:mm') : '-' }}</td>
+          </ng-container>
+          <ng-container matColumnDef="FechaFin">
+            <th mat-header-cell *matHeaderCellDef>Fecha fin</th>
+            <td mat-cell *matCellDef="let alerta">{{ alerta.FechaFin ? (alerta.FechaFin | date:'dd/MM/yyyy HH:mm') : '-' }}</td>
           </ng-container>
           <ng-container matColumnDef="Estado">
             <th mat-header-cell *matHeaderCellDef>Estado</th>
@@ -109,7 +117,7 @@ export class AlertasGlobalListComponent implements OnInit {
   pageSize = 10;
   currentPage = 0;
   loading = false;
-  displayedColumns: string[] = ['idAlerta', 'Estado', 'Asunto', 'Mensaje'];
+  displayedColumns: string[] = ['FechaInicio', 'FechaFin', 'Estado', 'Asunto', 'Mensaje'];
   
   // Filtro por estado
   estadosAlerta: any[] = [];

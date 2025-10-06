@@ -472,6 +472,26 @@ mat-chip {
   }
 }
 
+.editar-prop-btn {
+  background: #fff !important;
+  color: #219653 !important;
+  border: 2px solid #219653 !important;
+  box-shadow: none !important;
+  opacity: 1 !important;
+  filter: none !important;
+  font-weight: 700;
+}
+.editar-prop-btn mat-icon {
+  color: #219653 !important;
+}
+.editar-prop-btn:hover,
+.editar-prop-btn:focus {
+  background: #e8f5e9 !important;
+  color: #17693b !important;
+  border-color: #17693b !important;
+  box-shadow: 0 0 0 2px #e8f5e9 !important;
+}
+
 @media (max-width: 768px) {
   .detail-header {
     flex-direction: column;

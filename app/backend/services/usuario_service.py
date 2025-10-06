@@ -57,19 +57,18 @@ def delete_usuario(db: Session, id: int):
     return repo.delete(id)
 
 def authenticate_usuario(db: Session, usuario_login: UsuarioLogin):
-    """Autentica un usuario y actualiza su última conexión"""
+    """Autentica por nombre de usuario o email y actualiza última conexión"""
     repo = UsuarioRepositorie(db)
-    usuario = repo.get_by_username(usuario_login.NombreUsuario)
-    
+    # Buscar por nombre de usuario o email
+    usuario = repo.get_by_username(usuario_login.usuario)
+    if not usuario:
+        usuario = repo.get_by_email(usuario_login.usuario)
     if not usuario:
         return None
-    
     if not repo.verify_password(usuario, usuario_login.Password):
         return None
-    
     if not usuario.Activo:
         raise ValueError("Usuario inactivo")
-    
     # Actualizar última conexión
     repo.update(usuario.IdUsuario, {"UltimaConexion": datetime.now()})
     

@@ -20,13 +20,9 @@ class UsuarioRepositorie:
         return self.db.query(Usuario).filter(Usuario.Email == email).first()
 
     def create(self, usuario_data: UsuarioCreate):
-        # Hash de la contraseña
-        password_hash = self._hash_password(usuario_data.Password)
-        
-        # Crear diccionario con los datos del usuario
+        # Guardar la contraseña en texto plano (no recomendado para producción)
         usuario_dict = usuario_data.dict()
-        usuario_dict['Password'] = password_hash
-        
+        # usuario_dict['Password'] = self._hash_password(usuario_data['Password'])  # Desactivado el hash
         usuario = Usuario(**usuario_dict)
         self.db.add(usuario)
         self.db.commit()
@@ -37,15 +33,12 @@ class UsuarioRepositorie:
         usuario = self.get_by_id(id_usuario)
         if not usuario:
             return None
-        
-        # Si se está actualizando la contraseña, hashearla
-        if 'Password' in usuario_data and usuario_data['Password']:
-            usuario_data['Password'] = self._hash_password(usuario_data['Password'])
-        
+        # Si se está actualizando la contraseña, NO hashearla
+        # if 'Password' in usuario_data and usuario_data['Password']:
+        #     usuario_data['Password'] = self._hash_password(usuario_data['Password'])
         for key, value in usuario_data.items():
             if value is not None:
                 setattr(usuario, key, value)
-        
         self.db.commit()
         self.db.refresh(usuario)
         return usuario
@@ -59,8 +52,8 @@ class UsuarioRepositorie:
         return True
 
     def verify_password(self, usuario: Usuario, password: str) -> bool:
-        """Verifica si la contraseña proporcionada coincide con la hash almacenada"""
-        return usuario.Password == self._hash_password(password)
+        # Comparar en texto plano
+        return usuario.Password == password
 
     def _hash_password(self, password: str) -> str:
         """Hashea la contraseña usando SHA-256"""

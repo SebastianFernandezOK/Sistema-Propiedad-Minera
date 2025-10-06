@@ -10,6 +10,7 @@ from backend.schemas.req_minero_mov_schema import (
 )
 from typing import List, Optional
 import json
+from backend.services.auth_jwt import get_current_user
 
 router = APIRouter()
 
@@ -21,7 +22,8 @@ def get_req_minero_movs(
     response: Response,
     filter: Optional[str] = Query(None, description="Filtros en formato JSON"),
     range: Optional[str] = Query(None, description="Rango de paginación [start, end]"),
-    service: ReqMineroMovService = Depends(get_req_minero_mov_service)
+    service: ReqMineroMovService = Depends(get_req_minero_mov_service),
+    current_user: dict = Depends(get_current_user)
 ):
     """
     Obtener lista de requerimientos mineros con filtros opcionales
@@ -61,7 +63,8 @@ def get_req_minero_movs(
 @router.get("/req-minero-movs/{id_req_minero_mov}", response_model=ReqMineroMovOut)
 def get_req_minero_mov(
     id_req_minero_mov: int,
-    service: ReqMineroMovService = Depends(get_req_minero_mov_service)
+    service: ReqMineroMovService = Depends(get_req_minero_mov_service),
+    current_user: dict = Depends(get_current_user)
 ):
     """
     Obtener un requerimiento minero por ID
@@ -77,7 +80,8 @@ def get_req_minero_movs_by_propiedad(
     response: Response,
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=1000),
-    service: ReqMineroMovService = Depends(get_req_minero_mov_service)
+    service: ReqMineroMovService = Depends(get_req_minero_mov_service),
+    current_user: dict = Depends(get_current_user)
 ):
     """
     Obtener requerimientos mineros de una propiedad específica
@@ -95,7 +99,8 @@ def get_req_minero_movs_by_propiedad(
 @router.post("/req-minero-movs", response_model=ReqMineroMovOut)
 def create_req_minero_mov(
     req_minero_mov_data: ReqMineroMovCreate,
-    service: ReqMineroMovService = Depends(get_req_minero_mov_service)
+    service: ReqMineroMovService = Depends(get_req_minero_mov_service),
+    current_user: dict = Depends(get_current_user)
 ):
     """
     Crear un nuevo requerimiento minero
@@ -109,7 +114,8 @@ def create_req_minero_mov(
 def create_req_minero_mov_for_propiedad(
     id_propiedad_minera: int,
     req_minero_mov_data: ReqMineroMovCreate,
-    service: ReqMineroMovService = Depends(get_req_minero_mov_service)
+    service: ReqMineroMovService = Depends(get_req_minero_mov_service),
+    current_user: dict = Depends(get_current_user)
 ):
     """
     Crear un nuevo requerimiento minero para una propiedad específica
@@ -133,7 +139,8 @@ def create_req_minero_mov_for_propiedad(
 def update_req_minero_mov(
     id_req_minero_mov: int,
     req_minero_mov_data: ReqMineroMovUpdate,
-    service: ReqMineroMovService = Depends(get_req_minero_mov_service)
+    service: ReqMineroMovService = Depends(get_req_minero_mov_service),
+    current_user: dict = Depends(get_current_user)
 ):
     """
     Actualizar un requerimiento minero existente
@@ -146,7 +153,8 @@ def update_req_minero_mov(
 @router.delete("/req-minero-movs/{id_req_minero_mov}")
 def delete_req_minero_mov(
     id_req_minero_mov: int,
-    service: ReqMineroMovService = Depends(get_req_minero_mov_service)
+    service: ReqMineroMovService = Depends(get_req_minero_mov_service),
+    current_user: dict = Depends(get_current_user)
 ):
     """
     Eliminar un requerimiento minero

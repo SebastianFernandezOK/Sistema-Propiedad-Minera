@@ -11,6 +11,7 @@ export interface PropiedadMinera {
   Mensura?: Date;
   AreaHectareas?: number;
   DescubrimientoDirecto?: string;
+  Referente?: boolean;
 }
 
 export interface PropiedadMineraCreate {
@@ -24,11 +25,13 @@ export interface PropiedadMineraCreate {
   Mensura?: Date;
   AreaHectareas?: number;
   DescubrimientoDirecto?: string;
+  Referente?: boolean;
 }
 
 export interface PropiedadMineraFilter {
   Nombre?: string;
   Provincia?: string;
   IdTitular?: number;
+  Expediente?: string;
   range?: [number, number];
 }

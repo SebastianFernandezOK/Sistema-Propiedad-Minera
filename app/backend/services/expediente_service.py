@@ -53,3 +53,6 @@ class ExpedienteService:
     def update(self, id_expediente: int, expediente_data: dict):
         expediente = self.repository.update(id_expediente, expediente_data)
         return expediente
+
+    def get_by_propiedad_minera(self, id_propiedad: int):
+        return self.repository.get_by_propiedad_minera(id_propiedad)

@@ -3,10 +3,11 @@ import { HttpClient, HttpResponse, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Observacion } from '../models/observacion.model';
+import { API_BASE_URL } from '../../../core/api.constants';
 
 @Injectable({ providedIn: 'root' })
 export class ObservacionesService {
-  private apiUrl = 'http://localhost:9000/observaciones';
+  private apiUrl = `${API_BASE_URL}/observaciones`;
 
   constructor(private http: HttpClient) {}
 

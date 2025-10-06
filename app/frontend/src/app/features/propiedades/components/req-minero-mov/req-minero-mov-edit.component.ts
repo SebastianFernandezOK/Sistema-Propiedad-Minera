@@ -66,19 +66,24 @@ import { SharedDatepickerModule } from '../../../../shared/shared-datepicker.mod
             </div>
           </div>
 
+          <!-- Fila de Fecha eliminada -->
+
+          <!-- Fila Fecha Inicio -->
           <div class="form-row">
             <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Fecha</mat-label>
-              <input matInput 
-                     [matDatepicker]="picker" 
-                     formControlName="Fecha"
-                     placeholder="Seleccione la fecha"
-                     appDateFormat>
-              <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-              <mat-datepicker #picker></mat-datepicker>
-              <mat-error *ngIf="reqMineroForm.get('Fecha')?.hasError('required')">
-                La fecha es requerida
-              </mat-error>
+              <mat-label>Fecha Inicio</mat-label>
+              <input matInput [matDatepicker]="pickerInicio" formControlName="FechaInicio" placeholder="Seleccione la fecha de inicio" appDateFormat>
+              <mat-datepicker-toggle matIconSuffix [for]="pickerInicio"></mat-datepicker-toggle>
+              <mat-datepicker #pickerInicio></mat-datepicker>
+            </mat-form-field>
+          </div>
+          <!-- Fila Fecha Fin -->
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Fecha Fin</mat-label>
+              <input matInput [matDatepicker]="pickerFin" formControlName="FechaFin" placeholder="Seleccione la fecha de fin" appDateFormat>
+              <mat-datepicker-toggle matIconSuffix [for]="pickerFin"></mat-datepicker-toggle>
+              <mat-datepicker #pickerFin></mat-datepicker>
             </mat-form-field>
           </div>
 
@@ -103,26 +108,18 @@ import { SharedDatepickerModule } from '../../../../shared/shared-datepicker.mod
             <mat-form-field appearance="outline" class="full-width">
               <mat-label>Importe</mat-label>
               <input matInput 
-                     type="number" 
+                     type="text"
                      formControlName="Importe"
-                     step="0.01"
-                     min="0"
-                     placeholder="Ingrese el importe">
+                     placeholder="Ej: 1.234,56"
+                     (input)="onImporteInput($event)">
               <span matTextPrefix>$ </span>
+              <mat-hint align="start">
+                Ingrese el importe en formato argentino (puntos para miles, coma para decimales). Ej: <b>1.234,56</b>
+              </mat-hint>
               <mat-error *ngIf="reqMineroForm.get('Importe')?.hasError('min')">
                 El importe debe ser mayor a 0
               </mat-error>
             </mat-form-field>
-          </div>
-
-          <div class="audit-info" *ngIf="reqMineroMov?.AudFecha">
-            <div class="audit-item">
-              <strong>Última modificación:</strong> 
-              {{ reqMineroMov?.AudFecha | date:'dd/MM/yyyy HH:mm' }}
-            </div>
-            <div class="audit-item" *ngIf="reqMineroMov?.AudUsuario">
-              <strong>Usuario:</strong> {{ reqMineroMov?.AudUsuario }}
-            </div>
           </div>
 
           <div class="form-actions">
@@ -350,21 +347,34 @@ export class ReqMineroMovEditComponent implements OnInit, OnChanges {
   private createForm(): FormGroup {
     return this.fb.group({
       IdReqMinero: [null, [Validators.required, Validators.min(1)]],
-      Fecha: [null, [Validators.required]],
+      FechaInicio: [null],
+      FechaFin: [null],
       Descripcion: ['', [Validators.required, Validators.maxLength(500)]],
       Importe: [null, [Validators.min(0)]]
+      // AudFecha eliminado
     });
   }
 
   private loadFormData() {
     if (this.reqMineroMov) {
+      let importe: any = this.reqMineroMov.Importe;
+      if (importe !== null && importe !== undefined) {
+        let str = String(importe);
+        let [ent, dec] = str.split('.');
+        ent = ent.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+        if (dec !== undefined && dec.length > 0) {
+          importe = `${ent},${dec}`;
+        } else {
+          importe = ent;
+        }
+      }
       const formData = {
         IdReqMinero: this.reqMineroMov.IdReqMinero,
-        Fecha: this.reqMineroMov.Fecha ? new Date(this.reqMineroMov.Fecha) : null,
+        FechaInicio: this.reqMineroMov.FechaInicio ? new Date(this.reqMineroMov.FechaInicio) : null,
+        FechaFin: this.reqMineroMov.FechaFin ? new Date(this.reqMineroMov.FechaFin) : null,
         Descripcion: this.reqMineroMov.Descripcion || '',
-        Importe: this.reqMineroMov.Importe
+        Importe: importe
       };
-
       this.reqMineroForm.patchValue(formData);
       this.originalFormValue = { ...formData };
     }
@@ -381,23 +391,38 @@ export class ReqMineroMovEditComponent implements OnInit, OnChanges {
   onSubmit() {
     if (this.reqMineroForm.valid && !this.isSubmitting && this.hasChanges()) {
       this.isSubmitting = true;
-      
       const formValue = this.reqMineroForm.value;
+      // Convertir Importe argentino a número para backend
+      let importe = formValue.Importe;
+      if (typeof importe === 'string') {
+        importe = importe.replace(/\./g, '').replace(',', '.');
+        importe = parseFloat(importe);
+      }
       const reqMineroData: Partial<ReqMineroMovCreate> = {
         IdPropiedadMinera: this.reqMineroMov?.IdPropiedadMinera,
         IdReqMinero: formValue.IdReqMinero,
-        Fecha: formValue.Fecha,
+        FechaInicio: formValue.FechaInicio,
+        FechaFin: formValue.FechaFin,
         Descripcion: formValue.Descripcion?.trim(),
-        Importe: formValue.Importe
+        Importe: isNaN(importe) ? null : importe
       };
-
       this.update.emit(reqMineroData);
-      
-      // Reset submission state after a delay
       setTimeout(() => {
         this.isSubmitting = false;
       }, 1000);
     }
+  }
+
+  // Formatea el input a formato argentino en tiempo real
+  onImporteInput(event: any) {
+    let value = event.target.value;
+    // Permitir solo números, puntos y comas
+    value = value.replace(/[^\d.,]/g, '');
+    // Reemplazar múltiples puntos para miles
+    let parts = value.split(',');
+    let ent = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    value = parts.length > 1 ? `${ent},${parts[1]}` : ent;
+    this.reqMineroForm.get('Importe')?.setValue(value, { emitEvent: false });
   }
 
   onCancel() {

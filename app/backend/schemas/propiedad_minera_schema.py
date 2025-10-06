@@ -14,6 +14,7 @@ class PropiedadMineraBase(BaseModel):
     Mensura: Optional[datetime]
     AreaHectareas: Optional[float]
     DescubrimientoDirecto: Optional[str] = None
+    Referente: Optional[bool] = None
 
 class PropiedadMineraCreate(PropiedadMineraBase):
     pass

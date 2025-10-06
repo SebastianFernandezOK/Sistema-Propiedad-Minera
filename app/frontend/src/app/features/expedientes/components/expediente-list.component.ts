@@ -110,7 +110,7 @@ import { Expediente, ExpedienteFilter } from '../models/expediente.model';
 
               <!-- Fecha Inicio Column -->
               <ng-container matColumnDef="FechaInicio">
-                <th mat-header-cell *matHeaderCellDef>Fecha Inicio</th>
+                <th mat-header-cell *matHeaderCellDef>Desde</th>
                 <td mat-cell *matCellDef="let expediente">
                   {{ expediente.FechaInicio !== undefined && expediente.FechaInicio !== null && expediente.FechaInicio !== '' ? (expediente.FechaInicio | date:'dd/MM/yyyy') : 'Sin fecha' }}
                 </td>

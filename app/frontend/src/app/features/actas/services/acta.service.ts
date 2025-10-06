@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { API_BASE_URL } from '../../../core/api.constants';
 
 export interface Alerta {
   idAlerta: number;
@@ -32,9 +33,9 @@ export interface ActaDetalleResponse extends Acta {
 export class ActaService {
   getArchivosByEntidad(entidad: string, idEntidad: number, page: number = 1, limit: number = 10): Observable<any> {
     // El backend debe aceptar parámetros ?page=1&limit=10
-    return this.http.get<any>(`http://localhost:9000/archivos/${entidad}/${idEntidad}?page=${page}&limit=${limit}`);
+    return this.http.get<any>(`${API_BASE_URL}/archivos/${entidad}/${idEntidad}?page=${page}&limit=${limit}`);
   }
-  private apiUrl = 'http://localhost:9000/actas';
+  private apiUrl = `${API_BASE_URL}/actas`;
 
   constructor(private http: HttpClient) {}
 

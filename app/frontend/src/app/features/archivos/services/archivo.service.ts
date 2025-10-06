@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams, HttpEvent, HttpEventType } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { API_BASE_URL } from '../../../core/api.constants';
 
 export interface Archivo {
   IdArchivo: number;
@@ -33,7 +34,7 @@ export interface FileUploadProgress {
   providedIn: 'root'
 })
 export class ArchivoService {
-  private apiUrl = 'http://localhost:9000/archivos';
+  private apiUrl = `${API_BASE_URL}/archivos`;
 
   constructor(private http: HttpClient) { }
 

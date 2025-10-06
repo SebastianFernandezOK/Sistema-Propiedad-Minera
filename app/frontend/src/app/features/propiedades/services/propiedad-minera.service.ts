@@ -3,12 +3,13 @@ import { HttpClient, HttpParams, HttpHeaders, HttpResponse } from '@angular/comm
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { PropiedadMinera, PropiedadMineraCreate, PropiedadMineraFilter } from '../models/propiedad-minera.model';
+import { API_BASE_URL } from '../../../core/api.constants';
 
 @Injectable({
   providedIn: 'root'
 })
 export class PropiedadMineraService {
-  private apiUrl = 'http://localhost:9000';
+  private apiUrl = API_BASE_URL;
 
   constructor(private http: HttpClient) { }
 
@@ -27,6 +28,19 @@ export class PropiedadMineraService {
       // Manejar filtro de provincia
       if (filters.Provincia && filters.Provincia.trim()) {
         filterObj.Provincia = filters.Provincia.trim();
+      }
+      
+      // Manejar filtro de titular
+      const idTitular = filters.IdTitular;
+      if (typeof idTitular === 'number' && idTitular > 0) {
+        filterObj.IdTitular = idTitular;
+      } else if (typeof idTitular === 'string' && idTitular !== '' && !isNaN(Number(idTitular))) {
+        filterObj.IdTitular = Number(idTitular);
+      }
+      
+      // Manejar filtro de expediente
+      if (filters.Expediente && filters.Expediente.trim() !== '') {
+        filterObj.Expediente = filters.Expediente.trim();
       }
       
       // Solo agregar el parámetro filter si hay algún filtro activo
@@ -82,6 +96,6 @@ export class PropiedadMineraService {
 
   // Métodos auxiliares para las opciones de filtros
   getProvincias(): string[] {
-    return ['Buenos Aires', 'Córdoba', 'Santa Fe', 'Mendoza', 'Tucumán', 'Entre Ríos', 'Salta', 'Misiones', 'Chaco', 'Corrientes', 'Santiago del Estero', 'San Juan', 'Jujuy', 'Río Negro', 'Formosa', 'Neuquén', 'Chubut', 'San Luis', 'Catamarca', 'La Rioja', 'La Pampa', 'Santa Cruz', 'Tierra del Fuego'];
+    return ['San Juan', 'La Rioja', 'Mendoza','Buenos Aires', 'Córdoba', 'Santa Fe', 'Tucumán', 'Entre Ríos', 'Salta', 'Misiones', 'Chaco', 'Corrientes', 'Santiago del Estero', 'Jujuy', 'Río Negro', 'Formosa', 'Neuquén', 'Chubut', 'San Luis', 'Catamarca',  'La Pampa', 'Santa Cruz', 'Tierra del Fuego'];
   }
 }

@@ -4,6 +4,8 @@ from backend.services.titular_minero_service import TitularMineroService
 from backend.schemas.titular_minero_schema import TitularMineroRead, TitularMineroCreate
 from backend.database.connection import get_db
 from typing import List
+from backend.services.auth_jwt import get_current_user
+from backend.services.auth_jwt import require_role
 
 
 router = APIRouter(prefix="/titulares-mineros", tags=["Titulares Mineros"])
@@ -12,7 +14,8 @@ router = APIRouter(prefix="/titulares-mineros", tags=["Titulares Mineros"])
 def listar_titulares(
     db: Session = Depends(get_db),
     response: Response = None,
-    range: str = Query(None, alias="range")
+    range: str = Query(None, alias="range"),
+    _: dict = Depends(get_current_user)
 ):
     service = TitularMineroService(db)
     items = service.get_all()
@@ -32,7 +35,7 @@ def listar_titulares(
     return paginated_items
 
 @router.get("/{id_titular}", response_model=TitularMineroRead)
-def obtener_titular(id_titular: int, db: Session = Depends(get_db)):
+def obtener_titular(id_titular: int, db: Session = Depends(get_db), _: dict = Depends(get_current_user)):
     service = TitularMineroService(db)
     titular = service.get_by_id(id_titular)
     if not titular:
@@ -40,12 +43,12 @@ def obtener_titular(id_titular: int, db: Session = Depends(get_db)):
     return titular
 
 @router.post("/", response_model=TitularMineroRead)
-def crear_titular(titular_data: TitularMineroCreate, db: Session = Depends(get_db)):
+def crear_titular(titular_data: TitularMineroCreate, db: Session = Depends(get_db), _: dict = Depends(require_role('Administrador'))):
     service = TitularMineroService(db)
     return service.create(titular_data)
 
 @router.put("/{id_titular}", response_model=TitularMineroRead)
-def actualizar_titular(id_titular: int, titular_data: dict, db: Session = Depends(get_db)):
+def actualizar_titular(id_titular: int, titular_data: dict, db: Session = Depends(get_db), _: dict = Depends(require_role('Administrador'))):
     service = TitularMineroService(db)
     updated = service.update(id_titular, titular_data)
     if not updated:
@@ -53,7 +56,7 @@ def actualizar_titular(id_titular: int, titular_data: dict, db: Session = Depend
     return updated
 
 @router.delete("/{id_titular}")
-def borrar_titular(id_titular: int, db: Session = Depends(get_db)):
+def borrar_titular(id_titular: int, db: Session = Depends(get_db), _: dict = Depends(require_role('Administrador'))):
     service = TitularMineroService(db)
     deleted = service.delete(id_titular)
     if not deleted:

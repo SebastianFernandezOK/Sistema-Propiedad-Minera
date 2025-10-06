@@ -38,29 +38,28 @@
                                 <mat-card-content>
                                     <div class="info-grid">
                                         <div class="info-item">
-                                            <label>Fecha del Acta:</label>
-                                            <span>{{ acta.Fecha ? (acta.Fecha | date:'dd/MM/yyyy') : 'Sin fecha'
-                                                }}</span>
+                                            <label>Descripción:</label>
+                                            <span>{{ acta.Descripcion || 'Sin descripción' }}</span>
+                                        </div>
+                                        <div class="info-item">
+                                            <label>Observaciones:</label>
+                                            <span>{{ acta.Obs || 'Sin observaciones' }}</span>
+                                        </div>
+                                        <div class="info-item">
+                                            <label>Fecha:</label>
+                                            <span>{{ acta.Fecha ? (acta.Fecha | date:'dd/MM/yyyy') : 'Sin fecha' }}</span>
                                         </div>
                                         <div class="info-item">
                                             <label>Tipo de Acta:</label>
                                             <span>{{ acta.IdTipoActa || 'Sin tipo' }}</span>
                                         </div>
                                         <div class="info-item">
-                                            <label>Descripción:</label>
-                                            <span>{{ acta.Descripcion || 'Sin descripción' }}</span>
+                                            <label>Autoridad:</label>
+                                            <span>{{ autoridadNombre || acta.IdAutoridad || 'Sin autoridad' }}</span>
                                         </div>
                                         <div class="info-item">
                                             <label>Lugar:</label>
                                             <span>{{ acta.Lugar || 'Sin lugar' }}</span>
-                                        </div>
-                                        <div class="info-item">
-                                            <label>Autoridad:</label>
-                                            <span>{{ autoridadNombre || 'Sin autoridad' }}</span>
-                                        </div>
-                                        <div class="info-item">
-                                            <label>Observaciones:</label>
-                                            <span>{{ acta.Obs || 'Sin observaciones' }}</span>
                                         </div>
                                     </div>
                                 </mat-card-content>

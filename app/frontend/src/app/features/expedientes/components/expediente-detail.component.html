@@ -59,7 +59,7 @@
                 <mat-card>
                   <mat-card-header>
                     <mat-card-title>Datos Básicos</mat-card-title>
-                    <button mat-raised-button color="primary" class="edit-btn-inside" style="margin-left:auto;" (click)="editarExpediente()">
+                    <button mat-flat-button class="editar-prop-btn" style="margin-left:auto;" (click)="editarExpediente()">
                       <mat-icon>edit</mat-icon>
                       Editar
                     </button>
@@ -76,6 +76,8 @@
                       <div class="info-item"><label>Carátula:</label><span>{{ expediente.Caratula || 'Sin carátula' }}</span></div>
                       <div class="info-item"><label>Descripción:</label><span>{{ expediente.Descripcion || 'Sin descripción' }}</span></div>
                       <div class="info-item"><label>Observaciones:</label><span>{{ expediente.Observaciones || 'Sin observaciones' }}</span></div>
+                      <div class="info-item"><label>Propiedad Minera:</label><span>{{ expediente.PropiedadMineraNombre || expediente.IdPropiedadMinera || 'Sin propiedad' }}</span></div>
+                      <div class="info-item"><label>Tipo de Expediente:</label><span>{{ expediente.TipoExpedienteNombre || expediente.IdTipoExpediente || 'Sin tipo' }}</span></div>
                     </div>
                   </mat-card-content>
                 </mat-card>
@@ -108,7 +110,7 @@
             <!-- Archivos -->
             <ng-container *ngSwitchCase="5">
               <div class="tab-content">
-                <app-archivos-expediente [idExpediente]="expediente.IdExpediente"></app-archivos-expediente>
+                <app-archivos-expediente [idEntidad]="expediente.IdTransaccion ?? 0"></app-archivos-expediente>
               </div>
             </ng-container>
           </ng-container>

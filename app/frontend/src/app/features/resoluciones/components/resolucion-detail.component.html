@@ -39,11 +39,13 @@
                   <div class="info-grid">
                     <div class="info-item"><label>N° Resolución:</label><span>{{ resolucion.Numero || 'Sin número' }}</span></div>
                     <div class="info-item"><label>Título:</label><span>{{ resolucion.Titulo || 'Sin título' }}</span></div>
+                    <div class="info-item"><label>Estado:</label><span>{{ resolucion.Estado || 'Sin estado' }}</span></div>
                     <div class="info-item"><label>Fecha de Emisión:</label><span>{{ resolucion.Fecha_emision ? (resolucion.Fecha_emision | date:'dd/MM/yyyy') : 'Sin fecha' }}</span></div>
                     <div class="info-item"><label>Fecha de Publicación:</label><span>{{ resolucion.Fecha_publicacion ? (resolucion.Fecha_publicacion | date:'dd/MM/yyyy') : 'Sin fecha' }}</span></div>
-                    <div class="info-item"><label>Estado Actual:</label><span>{{ resolucion.Estado || 'Sin estado' }}</span></div>
                     <div class="info-item"><label>Organismo Emisor:</label><span>{{ resolucion.Organismo_emisor || 'Sin organismo' }}</span></div>
+                    <div class="info-item"><label>Contenido:</label><span>{{ resolucion.Contenido || 'Sin contenido' }}</span></div>
                     <div class="info-item"><label>Descripción:</label><span>{{ resolucion.Descripcion || 'Sin descripción' }}</span></div>
+                    <div class="info-item"><label>Observaciones:</label><span>{{ resolucion.Observaciones || 'Sin observaciones' }}</span></div>
                   </div>
                 </mat-card-content>
               </mat-card>

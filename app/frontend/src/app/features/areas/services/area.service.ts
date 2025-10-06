@@ -3,10 +3,11 @@ import { HttpClient, HttpResponse, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Area, AreaCreate } from '../models/area.model';
+import { API_BASE_URL } from '../../../core/api.constants';
 
 @Injectable({ providedIn: 'root' })
 export class AreaService {
-  private apiUrl = 'http://localhost:9000/areas';
+  private apiUrl = `${API_BASE_URL}/areas`;
 
   constructor(private http: HttpClient) {}
 

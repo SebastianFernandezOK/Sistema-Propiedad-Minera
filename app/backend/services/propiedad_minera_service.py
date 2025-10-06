@@ -8,6 +8,11 @@ from backend.schemas.transaccion_schema import TransaccionCreate
 from datetime import datetime
 
 class PropiedadMineraService:
+    def get_filtered_paginated(self, filters=None, offset=0, limit=10):
+        items, total = self.repository.get_filtered_paginated(filters, offset, limit)
+        for propiedad in items:
+            propiedad.TitularNombre = propiedad.get_titular_nombre(self.repository.db)
+        return items, total
     def __init__(self, db: Session):
         self.repository = PropiedadMineraRepositorie(db)
 
@@ -26,6 +31,16 @@ class PropiedadMineraService:
 
 
     def create(self, propiedad_data: PropiedadMineraCreate):
+        # Validación de referente único por titular minero
+        if propiedad_data.Referente:
+            existente = self.repository.db.query(self.repository.__class__.model_class)
+            existente = existente.filter(
+                self.repository.__class__.model_class.IdTitular == propiedad_data.IdTitular,
+                self.repository.__class__.model_class.Referente == 1
+            ).first()
+            if existente:
+                raise ValueError("Ya existe una propiedad minera referente para este titular minero.")
+
         # 1. Crear la propiedad minera
         propiedad = self.repository.create(propiedad_data)
 
@@ -54,6 +69,18 @@ class PropiedadMineraService:
         return propiedad
 
     def update(self, id_propiedad: int, propiedad_data: dict):
+        # Validación de referente único por titular minero al editar
+        if propiedad_data.get("Referente"):
+            # Obtener la propiedad actual para excluirla de la búsqueda
+            actual = self.repository.get_by_id(id_propiedad)
+            existente = self.repository.db.query(self.repository.__class__.model_class)
+            existente = existente.filter(
+                self.repository.__class__.model_class.IdTitular == actual.IdTitular,
+                self.repository.__class__.model_class.Referente == 1,
+                self.repository.__class__.model_class.IdPropiedadMinera != id_propiedad
+            ).first()
+            if existente:
+                raise ValueError("Ya existe una propiedad minera referente para este titular minero.")
         return self.repository.update(id_propiedad, propiedad_data)
 
     def delete(self, id_propiedad: int):

@@ -20,15 +20,15 @@ import { DateFormatDirective } from '../../../shared/directives/date-format.dire
       <div class="row-fields">
         <mat-form-field appearance="fill" class="third-width">
           <mat-label>Número</mat-label>
-          <input matInput formControlName="Numero">
+          <input matInput formControlName="Numero" maxlength="50">
         </mat-form-field>
         <mat-form-field appearance="fill" class="third-width">
           <mat-label>Título</mat-label>
-          <input matInput formControlName="Titulo">
+          <input matInput formControlName="Titulo" maxlength="150">
         </mat-form-field>
         <mat-form-field appearance="fill" class="third-width">
           <mat-label>Estado</mat-label>
-          <input matInput formControlName="Estado">
+          <input matInput formControlName="Estado" maxlength="50">
         </mat-form-field>
       </div>
       <div class="row-fields">
@@ -46,20 +46,20 @@ import { DateFormatDirective } from '../../../shared/directives/date-format.dire
         </mat-form-field>
         <mat-form-field appearance="fill" class="third-width">
           <mat-label>Organismo Emisor</mat-label>
-          <input matInput formControlName="Organismo_emisor">
+          <input matInput formControlName="Organismo_emisor" maxlength="100">
         </mat-form-field>
       </div>
       <mat-form-field appearance="fill" class="full-width">
         <mat-label>Contenido</mat-label>
-        <textarea matInput formControlName="Contenido"></textarea>
+        <textarea matInput formControlName="Contenido" maxlength="5000"></textarea>
       </mat-form-field>
       <mat-form-field appearance="fill" class="full-width">
         <mat-label>Descripción</mat-label>
-        <textarea matInput formControlName="Descripcion"></textarea>
+        <textarea matInput formControlName="Descripcion" maxlength="500"></textarea>
       </mat-form-field>
       <mat-form-field appearance="fill" class="full-width">
         <mat-label>Observaciones</mat-label>
-        <textarea matInput formControlName="Observaciones"></textarea>
+        <textarea matInput formControlName="Observaciones" maxlength="5000"></textarea>
       </mat-form-field>
       <div class="button-row">
         <button mat-raised-button color="primary" type="submit">Guardar Cambios</button>

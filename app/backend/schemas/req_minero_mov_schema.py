@@ -7,11 +7,12 @@ class ReqMineroMovBase(BaseModel):
     IdPropiedadMinera: Optional[int] = None
     IdReqMinero: Optional[int] = None
     IdTransaccion: Optional[int] = None
-    Fecha: Optional[datetime] = None
     Descripcion: Optional[str] = None
     Importe: Optional[Decimal] = None
     AudFecha: Optional[datetime] = None
     AudUsuario: Optional[int] = None
+    FechaInicio: Optional[datetime] = None
+    FechaFin: Optional[datetime] = None
 
 class ReqMineroMovCreate(ReqMineroMovBase):
     pass

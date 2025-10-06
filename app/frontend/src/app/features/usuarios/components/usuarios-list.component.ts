@@ -187,58 +187,28 @@ import { Usuario } from '../models/usuario.model';
   `,
   styles: [`
     .usuarios-container {
-      padding: 20px;
-      max-width: 1400px;
+      padding: 1.5rem;
+      max-width: 1200px;
       margin: 0 auto;
-    }
-
-    mat-card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-    }
-
-    mat-card-title {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      font-size: 24px;
-      font-weight: 600;
-      color: #1f2937;
     }
 
     .header-actions {
       display: flex;
-      gap: 12px;
+      gap: 1rem;
+      align-items: center;
     }
 
     .loading-container, .error-container, .no-data-container {
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      padding: 40px 20px;
+      padding: 3rem;
+      gap: 1rem;
       text-align: center;
     }
 
-    .error-container mat-icon, .no-data-container mat-icon {
-      font-size: 48px;
-      height: 48px;
-      width: 48px;
-      margin-bottom: 16px;
-    }
-
-    .error-container mat-icon {
-      color: #f44336;
-    }
-
-    .no-data-container mat-icon {
-      color: #9ca3af;
-    }
-
     .table-container {
-      width: 100%;
+      margin-top: 1rem;
       overflow-x: auto;
     }
 
@@ -254,14 +224,72 @@ import { Usuario } from '../models/usuario.model';
     }
 
     .usuarios-table td, .usuarios-table th {
-      padding: 12px 8px;
-      border-bottom: 1px solid #e5e7eb;
+      padding: 0.75rem 0.5rem;
+      border-bottom: 1px solid #e0e0e0;
     }
 
     .actions-container {
       display: flex;
-      gap: 4px;
+      gap: 0.25rem;
       align-items: center;
+    }
+
+    .usuarios-table tr.table-row {
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .usuarios-table tr.table-row:hover {
+      background-color: #f5f5f5;
+    }
+
+    .no-data-container {
+      color: #666;
+    }
+
+    .no-data-container mat-icon {
+      font-size: 48px;
+      height: 48px;
+      width: 48px;
+      color: #ccc;
+      margin-bottom: 1rem;
+    }
+
+    mat-card {
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    mat-card-header {
+      background: #f8f9fa;
+      padding: 1.5rem;
+      margin: -1rem -1rem 0 -1rem;
+      border-bottom: 1px solid #e0e0e0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    mat-card-title {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: #416759;
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin: 0;
+    }
+
+    mat-card-content {
+      padding: 1.5rem;
+    }
+
+    .header-actions button {
+      background: #416759;
+      color: white;
+    }
+
+    .header-actions button:hover {
+      background: #355a4c;
     }
 
     mat-chip-set {
@@ -275,7 +303,7 @@ import { Usuario } from '../models/usuario.model';
     }
 
     mat-paginator {
-      border-top: 1px solid #e5e7eb;
+      border-top: 1px solid #e0e0e0;
       background-color: #f8f9fa;
     }
 
@@ -283,25 +311,20 @@ import { Usuario } from '../models/usuario.model';
       .usuarios-container {
         padding: 10px;
       }
-
       mat-card-header {
         flex-direction: column;
         gap: 16px;
         align-items: stretch;
       }
-
       .header-actions {
         justify-content: center;
       }
-
       .usuarios-table {
         font-size: 14px;
       }
-
       .usuarios-table td, .usuarios-table th {
         padding: 8px 4px;
       }
-
       .actions-container {
         flex-direction: column;
         gap: 2px;
@@ -313,7 +336,6 @@ import { Usuario } from '../models/usuario.model';
         padding: 6px 2px;
         font-size: 12px;
       }
-
       mat-chip {
         font-size: 10px;
         min-height: 24px;
@@ -427,7 +449,7 @@ export class UsuariosListComponent implements OnInit {
 
   getRolColor(rol: string): string {
     const colors: { [key: string]: string } = {
-      'Administrador': '#f44336',
+      'Administrador': '#2196f3', // azul
       'Usuario': '#2196f3',
       'Consultor': '#ff9800',
       'Supervisor': '#9c27b0'

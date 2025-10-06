@@ -4,6 +4,7 @@ from backend.services.auditoria_service import AuditoriaService
 from backend.schemas.auditoria_schema import AuditoriaCreate, AuditoriaUpdate, AuditoriaOut
 from backend.database.connection import get_db
 from typing import List
+from backend.services.auth_jwt import get_current_user
 
 router = APIRouter(
     prefix="/auditorias",
@@ -14,7 +15,8 @@ router = APIRouter(
 def list_auditorias(
     db: Session = Depends(get_db),
     response: Response = None,
-    range: str = Query(None, alias="range")
+    range: str = Query(None, alias="range"),
+    current_user: int = Depends(get_current_user)
 ):
     service = AuditoriaService(db)
     items = service.get_auditorias()
@@ -32,7 +34,7 @@ def list_auditorias(
     return paginated_items
 
 @router.get("/{id}", response_model=AuditoriaOut)
-def get_auditoria(id: int, db: Session = Depends(get_db)):
+def get_auditoria(id: int, db: Session = Depends(get_db), current_user: int = Depends(get_current_user)):
     service = AuditoriaService(db)
     obj = service.get_auditoria(id)
     if not obj:
@@ -40,12 +42,12 @@ def get_auditoria(id: int, db: Session = Depends(get_db)):
     return obj
 
 @router.post("/", response_model=AuditoriaOut)
-def create_auditoria(auditoria: AuditoriaCreate, db: Session = Depends(get_db)):
+def create_auditoria(auditoria: AuditoriaCreate, db: Session = Depends(get_db), current_user: int = Depends(get_current_user)):
     service = AuditoriaService(db)
     return service.create_auditoria(auditoria)
 
 @router.put("/{id}", response_model=AuditoriaOut)
-def update_auditoria(id: int, auditoria: AuditoriaUpdate, db: Session = Depends(get_db)):
+def update_auditoria(id: int, auditoria: AuditoriaUpdate, db: Session = Depends(get_db), current_user: int = Depends(get_current_user)):
     service = AuditoriaService(db)
     obj = service.update_auditoria(id, auditoria)
     if not obj:
@@ -53,7 +55,7 @@ def update_auditoria(id: int, auditoria: AuditoriaUpdate, db: Session = Depends(
     return obj
 
 @router.delete("/{id}", response_model=AuditoriaOut)
-def delete_auditoria(id: int, db: Session = Depends(get_db)):
+def delete_auditoria(id: int, db: Session = Depends(get_db), current_user: int = Depends(get_current_user)):
     service = AuditoriaService(db)
     obj = service.delete_auditoria(id)
     if not obj:

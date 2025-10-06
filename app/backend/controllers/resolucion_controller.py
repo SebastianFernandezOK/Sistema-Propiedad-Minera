@@ -6,6 +6,7 @@ from backend.services.resolucion_service import ResolucionService
 from backend.database.connection import get_db
 from backend.models.alerta_model import Alerta
 from backend.schemas.alerta_schema import AlertaOut
+from backend.services.auth_jwt import get_current_user
 
 router = APIRouter(prefix="/resoluciones", tags=["Resoluciones"])
 

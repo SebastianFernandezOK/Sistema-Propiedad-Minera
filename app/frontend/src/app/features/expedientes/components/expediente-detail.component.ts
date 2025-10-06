@@ -1,5 +1,6 @@
 import { Component, OnInit, ViewChildren, QueryList, ElementRef, AfterViewInit } from '@angular/core';
 import { trigger, state, style, animate, transition } from '@angular/animations';
+import { Location } from '@angular/common';
 import { CommonModule, DatePipe } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
@@ -100,7 +101,8 @@ export class ExpedienteDetailComponent implements OnInit, AfterViewInit {
     private route: ActivatedRoute,
     private router: Router,
     private expedienteService: ExpedienteService,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private location: Location
   ) {}
 
   ngOnInit(): void {
@@ -155,7 +157,7 @@ export class ExpedienteDetailComponent implements OnInit, AfterViewInit {
     if (this.editando) {
       this.cancelarEdicion();
     } else {
-      this.router.navigate(['/expedientes']);
+      this.location.back();
     }
   }
 

@@ -5,6 +5,8 @@ from backend.schemas.tipo_expediente_schema import TipoExpedienteRead, TipoExped
 from backend.database.connection import get_db
 from typing import List
 from fastapi import Query
+from backend.services.auth_jwt import get_current_user
+from backend.services.auth_jwt import require_role
 
 router = APIRouter(prefix="/tipos-expediente", tags=["Tipos de Expediente"])
 
@@ -12,7 +14,8 @@ router = APIRouter(prefix="/tipos-expediente", tags=["Tipos de Expediente"])
 def listar_tipos_expediente(
     db: Session = Depends(get_db),
     response: Response = None,
-    range: str = Query(None, alias="range")
+    range: str = Query(None, alias="range"),
+    _: dict = Depends(require_role('Administrador'))
 ):
     service = TipoExpedienteService(db)
     items = service.get_all()
@@ -32,7 +35,7 @@ def listar_tipos_expediente(
     return paginated_items
 
 @router.get("/{id_tipo}", response_model=TipoExpedienteRead)
-def obtener_tipo(id_tipo: int, db: Session = Depends(get_db)):
+def obtener_tipo(id_tipo: int, db: Session = Depends(get_db), _: dict = Depends(require_role('Administrador'))):
     service = TipoExpedienteService(db)
     tipo = service.get_by_id(id_tipo)
     if not tipo:
@@ -40,12 +43,12 @@ def obtener_tipo(id_tipo: int, db: Session = Depends(get_db)):
     return tipo
 
 @router.post("/", response_model=TipoExpedienteRead)
-def crear_tipo(tipo_data: TipoExpedienteCreate, db: Session = Depends(get_db)):
+def crear_tipo(tipo_data: TipoExpedienteCreate, db: Session = Depends(get_db), _: dict = Depends(require_role('Administrador'))):
     service = TipoExpedienteService(db)
     return service.create(tipo_data)
 
 @router.put("/{id_tipo}", response_model=TipoExpedienteRead)
-def actualizar_tipo(id_tipo: int, tipo_data: dict, db: Session = Depends(get_db)):
+def actualizar_tipo(id_tipo: int, tipo_data: dict, db: Session = Depends(get_db), _: dict = Depends(require_role('Administrador'))):
     service = TipoExpedienteService(db)
     updated = service.update(id_tipo, tipo_data)
     if not updated:
@@ -53,7 +56,7 @@ def actualizar_tipo(id_tipo: int, tipo_data: dict, db: Session = Depends(get_db)
     return updated
 
 @router.delete("/{id_tipo}")
-def borrar_tipo(id_tipo: int, db: Session = Depends(get_db)):
+def borrar_tipo(id_tipo: int, db: Session = Depends(get_db), _: dict = Depends(require_role('Administrador'))):
     service = TipoExpedienteService(db)
     deleted = service.delete(id_tipo)
     if not deleted:

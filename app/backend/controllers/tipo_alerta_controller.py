@@ -3,34 +3,36 @@ from sqlalchemy.orm import Session
 from backend.database.connection import get_db
 from backend.schemas.tipo_alerta_schema import TipoAlertaOut, TipoAlertaCreate, TipoAlertaUpdate
 from backend.services.tipo_alerta_service import TipoAlertaService
+from backend.services.auth_jwt import get_current_user
+from backend.services.auth_jwt import require_role
 from typing import List
 
 router = APIRouter(prefix="/tipo-alerta", tags=["TipoAlerta"])
 
 @router.get("/", response_model=List[TipoAlertaOut])
-def get_all_tipo_alerta(db: Session = Depends(get_db)):
+def get_all_tipo_alerta(db: Session = Depends(get_db), _=Depends(require_role('Administrador'))):
     return TipoAlertaService.get_all(db)
 
 @router.get("/{id_tipo_alerta}", response_model=TipoAlertaOut)
-def get_tipo_alerta(id_tipo_alerta: int, db: Session = Depends(get_db)):
+def get_tipo_alerta(id_tipo_alerta: int, db: Session = Depends(get_db), _=Depends(require_role('Administrador'))):
     tipo_alerta = TipoAlertaService.get_by_id(db, id_tipo_alerta)
     if not tipo_alerta:
         raise HTTPException(status_code=404, detail="TipoAlerta no encontrado")
     return tipo_alerta
 
 @router.post("/", response_model=TipoAlertaOut)
-def create_tipo_alerta(tipo_alerta: TipoAlertaCreate, db: Session = Depends(get_db)):
+def create_tipo_alerta(tipo_alerta: TipoAlertaCreate, db: Session = Depends(get_db), _=Depends(require_role('Administrador'))):
     return TipoAlertaService.create(db, tipo_alerta)
 
 @router.put("/{id_tipo_alerta}", response_model=TipoAlertaOut)
-def update_tipo_alerta(id_tipo_alerta: int, tipo_alerta: TipoAlertaUpdate, db: Session = Depends(get_db)):
+def update_tipo_alerta(id_tipo_alerta: int, tipo_alerta: TipoAlertaUpdate, db: Session = Depends(get_db), _=Depends(require_role('Administrador'))):
     updated = TipoAlertaService.update(db, id_tipo_alerta, tipo_alerta)
     if not updated:
         raise HTTPException(status_code=404, detail="TipoAlerta no encontrado")
     return updated
 
 @router.delete("/{id_tipo_alerta}", response_model=TipoAlertaOut)
-def delete_tipo_alerta(id_tipo_alerta: int, db: Session = Depends(get_db)):
+def delete_tipo_alerta(id_tipo_alerta: int, db: Session = Depends(get_db), _=Depends(require_role('Administrador'))):
     deleted = TipoAlertaService.delete(db, id_tipo_alerta)
     if not deleted:
         raise HTTPException(status_code=404, detail="TipoAlerta no encontrado")

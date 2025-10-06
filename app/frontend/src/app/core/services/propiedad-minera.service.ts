@@ -3,12 +3,13 @@ import { HttpClient, HttpParams, HttpHeaders, HttpResponse } from '@angular/comm
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { PropiedadMinera, PropiedadMineraCreate, PropiedadMineraFilter } from '../../shared/models/propiedad-minera.model';
+import { API_BASE_URL } from '../api.constants';
 
 @Injectable({
   providedIn: 'root'
 })
 export class PropiedadMineraService {
-  private apiUrl = 'http://localhost:9000';
+  private apiUrl = API_BASE_URL;
 
   constructor(private http: HttpClient) { }
 
@@ -70,6 +71,6 @@ export class PropiedadMineraService {
 
   // Métodos auxiliares para las opciones de filtros
   getProvincias(): string[] {
-    return ['Buenos Aires', 'Córdoba', 'Santa Fe', 'Mendoza', 'Tucumán', 'Entre Ríos', 'Salta', 'Misiones', 'Chaco', 'Corrientes', 'Santiago del Estero', 'San Juan', 'Jujuy', 'Río Negro', 'Formosa', 'Neuquén', 'Chubut', 'San Luis', 'Catamarca', 'La Rioja', 'La Pampa', 'Santa Cruz', 'Tierra del Fuego'];
+    return ['San Juan', 'La Rioja', 'Mendoza', 'Buenos Aires', 'Córdoba', 'Santa Fe',  'Tucumán', 'Entre Ríos', 'Salta', 'Misiones', 'Chaco', 'Corrientes', 'Santiago del Estero',  'Jujuy', 'Río Negro', 'Formosa', 'Neuquén', 'Chubut', 'San Luis', 'Catamarca',  'La Pampa', 'Santa Cruz', 'Tierra del Fuego'];
   }
 }

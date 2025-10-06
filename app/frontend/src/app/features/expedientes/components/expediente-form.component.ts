@@ -54,13 +54,13 @@ import { TipoExpedienteService, TipoExpediente } from '../services/tipo-expedien
         </mat-form-field>
         <!-- Fila 3: Fechas y Propiedad Minera -->
         <mat-form-field appearance="fill">
-          <mat-label>Fecha de Inicio</mat-label>
+          <mat-label>Desde</mat-label>
           <input matInput [matDatepicker]="pickerInicio" formControlName="FechaInicio" appDateFormat>
           <mat-datepicker-toggle matSuffix [for]="pickerInicio"></mat-datepicker-toggle>
           <mat-datepicker #pickerInicio></mat-datepicker>
         </mat-form-field>
         <mat-form-field appearance="fill">
-          <mat-label>Fecha de Fin</mat-label>
+          <mat-label>Hasta</mat-label>
           <input matInput [matDatepicker]="pickerFin" formControlName="FechaFin" appDateFormat>
           <mat-datepicker-toggle matSuffix [for]="pickerFin"></mat-datepicker-toggle>
           <mat-datepicker #pickerFin></mat-datepicker>

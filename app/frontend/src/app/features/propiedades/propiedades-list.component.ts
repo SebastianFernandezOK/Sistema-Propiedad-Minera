@@ -15,6 +15,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatMenuModule } from '@angular/material/menu';
 import { PropiedadMineraService } from './services/propiedad-minera.service';
+import { TitularMineroService, TitularMinero } from '../titulares/services/titular.service';
 import { PropiedadMinera, PropiedadMineraFilter } from './models/propiedad-minera.model';
 
 @Component({
@@ -55,7 +56,7 @@ import { PropiedadMinera, PropiedadMineraFilter } from './models/propiedad-miner
         <mat-card-content>
           <form [formGroup]="filterForm" class="filters-form">
             <div class="filter-row">
-              <mat-form-field appearance="outline">
+              <mat-form-field appearance="outline" class="filter-nombre">
                 <mat-label>Nombre</mat-label>
                 <input matInput formControlName="Nombre" placeholder="Buscar propiedad...">
                 <mat-icon matSuffix>search</mat-icon>
@@ -69,6 +70,21 @@ import { PropiedadMinera, PropiedadMineraFilter } from './models/propiedad-miner
                     {{provincia}}
                   </mat-option>
                 </mat-select>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Titular</mat-label>
+                <mat-select formControlName="IdTitular">
+                  <mat-option value="">Todos</mat-option>
+                  <mat-option *ngFor="let titular of titulares" [value]="titular.IdTitular">
+                    {{titular.Nombre}} - {{titular.DniCuit}}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Expediente</mat-label>
+                <input matInput formControlName="Expediente" placeholder="Buscar por expediente...">
               </mat-form-field>
             </div>
 
@@ -138,6 +154,22 @@ import { PropiedadMinera, PropiedadMineraFilter } from './models/propiedad-miner
                   <ng-template #noFecha>
                     <span class="no-data">No registrada</span>
                   </ng-template>
+                </td>
+              </ng-container>
+
+              <!-- Referente Column -->
+              <ng-container matColumnDef="Referente">
+                <th mat-header-cell *matHeaderCellDef>Referente</th>
+                <td mat-cell *matCellDef="let propiedad">
+                  <mat-icon
+                    class="referente-star"
+                    [ngClass]="{
+                      'star-on': propiedad.Referente === true
+                    }"
+                    matTooltip="{{ propiedad.Referente === true ? 'Referente' : 'No referente' }}"
+                  >
+                    {{ propiedad.Referente === true ? 'star' : 'star_border' }}
+                  </mat-icon>
                 </td>
               </ng-container>
 
@@ -238,7 +270,7 @@ import { PropiedadMinera, PropiedadMineraFilter } from './models/propiedad-miner
 
     .filter-row {
       display: grid;
-      grid-template-columns: 2fr 1fr 1fr;
+      grid-template-columns: 1fr 1fr 1fr;
       gap: 16px;
       margin-bottom: 16px;
     }
@@ -316,6 +348,21 @@ import { PropiedadMinera, PropiedadMineraFilter } from './models/propiedad-miner
       background: transparent;
     }
 
+    .filter-nombre {
+      min-width: 0;
+      max-width: none;
+      width: 100%;
+    }
+
+    .referente-star {
+      font-size: 1.2rem;
+      vertical-align: middle;
+    }
+
+    .star-on {
+      color: gold;
+    }
+
     @media (max-width: 768px) {
       .filter-row {
         grid-template-columns: 1fr;
@@ -336,6 +383,7 @@ export class PropiedadesListComponent implements OnInit {
   filterForm: FormGroup;
   displayedColumns: string[] = [
     'Nombre',
+    'Referente',
     'Provincia',
     'AreaHectareas',
     'Solicitud',
@@ -343,6 +391,7 @@ export class PropiedadesListComponent implements OnInit {
   ];
 
   provincias: string[] = [];
+  titulares: TitularMinero[] = [];
 
   // Propiedades de paginación
   totalRecords = 0;
@@ -353,21 +402,36 @@ export class PropiedadesListComponent implements OnInit {
   constructor(
     private propiedadService: PropiedadMineraService,
     private fb: FormBuilder,
-    private router: Router
+    private router: Router,
+    private titularService: TitularMineroService
   ) {
     this.filterForm = this.fb.group({
       Nombre: [''],
-      Provincia: ['']
+      Provincia: [''],
+      IdTitular: [''],
+      Expediente: ['']
     });
   }
 
   ngOnInit() {
     this.loadDropdownData();
+    this.loadTitulares();
     this.loadPropiedades();
   }
 
   loadDropdownData() {
     this.provincias = this.propiedadService.getProvincias();
+  }
+
+  loadTitulares() {
+    this.titularService.getAll().subscribe({
+      next: (titulares) => {
+        this.titulares = titulares;
+      },
+      error: (error) => {
+        console.error('Error cargando titulares:', error);
+      }
+    });
   }
 
   loadPropiedades(filters?: PropiedadMineraFilter) {
@@ -382,6 +446,7 @@ export class PropiedadesListComponent implements OnInit {
 
     this.propiedadService.getPropiedades(paginatedFilters).subscribe({
       next: (response) => {
+        // Ordenar: primero los que tienen Referente true (removido, ahora lo hace el backend)
         this.propiedades = response.data;
         this.totalRecords = response.total;
       },

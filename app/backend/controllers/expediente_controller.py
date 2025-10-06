@@ -11,6 +11,9 @@ from backend.database.connection import get_db
 from typing import List
 from fastapi import Query
 from typing import Dict, Any
+from backend.services.auth_jwt import get_current_user
+from backend.repositories.propiedad_minera_repositorie import PropiedadMineraRepositorie
+from backend.models.tipo_expediente_model import TipoExpediente
 
 router = APIRouter(prefix="/expedientes", tags=["Expedientes"])
 
@@ -74,6 +77,21 @@ def obtener_expediente(id_expediente: int, db: Session = Depends(get_db)):
             observaciones = []
     # Serializar expediente usando Pydantic (from_orm para SQLAlchemy)
     expediente_data = ExpedienteRead.from_orm(expediente).dict()
+    # Obtener nombre de propiedad minera
+    if expediente.IdPropiedadMinera:
+        
+        propiedad_repo = PropiedadMineraRepositorie(db)
+        propiedad = propiedad_repo.get_by_id(expediente.IdPropiedadMinera)
+        expediente_data["PropiedadMineraNombre"] = propiedad.Nombre if propiedad else None
+    else:
+        expediente_data["PropiedadMineraNombre"] = None
+    # Obtener nombre de tipo expediente
+    if expediente.IdTipoExpediente:
+        
+        tipo = db.query(TipoExpediente).filter(TipoExpediente.IdTipoExpediente == expediente.IdTipoExpediente).first()
+        expediente_data["TipoExpedienteNombre"] = tipo.Nombre if tipo else None
+    else:
+        expediente_data["TipoExpedienteNombre"] = None
     expediente_data["alertas"] = alertas
     expediente_data["observaciones"] = observaciones
     print(f"[DEBUG] Expediente response: {expediente_data}")
@@ -100,3 +118,9 @@ def borrar_expediente(id_expediente: int, db: Session = Depends(get_db)):
     if not deleted:
         raise HTTPException(status_code=404, detail="Expediente no encontrado")
     return {"ok": True}
+
+@router.get("/propiedad-minera/{id_propiedad}", response_model=List[ExpedienteRead])
+def listar_expedientes_por_propiedad_minera(id_propiedad: int, db: Session = Depends(get_db)):
+    service = ExpedienteService(db)
+    items = service.get_by_propiedad_minera(id_propiedad)
+    return [ExpedienteRead.from_orm(e).dict() for e in items]

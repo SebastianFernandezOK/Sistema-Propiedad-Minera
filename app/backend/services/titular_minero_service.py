@@ -40,7 +40,7 @@ class TitularMineroService:
         if titular_creado and titular_data.IdTransaccion:
             self.transaccion_repository.update(
                 titular_data.IdTransaccion, 
-                {"IdRegistro": titular_creado.IdTitularMinero}
+                {"IdRegistro": titular_creado.IdTitular}
             )
         
         return titular_creado

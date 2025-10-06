@@ -4,6 +4,7 @@ from backend.services.transaccion_service import TransaccionService
 from backend.schemas.transaccion_schema import TransaccionCreate, TransaccionUpdate, TransaccionOut
 from backend.database.connection import get_db
 from typing import List
+from backend.services.auth_jwt import get_current_user
 
 router = APIRouter(
     prefix="/transacciones",
@@ -14,7 +15,8 @@ router = APIRouter(
 def list_transacciones(
     db: Session = Depends(get_db),
     response: Response = None,
-    range: str = Query(None, alias="range")
+    range: str = Query(None, alias="range"),
+    current_user: int = Depends(get_current_user)
 ):
     service = TransaccionService(db)
     items = service.get_transacciones()
@@ -32,7 +34,7 @@ def list_transacciones(
     return paginated_items
 
 @router.get("/{id}", response_model=TransaccionOut)
-def get_transaccion(id: int, db: Session = Depends(get_db)):
+def get_transaccion(id: int, db: Session = Depends(get_db), current_user: int = Depends(get_current_user)):
     service = TransaccionService(db)
     obj = service.get_transaccion(id)
     if not obj:
@@ -40,12 +42,12 @@ def get_transaccion(id: int, db: Session = Depends(get_db)):
     return obj
 
 @router.post("/", response_model=TransaccionOut)
-def create_transaccion(transaccion: TransaccionCreate, db: Session = Depends(get_db)):
+def create_transaccion(transaccion: TransaccionCreate, db: Session = Depends(get_db), current_user: int = Depends(get_current_user)):
     service = TransaccionService(db)
     return service.create_transaccion(transaccion)
 
 @router.put("/{id}", response_model=TransaccionOut)
-def update_transaccion(id: int, transaccion: TransaccionUpdate, db: Session = Depends(get_db)):
+def update_transaccion(id: int, transaccion: TransaccionUpdate, db: Session = Depends(get_db), current_user: int = Depends(get_current_user)):
     service = TransaccionService(db)
     obj = service.update_transaccion(id, transaccion)
     if not obj:
@@ -53,7 +55,7 @@ def update_transaccion(id: int, transaccion: TransaccionUpdate, db: Session = De
     return obj
 
 @router.delete("/{id}", response_model=TransaccionOut)
-def delete_transaccion(id: int, db: Session = Depends(get_db)):
+def delete_transaccion(id: int, db: Session = Depends(get_db), current_user: int = Depends(get_current_user)):
     service = TransaccionService(db)
     obj = service.delete_transaccion(id)
     if not obj:

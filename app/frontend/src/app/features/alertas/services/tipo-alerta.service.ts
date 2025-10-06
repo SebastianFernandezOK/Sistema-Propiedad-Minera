@@ -1,10 +1,11 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { API_BASE_URL } from '../../../core/api.constants';
 
 @Injectable({ providedIn: 'root' })
 export class TipoAlertaService {
-  private readonly baseUrl = 'http://localhost:9000/tipo-alerta';
+  private readonly baseUrl = `${API_BASE_URL}/tipo-alerta`;
 
   constructor(private http: HttpClient) {}
 
