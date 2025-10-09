@@ -42,7 +42,7 @@ import type { EstadoAlerta } from '../models/estado-alerta.model';
         Cerrar
       </button>
       <div *ngIf="mostrarFormulario && !editando">
-        <app-alerta-create [idTransaccion]="idTransaccion" [expedienteInfo]="expedienteInfo" (create)="onCrearAlerta($event)" (cancelar)="mostrarFormulario = false; editando = false; alertaEdit = null;"></app-alerta-create>
+        <app-alerta-create [idTransaccion]="idTransaccion" (create)="onCrearAlerta($event)" (cancelar)="mostrarFormulario = false; editando = false; alertaEdit = null;"></app-alerta-create>
       </div>
       <div *ngIf="mostrarFormulario && editando">
         <app-alerta-edit [idTransaccion]="idTransaccion" [alerta]="alertaEdit" (update)="onActualizarAlerta($event)" (cancelar)="mostrarFormulario = false; editando = false; alertaEdit = null;"></app-alerta-edit>
@@ -113,7 +113,6 @@ export class AlertasListComponent implements OnInit, OnChanges {
   estadosAlerta: EstadoAlerta[] = [];
   @Input() idTransaccion: number | null = null;
   @Input() tipoPadre: string = 'acta'; // Por defecto 'acta', pero puede ser 'expediente', 'resolucion', etc.
-  @Input() expedienteInfo?: { CodigoExpediente?: string; Caratula?: string; Estado?: string; };
   mostrarFormulario = false;
   editando = false;
   alertaEdit: any = null;

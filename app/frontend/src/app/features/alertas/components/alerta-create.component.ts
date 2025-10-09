@@ -6,8 +6,6 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatIconModule } from '@angular/material/icon';
 import { AlertaCreate } from '../models/alerta.model';
 import { ReactiveFormsModule } from '@angular/forms';
 import { TipoAlertaService } from '../services/tipo-alerta.service';
@@ -22,7 +20,7 @@ import { SharedDatepickerModule } from '../../../shared/shared-datepicker.module
 @Component({
   selector: 'app-alerta-create',
   standalone: true,
-  imports: [CommonModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatSelectModule, MatTooltipModule, MatIconModule, ReactiveFormsModule, DateFormatDirective, SharedDatepickerModule],
+  imports: [CommonModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatSelectModule, ReactiveFormsModule, DateFormatDirective, SharedDatepickerModule],
   template: `
     <form [@fadeInUp] [formGroup]="form" (ngSubmit)="onSubmit()" class="alerta-form">
       <div class="row-fields">
@@ -97,12 +95,11 @@ import { SharedDatepickerModule } from '../../../shared/shared-datepicker.module
   styles: [`
     .alerta-form { display: flex; flex-direction: column; gap: 1.5rem; max-width: 900px; margin: 0 auto; position: relative; }
     .row-fields { display: flex; gap: 1rem; }
-    .third-width { width: 33%; min-width: 180px; position: relative; }
+    .third-width { width: 33%; min-width: 180px; }
     .half-width { width: 48%; min-width: 200px; }
     .full-width { width: 100%; }
     .button-row { display: flex; justify-content: center; margin-top: 2rem; }
     .close-btn { display: block; margin: 1.5rem auto 1.5rem auto; position: static; background: #fff; border-radius: 6px; z-index: 2; }
-
   `],
   animations: [
     trigger('fadeInUp', [
@@ -117,7 +114,6 @@ export class AlertaCreateComponent {
   @Input() idTransaccion: number | null = null;
   @Input() alerta: any = null;
   @Input() editando: boolean = false;
-  @Input() expedienteInfo?: { CodigoExpediente?: string; Caratula?: string; Estado?: string; };
   @Output() create = new EventEmitter<any>();
   @Output() cancelar = new EventEmitter<void>();
   form: FormGroup;
@@ -167,8 +163,6 @@ export class AlertaCreateComponent {
     if (this.idTransaccion) {
       this.form.addControl('IdTransaccion', this.fb.control(this.idTransaccion));
     }
-
-    // Los inputs quedan vacíos para que el usuario los complete normalmente
     if (this.editando && this.alerta) {
       this.form.patchValue({
         Asunto: this.alerta.Asunto,
@@ -232,24 +226,8 @@ export class AlertaCreateComponent {
       return;
     }
     
-    const formValue = this.form.value;
-    
-    // Preparar asunto y mensaje con información del expediente
-    let asunto = formValue.Asunto;
-    let mensaje = formValue.Mensaje;
-    
-    if (this.expedienteInfo && this.expedienteInfo.CodigoExpediente) {
-      // Asunto: (Expediente x) - <Input del usuario>
-      asunto = `(Expediente ${this.expedienteInfo.CodigoExpediente}) - ${formValue.Asunto}`;
-      
-      // Mensaje: <Input del usuario>. Alerta generada en expediente x
-      mensaje = `${formValue.Mensaje}. Alerta generada en expediente ${this.expedienteInfo.CodigoExpediente}`;
-    }
-    
     const value: AlertaCreate = {
-      ...formValue,
-      Asunto: asunto,
-      Mensaje: mensaje,
+      ...this.form.value,
       IdTransaccion: this.idTransaccion
     };
     
@@ -303,6 +281,4 @@ export class AlertaCreateComponent {
     
     diasPersControl?.updateValueAndValidity();
   }
-
-
 }
