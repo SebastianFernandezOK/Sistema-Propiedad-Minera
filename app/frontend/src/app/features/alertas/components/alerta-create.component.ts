@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, OnInit, OnChanges } from '@angular/core';
 import { AlertaService } from '../services/alerta.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -16,6 +16,7 @@ import type { PeriodicidadAlerta } from '../../periodicidad-alerta/models/period
 import { trigger, transition, style, animate } from '@angular/animations';
 import { DateFormatDirective } from '../../../shared/directives/date-format.directive';
 import { SharedDatepickerModule } from '../../../shared/shared-datepicker.module';
+import { TransaccionService, TransaccionInfo } from '../../transacciones/services/transaccion.service';
 
 @Component({
   selector: 'app-alerta-create',
@@ -110,7 +111,7 @@ import { SharedDatepickerModule } from '../../../shared/shared-datepicker.module
     ])
   ]
 })
-export class AlertaCreateComponent {
+export class AlertaCreateComponent implements OnInit, OnChanges {
   @Input() idTransaccion: number | null = null;
   @Input() alerta: any = null;
   @Input() editando: boolean = false;
@@ -120,6 +121,7 @@ export class AlertaCreateComponent {
   tiposAlerta: any[] = [];
   estadosAlerta: EstadoAlerta[] = [];
   periodicidades: PeriodicidadAlerta[] = [];
+  transaccionInfo: TransaccionInfo[] = [];
   
   // Opciones para el menú desplegable de Medio
   opcionesMedio = [
@@ -132,7 +134,8 @@ export class AlertaCreateComponent {
     private alertaService: AlertaService, 
     private tipoAlertaService: TipoAlertaService, 
     private estadoAlertaService: EstadoAlertaService,
-    private periodicidadAlertaService: PeriodicidadAlertaService
+    private periodicidadAlertaService: PeriodicidadAlertaService,
+    private transaccionService: TransaccionService
   ) {
     this.form = this.fb.group({
       IdTipoAlerta: [null, Validators.required],
@@ -162,6 +165,8 @@ export class AlertaCreateComponent {
     
     if (this.idTransaccion) {
       this.form.addControl('IdTransaccion', this.fb.control(this.idTransaccion));
+      // Cargar información de la transacción
+      this.cargarInformacionTransaccion();
     }
     if (this.editando && this.alerta) {
       this.form.patchValue({
@@ -214,6 +219,57 @@ export class AlertaCreateComponent {
     }
   }
 
+  /**
+   * Carga la información completa de la transacción para usar en el formateo del asunto
+   */
+  private async cargarInformacionTransaccion(): Promise<void> {
+    if (!this.idTransaccion) return;
+    
+    try {
+      this.transaccionInfo = await this.transaccionService.getInformacionCompletaTransaccion(this.idTransaccion);
+      console.log('Información de transacción cargada:', this.transaccionInfo);
+    } catch (error) {
+      console.error('Error cargando información de transacción:', error);
+      this.transaccionInfo = [];
+    }
+  }
+
+  /**
+   * Formatea el asunto de la alerta según el patrón:
+   * {Asunto ingresado por el usuario} ({Tabla} {Detalle})
+   * Respeta el límite de 50 caracteres de la BD
+   */
+  private formatearAsunto(asuntoUsuario: string): string {
+    if (!this.transaccionInfo || this.transaccionInfo.length === 0) {
+      return this.truncarAsunto(asuntoUsuario); // Truncar por seguridad
+    }
+
+    const info = this.transaccionInfo[0]; // Tomar la primera (principal)
+    const tabla = info.Tabla || '';
+    const detalle = info.Detalle || '';
+    
+    // Formatear con paréntesis: "Asunto (Tabla Detalle)"
+    let asuntoCompleto = `${asuntoUsuario} (${tabla} ${detalle})`.trim();
+    
+    // Truncar si excede el límite de la BD (50 caracteres)
+    return this.truncarAsunto(asuntoCompleto);
+  }
+
+  /**
+   * Trunca el asunto a máximo 50 caracteres (límite de la BD)
+   * Si es necesario truncar, agrega "..." al final
+   */
+  private truncarAsunto(asunto: string): string {
+    const LIMITE_CARACTERES = 50;
+    
+    if (asunto.length <= LIMITE_CARACTERES) {
+      return asunto;
+    }
+    
+    // Truncar y agregar puntos suspensivos
+    return asunto.substring(0, LIMITE_CARACTERES - 3) + '...';
+  }
+
   onSubmit() {
     console.log('=== ALERTA onSubmit ===');
     console.log('Form valid:', this.form.valid);
@@ -226,11 +282,19 @@ export class AlertaCreateComponent {
       return;
     }
     
+    // Obtener el valor del formulario y formatear el asunto
+    const formValue = this.form.value;
+    const asuntoFormateado = this.formatearAsunto(formValue.Asunto);
+    
     const value: AlertaCreate = {
-      ...this.form.value,
+      ...formValue,
+      Asunto: asuntoFormateado, // Usar el asunto formateado
       IdTransaccion: this.idTransaccion
     };
     
+    console.log('Asunto original:', formValue.Asunto);
+    console.log('Asunto formateado:', asuntoFormateado);
+    console.log('Longitud del asunto:', asuntoFormateado.length);
     console.log('Valor a enviar:', value);
     
     if (this.editando && this.alerta && this.alerta.idAlerta) {

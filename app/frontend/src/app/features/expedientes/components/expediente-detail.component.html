@@ -98,7 +98,7 @@
             <!-- Alertas -->
             <ng-container *ngSwitchCase="3">
               <div class="tab-content">
-                <app-alertas-list tipoPadre="expediente" [idTransaccion]="expediente.IdTransaccion ?? null" [expedienteInfo]="{ CodigoExpediente: expediente.CodigoExpediente, Caratula: expediente.Caratula, Estado: expediente.Estado }"></app-alertas-list>
+                <app-alertas-list tipoPadre="expediente" [idTransaccion]="expediente.IdTransaccion ?? null"></app-alertas-list>
               </div>
             </ng-container>
             <!-- Observaciones (nuevo tab modularizado) -->

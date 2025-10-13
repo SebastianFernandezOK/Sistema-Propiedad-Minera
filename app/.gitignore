@@ -60,3 +60,4 @@ __pycache__/
 /app/frontend/.angular/
 /app/frontend/.angular/cache/
 .angular/
+backend/test/testinfotransaccion.py
