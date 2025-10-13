@@ -270,6 +270,50 @@ export class AlertaCreateComponent implements OnInit, OnChanges {
     return asunto.substring(0, LIMITE_CARACTERES - 3) + '...';
   }
 
+  /**
+   * Formatea el mensaje agregando la jerarquía de transacciones al final
+   * Patrón: {Mensaje usuario}\n\nAlerta generada en /{Tabla2}{Detalle2}/{Tabla1}{Detalle1}/{Tabla}{Detalle}
+   */
+  private formatearMensaje(mensajeUsuario: string): string {
+    if (!this.transaccionInfo || this.transaccionInfo.length === 0) {
+      return mensajeUsuario; // Si no hay info, usar solo el mensaje del usuario
+    }
+
+    const info = this.transaccionInfo[0]; // Información principal
+    
+    // Construir la ruta jerárquica
+    const rutaJerarquia = this.construirRutaJerarquia(info);
+    
+    // Agregar la ruta al final del mensaje con salto de línea
+    return `<strong>${mensajeUsuario}.</strong> <br/> Alerta generada en ${rutaJerarquia}`;
+  }
+
+  /**
+   * Construye la ruta jerárquica desde la raíz hasta la transacción actual
+   * Ejemplo: /PropiedadMinera Punilla Oeste II/Expediente 109-M-08/Acta Por incumplimiento...
+   */
+  private construirRutaJerarquia(info: TransaccionInfo): string {
+    const segmentos: string[] = [];
+    
+    // Nivel 2 (raíz) - si existe
+    if (info.Tabla2 && info.Detalle2) {
+      segmentos.push(`${info.Tabla2} ${info.Detalle2}`);
+    }
+    
+    // Nivel 1 (intermedio) - si existe
+    if (info.Tabla1 && info.Detalle1) {
+      segmentos.push(`${info.Tabla1} ${info.Detalle1}`);
+    }
+    
+    // Nivel 0 (actual) - siempre existe
+    if (info.Tabla && info.Detalle) {
+      segmentos.push(`${info.Tabla} ${info.Detalle}`);
+    }
+    
+    // Construir la ruta con separadores "/"
+    return segmentos.join(' -> ');
+  }
+
   onSubmit() {
     console.log('=== ALERTA onSubmit ===');
     console.log('Form valid:', this.form.valid);
@@ -282,18 +326,22 @@ export class AlertaCreateComponent implements OnInit, OnChanges {
       return;
     }
     
-    // Obtener el valor del formulario y formatear el asunto
+    // Obtener el valor del formulario y formatear asunto y mensaje
     const formValue = this.form.value;
     const asuntoFormateado = this.formatearAsunto(formValue.Asunto);
+    const mensajeFormateado = this.formatearMensaje(formValue.Mensaje);
     
     const value: AlertaCreate = {
       ...formValue,
       Asunto: asuntoFormateado, // Usar el asunto formateado
+      Mensaje: mensajeFormateado, // Usar el mensaje formateado
       IdTransaccion: this.idTransaccion
     };
     
     console.log('Asunto original:', formValue.Asunto);
     console.log('Asunto formateado:', asuntoFormateado);
+    console.log('Mensaje original:', formValue.Mensaje);
+    console.log('Mensaje formateado:', mensajeFormateado);
     console.log('Longitud del asunto:', asuntoFormateado.length);
     console.log('Valor a enviar:', value);
     
