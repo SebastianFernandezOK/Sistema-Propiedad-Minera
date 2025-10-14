@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Input, Output, OnInit, OnChanges } from '@angular/core';
+import { Location } from '@angular/common';
 import { AlertaService } from '../services/alerta.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -135,7 +136,8 @@ export class AlertaCreateComponent implements OnInit, OnChanges {
     private tipoAlertaService: TipoAlertaService, 
     private estadoAlertaService: EstadoAlertaService,
     private periodicidadAlertaService: PeriodicidadAlertaService,
-    private transaccionService: TransaccionService
+    private transaccionService: TransaccionService,
+    private location: Location
   ) {
     this.form = this.fb.group({
       IdTipoAlerta: [null, Validators.required],
@@ -271,8 +273,19 @@ export class AlertaCreateComponent implements OnInit, OnChanges {
   }
 
   /**
-   * Formatea el mensaje agregando la jerarquía de transacciones al final
-   * Patrón: {Mensaje usuario}\n\nAlerta generada en /{Tabla2}{Detalle2}/{Tabla1}{Detalle1}/{Tabla}{Detalle}
+   * Genera la URL actual donde se está creando la alerta
+   * Usa el servicio nativo Location de Angular
+   */
+  private generarUrlContexto(): string {
+    const baseUrl = window.location.origin;
+    const currentPath = this.location.path();
+    
+    return `${baseUrl}${currentPath}`;
+  }
+
+  /**
+   * Formatea el mensaje agregando la jerarquía de transacciones y la URL al final
+   * Patrón: {Mensaje usuario}\n\nAlerta generada en /{Tabla2}{Detalle2}/{Tabla1}{Detalle1}/{Tabla}{Detalle}\nURL: [link]
    */
   private formatearMensaje(mensajeUsuario: string): string {
     if (!this.transaccionInfo || this.transaccionInfo.length === 0) {
@@ -284,8 +297,10 @@ export class AlertaCreateComponent implements OnInit, OnChanges {
     // Construir la ruta jerárquica
     const rutaJerarquia = this.construirRutaJerarquia(info);
     
-    // Agregar la ruta al final del mensaje con salto de línea
-    return `<strong>${mensajeUsuario}.</strong> <br/> Alerta generada en ${rutaJerarquia}`;
+    // Generar la URL actual usando Location service
+    const urlContexto = this.generarUrlContexto();
+    // Agregar la ruta y la URL al final del mensaje
+    return `<strong>${mensajeUsuario}.</strong> <br/> Alerta generada en ${rutaJerarquia}<br/><a href="${urlContexto}" target="_blank">Link de alerta.</a>`;
   }
 
   /**
@@ -342,6 +357,7 @@ export class AlertaCreateComponent implements OnInit, OnChanges {
     console.log('Asunto formateado:', asuntoFormateado);
     console.log('Mensaje original:', formValue.Mensaje);
     console.log('Mensaje formateado:', mensajeFormateado);
+    console.log('URL del contexto:', this.generarUrlContexto());
     console.log('Longitud del asunto:', asuntoFormateado.length);
     console.log('Valor a enviar:', value);
     

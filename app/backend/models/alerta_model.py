@@ -22,6 +22,4 @@ class Alerta(Base):
     AudUsuario = Column(SmallInteger, nullable=True)
     Obs = Column(String(5000), nullable=True)
     DiasPers = Column(Integer, nullable=True)
-    InfoExtra = Column(String(200), nullable=True)
-    Url = Column(String(200), nullable=True)
     estado = relationship('EstadoAlerta', backref='alertas')
