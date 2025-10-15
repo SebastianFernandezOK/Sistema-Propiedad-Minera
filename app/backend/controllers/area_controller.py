@@ -17,7 +17,7 @@ def listar_areas(
     db: Session = Depends(get_db),
     response: Response = None,
     range: str = Query(None, alias="range"),
-    _: int = Depends(require_role('Administrador'))
+    current_user: dict = Depends(get_current_user)
 ):
     items = area_service.get_areas(db)
     total = len(items)
@@ -35,7 +35,7 @@ def listar_areas(
     return paginated_items
 
 @router.get("/{id}", response_model=AreaOut)
-def obtener_area(id: int, db: Session = Depends(get_db), _: int = Depends(require_role('Administrador'))):
+def obtener_area(id: int, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)):
     area = area_service.get_area(db, id)
     if not area:
         raise HTTPException(status_code=404, detail="Area no encontrada")

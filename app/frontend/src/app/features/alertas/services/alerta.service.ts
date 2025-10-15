@@ -15,6 +15,10 @@ export class AlertaService {
     return this.http.post<any>(this.baseUrl, alerta);
   }
 
+  createAlertaForNotificacion(idNotificacion: number, alerta: AlertaCreate): Observable<any> {
+    return this.http.post<any>(`${API_BASE_URL}/notificaciones/${idNotificacion}/alertas`, alerta);
+  }
+
   updateAlerta(id: number, alerta: Partial<AlertaCreate>): Observable<any> {
     return this.http.put<any>(`${this.baseUrl}/${id}`, alerta);
   }

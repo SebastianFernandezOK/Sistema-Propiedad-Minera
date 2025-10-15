@@ -1,0 +1,24 @@
+:host {
+  display: block;
+  width: 100%; /* Adjusted to occupy full width */
+  max-width: none; /* Removed max-width constraint */
+  margin: 0 auto;
+}
+
+mat-card {
+  width: 100%; /* Ensure the card occupies full width */
+}
+
+mat-card-header {
+  display: flex;
+  justify-content: space-between; /* Ensure the button moves to the far right */
+  align-items: center;
+}
+
+.table-container {
+  width: 100%; /* Ensure the table container occupies full width */
+}
+
+mat-table {
+  width: 100%; /* Ensure the table itself occupies full width */
+}

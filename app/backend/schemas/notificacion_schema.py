@@ -1,28 +1,14 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 from typing import Optional
 from datetime import datetime
 
 class NotificacionBase(BaseModel):
-    IdTransaccion: int
-    Organismo: Optional[str] = None
-    Jurisdiccion: Optional[str] = None
-    IdExpediente: Optional[int] = None
-    IdTitular: Optional[int] = None
-    IdTitMinDirLegal: Optional[int] = None
-    TipoNotificacion: Optional[int] = None
-    IdPropiedadMinera: Optional[int] = None
-    Ubicacion: Optional[str] = None
-    Latitud: Optional[float] = None
-    Longitud: Optional[float] = None
-    Resolucion: Optional[str] = None
-    Fundamentos: Optional[str] = None
-    IdAutoridad: Optional[int] = None
-    Plazo: Optional[datetime] = None
     Emision: Optional[datetime] = None
-    Funcionario: Optional[str] = None
-    Observaciones: Optional[str] = None
-    AudFecha: Optional[datetime] = None
-    AudUsuario: Optional[int] = None
+    Plazo: Optional[int] = None
+    CodExp: Optional[str] = None
+    Titular: Optional[int] = None
+    Funcionario: str
+    IdTransaccion: Optional[int] = None
 
 class NotificacionCreate(NotificacionBase):
     pass
@@ -30,8 +16,15 @@ class NotificacionCreate(NotificacionBase):
 class NotificacionUpdate(NotificacionBase):
     pass
 
-class NotificacionOut(NotificacionBase):
+class NotificacionOut(BaseModel):
     IdNotificacion: int
+    Emision: Optional[datetime] = None
+    Plazo: Optional[int] = None
+    CodExp: Optional[str] = None
+    TitularId: Optional[int] = None  # ID del titular
+    Titular: Optional[str] = None    # Nombre del titular
+    Funcionario: str
+    IdTransaccion: Optional[int] = None
 
     class Config:
         orm_mode = True

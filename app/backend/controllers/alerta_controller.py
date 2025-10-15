@@ -25,7 +25,8 @@ def get_alertas_by_parent(
     id_padre: int,
     db: Session = Depends(get_db),
     response: Response = None,
-    range: str = Query(None, alias="range")
+    range: str = Query(None, alias="range"),
+    current_user: dict = Depends(get_current_user)
 ):
     tipo_padre = tipo_padre.lower()
     if tipo_padre == "expediente":
@@ -54,15 +55,13 @@ def get_alertas_by_parent(
         response.headers["Content-Range"] = f"alertas {start}-{end}/{total}"
     return paginated_items
 
-
-
-
 @router.get("/", response_model=List[AlertaOut])
 def list_alertas(
     id_estado: Optional[int] = Query(None),
     db: Session = Depends(get_db),
     response: Response = None,
-    range: str = Query(None, alias="range")
+    range: str = Query(None, alias="range"),
+    current_user: dict = Depends(get_current_user)
 ):
     service = AlertaService(db)
     if id_estado is not None:
@@ -90,7 +89,7 @@ def list_alertas(
     return paginated_items
 
 @router.get("/{id}", response_model=AlertaOut)
-def get_alerta(id: int, db: Session = Depends(get_db)):
+def get_alerta(id: int, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)):
     service = AlertaService(db)
     obj = service.get_alerta(id)
     if not obj:

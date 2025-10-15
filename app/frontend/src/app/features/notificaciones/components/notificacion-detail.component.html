@@ -1,0 +1,132 @@
+<div class="notificacion-detail-container">
+  <!-- Loading spinner -->
+  <div *ngIf="loading" class="loading-container">
+    <mat-progress-spinner mode="indeterminate" diameter="40"></mat-progress-spinner>
+    <p>Cargando notificación...</p>
+  </div>
+
+  <!-- Notificacion detail -->
+  <div *ngIf="notificacion && !loading">
+    <!-- Header with actions -->
+    <div class="detail-header">
+      <button mat-icon-button (click)="goBack()" class="back-button">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <h1>
+        <mat-icon class="header-icon">notifications_active</mat-icon>
+        Notificación #{{ notificacion.IdNotificacion }}
+      </h1>
+    </div>
+
+    <!-- Custom Tabs Header (fixed) -->
+    <div class="custom-tab-header-wrapper">
+      <div class="custom-tab-header">
+        <div *ngFor="let tab of tabs; let i = index"
+             #tabLabel
+             class="custom-tab-label"
+             [class.active]="selectedTabIndex === i"
+             (click)="selectTab(i)">
+          <mat-icon *ngIf="tab.icon">{{tab.icon}}</mat-icon>
+          {{tab.label}}
+          <mat-chip *ngIf="tab.chip && tab.chipValue > 0" class="count-chip">{{tab.chipValue}}</mat-chip>
+        </div>
+        <div class="custom-tab-underline" [style.width.px]="underlineWidth" [style.transform]="'translateX(' + underlineLeft + 'px)'">
+        </div>
+      </div>
+    </div>
+
+    <!-- Custom Tabs Content (animated) -->
+    <div class="custom-tab-content-wrapper">
+      <div [@slideContent]="selectedTabIndex">
+        <ng-container [ngSwitch]="selectedTabIndex">
+          
+          <!-- Información General -->
+          <ng-container *ngSwitchCase="0">
+            <div class="tab-content">
+              <mat-card>
+                <mat-card-header>
+                  <mat-card-title>Datos de la Notificación</mat-card-title>
+                </mat-card-header>
+                <mat-card-content>
+                  <div class="info-grid">
+                    <div class="info-item">
+                      <label>ID Notificación:</label>
+                      <span>{{ notificacion.IdNotificacion }}</span>
+                    </div>
+                    <div class="info-item">
+                      <label>Fecha de Emisión:</label>
+                      <span>{{ formatDate(notificacion.Emision) }}</span>
+                    </div>
+                    <div class="info-item">
+                      <label>Plazo (días):</label>
+                      <span>{{ notificacion.Plazo || 'No especificado' }}</span>
+                    </div>
+                    <div class="info-item">
+                      <label>Código de Expediente:</label>
+                      <span>{{ notificacion.CodExp || 'No asignado' }}</span>
+                    </div>
+                    <div class="info-item">
+                      <label>Funcionario:</label>
+                      <span>{{ notificacion.Funcionario || 'No asignado' }}</span>
+                    </div>
+                    <div class="info-item">
+                      <label>Titular:</label>
+                      <span>{{ notificacion.Titular || 'No especificado' }}</span>
+                    </div>
+                  </div>
+                </mat-card-content>
+              </mat-card>
+            </div>
+          </ng-container>
+
+          <!-- Alertas -->
+          <ng-container *ngSwitchCase="1">
+            <div class="tab-content">
+              <app-alertas-list tipoPadre="notificacion" [idTransaccion]="notificacion?.IdTransaccion" [idPadre]="notificacion?.IdNotificacion"></app-alertas-list>
+            </div>
+          </ng-container>
+
+          <!-- Observaciones -->
+          <ng-container *ngSwitchCase="2">
+            <div class="tab-content">
+              <app-observaciones-tab [idTransaccion]="notificacion.IdTransaccion" *ngIf="notificacion.IdTransaccion"></app-observaciones-tab>
+              <div *ngIf="!notificacion.IdTransaccion" class="empty-state">
+                <mat-icon>note_add</mat-icon>
+                <h3>No se puede cargar observaciones</h3>
+                <p>La notificación no tiene un ID de transacción válido</p>
+              </div>
+            </div>
+          </ng-container>
+
+          <!-- Archivos -->
+          <ng-container *ngSwitchCase="3">
+            <div class="tab-content">
+              <app-archivos-expediente 
+                [idEntidad]="notificacion.IdTransaccion" 
+                entidad="notificacion" 
+                *ngIf="notificacion.IdTransaccion">
+              </app-archivos-expediente>
+              <div *ngIf="!notificacion.IdTransaccion" class="empty-state">
+                <mat-icon>cloud_upload</mat-icon>
+                <h3>No se puede cargar archivos</h3>
+                <p>La notificación no tiene un ID de transacción válido</p>
+              </div>
+            </div>
+          </ng-container>
+
+        </ng-container>
+      </div>
+    </div>
+  </div>
+
+  <!-- Error state -->
+  <div *ngIf="!notificacion && !loading" class="error-container">
+    <mat-icon>error_outline</mat-icon>
+    <h3>Notificación no encontrada</h3>
+    <p>La notificación solicitada no existe o no se pudo cargar</p>
+    <button mat-raised-button color="primary" (click)="goBack()">
+      <mat-icon>arrow_back</mat-icon>
+      Volver
+    </button>
+  </div>
+</div>

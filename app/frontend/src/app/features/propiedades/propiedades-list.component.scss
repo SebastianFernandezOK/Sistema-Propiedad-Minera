@@ -35,3 +35,8 @@ th[_ngcontent-ng-c2596952125],
   background: #fff;
   box-shadow: 0 0 0 1px #219653;
 }
+:host {
+  display: block;
+  width: 100%; /* Ajuste para ocupar toda la vista */
+  margin: 0 auto;
+}
