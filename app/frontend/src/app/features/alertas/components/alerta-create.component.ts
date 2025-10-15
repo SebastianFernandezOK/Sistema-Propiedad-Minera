@@ -151,7 +151,8 @@ export class AlertaCreateComponent implements OnInit, OnChanges {
       FechaInicio: [null],
       FechaFin: [null],
       Destinatarios: [''],
-      Obs: ['']
+      Obs: [''],
+      AudFecha: [new Date().toISOString()] // Fecha actual automáticamente
     });
   }
 
@@ -200,7 +201,8 @@ export class AlertaCreateComponent implements OnInit, OnChanges {
         FechaInicio: this.alerta.FechaInicio,
         FechaFin: this.alerta.FechaFin,
         Destinatarios: this.alerta.Destinatarios,
-        Obs: this.alerta.Obs
+        Obs: this.alerta.Obs,
+        AudFecha: this.alerta.AudFecha || new Date().toISOString() // Usar fecha existente o actual
       });
     } else {
       // Cuando no se está editando, mantener valores por defecto
@@ -216,7 +218,8 @@ export class AlertaCreateComponent implements OnInit, OnChanges {
         FechaInicio: null,
         FechaFin: null,
         Destinatarios: '',
-        Obs: ''
+        Obs: '',
+        AudFecha: new Date().toISOString() // Fecha actual por defecto
       });
     }
   }
@@ -350,7 +353,8 @@ export class AlertaCreateComponent implements OnInit, OnChanges {
       ...formValue,
       Asunto: asuntoFormateado, // Usar el asunto formateado
       Mensaje: mensajeFormateado, // Usar el mensaje formateado
-      IdTransaccion: this.idTransaccion
+      IdTransaccion: this.idTransaccion,
+      AudFecha: new Date().toISOString() // Establecer fecha actual en cada submit
     };
     
     console.log('Asunto original:', formValue.Asunto);
@@ -358,6 +362,7 @@ export class AlertaCreateComponent implements OnInit, OnChanges {
     console.log('Mensaje original:', formValue.Mensaje);
     console.log('Mensaje formateado:', mensajeFormateado);
     console.log('URL del contexto:', this.generarUrlContexto());
+    console.log('AudFecha establecida:', value.AudFecha);
     console.log('Longitud del asunto:', asuntoFormateado.length);
     console.log('Valor a enviar:', value);
     
@@ -367,7 +372,11 @@ export class AlertaCreateComponent implements OnInit, OnChanges {
         next: (resp) => {
           console.log('Alerta editada exitosamente:', resp);
           this.create.emit(resp);
-          this.form.reset();
+          this.form.reset({
+            IdEstado: 1,
+            Medio: 'Email',
+            AudFecha: new Date().toISOString()
+          });
         },
         error: (err) => {
           console.error('[AlertaCreate] Error al editar alerta:', err);
@@ -379,7 +388,11 @@ export class AlertaCreateComponent implements OnInit, OnChanges {
         next: (resp) => {
           console.log('Alerta creada exitosamente:', resp);
           this.create.emit(resp);
-          this.form.reset();
+          this.form.reset({
+            IdEstado: 1,
+            Medio: 'Email',
+            AudFecha: new Date().toISOString()
+          });
         },
         error: (err) => {
           console.error('[AlertaCreate] Error al crear alerta:', err);

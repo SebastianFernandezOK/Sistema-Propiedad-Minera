@@ -54,6 +54,10 @@ import type { EstadoAlerta } from '../models/estado-alerta.model';
         </div>
         <div class="table-container" *ngIf="alertas.length > 0 && !loading">
           <table mat-table [dataSource]="alertas" class="alertas-table mat-elevation-4">
+            <ng-container matColumnDef="Fecha de Creación">
+              <th mat-header-cell *matHeaderCellDef>Fecha de Creación</th>
+              <td mat-cell *matCellDef="let alerta">{{ alerta.AudFecha | date: 'short' }}</td>
+            </ng-container>
             <ng-container matColumnDef="Estado">
               <th mat-header-cell *matHeaderCellDef>Estado</th>
               <td mat-cell *matCellDef="let alerta">{{ getEstadoNombre(alerta.IdEstado) }}</td>
@@ -116,7 +120,7 @@ export class AlertasListComponent implements OnInit, OnChanges {
   mostrarFormulario = false;
   editando = false;
   alertaEdit: any = null;
-  displayedColumns: string[] = ['Estado', 'Asunto', 'Mensaje', 'actions'];
+  displayedColumns: string[] = ['Fecha de Creación', 'Estado', 'Asunto', 'Mensaje', 'actions'];
 
   constructor(
     private alertaService: AlertaService,
