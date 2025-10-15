@@ -3,18 +3,17 @@ from sqlalchemy.orm import Session
 from backend.database.connection import get_db
 from backend.schemas.tipo_alerta_schema import TipoAlertaOut, TipoAlertaCreate, TipoAlertaUpdate
 from backend.services.tipo_alerta_service import TipoAlertaService
-from backend.services.auth_jwt import get_current_user
-from backend.services.auth_jwt import require_role
+from backend.services.auth_jwt import get_current_user, require_role
 from typing import List
 
 router = APIRouter(prefix="/tipo-alerta", tags=["TipoAlerta"])
 
 @router.get("/", response_model=List[TipoAlertaOut])
-def get_all_tipo_alerta(db: Session = Depends(get_db), _=Depends(require_role('Administrador'))):
+def get_all_tipo_alerta(db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)):
     return TipoAlertaService.get_all(db)
 
 @router.get("/{id_tipo_alerta}", response_model=TipoAlertaOut)
-def get_tipo_alerta(id_tipo_alerta: int, db: Session = Depends(get_db), _=Depends(require_role('Administrador'))):
+def get_tipo_alerta(id_tipo_alerta: int, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)):
     tipo_alerta = TipoAlertaService.get_by_id(db, id_tipo_alerta)
     if not tipo_alerta:
         raise HTTPException(status_code=404, detail="TipoAlerta no encontrado")

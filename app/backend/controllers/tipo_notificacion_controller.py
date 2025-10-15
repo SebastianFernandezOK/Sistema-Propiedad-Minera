@@ -17,7 +17,7 @@ def list_tipos_notificacion(
     db: Session = Depends(get_db),
     response: Response = None,
     range: str = Query(None, alias="range"),
-    current_user: dict = Depends(require_role('Administrador'))
+    current_user: dict = Depends(get_current_user)
 ):
     print(f"Controller: list_tipos_notificacion called with range={range}")
     service = TipoNotificacionService(db)
@@ -39,7 +39,7 @@ def list_tipos_notificacion(
     return paginated_items
 
 @router.get("/{id}", response_model=TipoNotificacionOut)
-def get_tipo_notificacion(id: int, db: Session = Depends(get_db), current_user: dict = Depends(require_role('Administrador'))):
+def get_tipo_notificacion(id: int, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)):
     service = TipoNotificacionService(db)
     obj = service.get_tipo_notificacion(id)
     if not obj:

@@ -64,7 +64,10 @@ import { SharedDatepickerModule } from '../../../shared/shared-datepicker.module
       <div class="row-fields">
         <mat-form-field appearance="fill" class="full-width">
           <mat-label>Destinatarios</mat-label>
-          <textarea matInput formControlName="Destinatarios" rows="3" maxlength="5000"></textarea>
+          <textarea matInput formControlName="Destinatarios" rows="3" maxlength="5000" required></textarea>
+          <mat-error *ngIf="form.get('Destinatarios')?.invalid && form.get('Destinatarios')?.touched">
+            El destinatario es requerido.
+          </mat-error>
         </mat-form-field>
       </div>
       <div class="row-fields">
@@ -114,6 +117,8 @@ export class AlertaCreateComponent {
   @Input() idTransaccion: number | null = null;
   @Input() alerta: any = null;
   @Input() editando: boolean = false;
+  @Input() tipoPadre: string = 'acta'; // tipo de entidad padre
+  @Input() idPadre: number | null = null; // ID de la entidad padre
   @Output() create = new EventEmitter<any>();
   @Output() cancelar = new EventEmitter<void>();
   form: FormGroup;
@@ -145,7 +150,7 @@ export class AlertaCreateComponent {
       DiasPers: [null], // Campo para días personalizados
       FechaInicio: [null],
       FechaFin: [null],
-      Destinatarios: [''],
+      Destinatarios: ['', Validators.required],
       Obs: ['']
     });
   }
@@ -158,6 +163,15 @@ export class AlertaCreateComponent {
     // Escuchar cambios en el campo de periodicidad para validaciones dinámicas
     this.form.get('IdPeriodicidad')?.valueChanges.subscribe(value => {
       this.actualizarValidacionesDiasPers(value);
+    });
+    
+    // Validación para el campo Destinatarios
+    this.form.get('Destinatarios')?.valueChanges.subscribe(value => {
+      if (!value) {
+        this.form.get('Destinatarios')?.setErrors({ required: true });
+      } else {
+        this.form.get('Destinatarios')?.setErrors(null);
+      }
     });
     
     if (this.idTransaccion) {
@@ -247,7 +261,18 @@ export class AlertaCreateComponent {
       });
     } else {
       console.log('Creando nueva alerta');
-      this.alertaService.createAlerta(value).subscribe({
+      console.log('Tipo de padre:', this.tipoPadre);
+      console.log('ID de padre:', this.idPadre);
+      
+      // Usar el método específico según el tipo de padre
+      let createObservable;
+      if (this.tipoPadre === 'notificacion' && this.idPadre) {
+        createObservable = this.alertaService.createAlertaForNotificacion(this.idPadre, value);
+      } else {
+        createObservable = this.alertaService.createAlerta(value);
+      }
+      
+      createObservable.subscribe({
         next: (resp) => {
           console.log('Alerta creada exitosamente:', resp);
           this.create.emit(resp);

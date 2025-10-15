@@ -15,7 +15,7 @@ def listar_tipos_expediente(
     db: Session = Depends(get_db),
     response: Response = None,
     range: str = Query(None, alias="range"),
-    _: dict = Depends(require_role('Administrador'))
+    current_user: dict = Depends(get_current_user)
 ):
     service = TipoExpedienteService(db)
     items = service.get_all()
@@ -32,10 +32,15 @@ def listar_tipos_expediente(
 
     paginated_items = items[start:end+1]
     response.headers["Content-Range"] = f"tipos-expediente {start}-{end}/{total}"
+
+    print(f"[DEBUG] Usuario autenticado: {current_user}")
+    print(f"[DEBUG] Parámetro range recibido: {range}")
+    print(f"[DEBUG] Total de elementos disponibles: {total}")
+
     return paginated_items
 
 @router.get("/{id_tipo}", response_model=TipoExpedienteRead)
-def obtener_tipo(id_tipo: int, db: Session = Depends(get_db), _: dict = Depends(require_role('Administrador'))):
+def obtener_tipo(id_tipo: int, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)):
     service = TipoExpedienteService(db)
     tipo = service.get_by_id(id_tipo)
     if not tipo:
@@ -43,12 +48,12 @@ def obtener_tipo(id_tipo: int, db: Session = Depends(get_db), _: dict = Depends(
     return tipo
 
 @router.post("/", response_model=TipoExpedienteRead)
-def crear_tipo(tipo_data: TipoExpedienteCreate, db: Session = Depends(get_db), _: dict = Depends(require_role('Administrador'))):
+def crear_tipo(tipo_data: TipoExpedienteCreate, db: Session = Depends(get_db), current_user: dict = Depends(require_role('Administrador'))):
     service = TipoExpedienteService(db)
     return service.create(tipo_data)
 
 @router.put("/{id_tipo}", response_model=TipoExpedienteRead)
-def actualizar_tipo(id_tipo: int, tipo_data: dict, db: Session = Depends(get_db), _: dict = Depends(require_role('Administrador'))):
+def actualizar_tipo(id_tipo: int, tipo_data: dict, db: Session = Depends(get_db), current_user: dict = Depends(require_role('Administrador'))):
     service = TipoExpedienteService(db)
     updated = service.update(id_tipo, tipo_data)
     if not updated:
@@ -56,7 +61,7 @@ def actualizar_tipo(id_tipo: int, tipo_data: dict, db: Session = Depends(get_db)
     return updated
 
 @router.delete("/{id_tipo}")
-def borrar_tipo(id_tipo: int, db: Session = Depends(get_db), _: dict = Depends(require_role('Administrador'))):
+def borrar_tipo(id_tipo: int, db: Session = Depends(get_db), current_user: dict = Depends(require_role('Administrador'))):
     service = TipoExpedienteService(db)
     deleted = service.delete(id_tipo)
     if not deleted:

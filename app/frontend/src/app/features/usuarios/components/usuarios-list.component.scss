@@ -1,0 +1,17 @@
+:host {
+  display: block;
+  width: 100%; /* Ajuste para ocupar toda la vista */
+  margin: 0 auto;
+}
+
+.header-actions {
+  margin-left: auto; /* Move button to the far right */
+  display: flex;
+  align-items: center;
+}
+
+mat-card-header {
+  display: flex;
+  justify-content: space-between; /* Ensure the button moves to the far right */
+  align-items: center;
+}

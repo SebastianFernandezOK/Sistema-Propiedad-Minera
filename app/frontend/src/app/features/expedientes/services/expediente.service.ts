@@ -139,4 +139,17 @@ export class ExpedienteService {
   getExpedientesPorPropiedadMinera(idPropiedadMinera: number): Observable<Expediente[]> {
     return this.http.get<Expediente[]>(`${this.baseUrl}/propiedad-minera/${idPropiedadMinera}`);
   }
+
+  /**
+   * Obtiene los tipos de expediente desde la base de datos
+   */
+  getTiposExpediente(range: string = '[0,9]'): Observable<{ id: number; nombre: string }[]> {
+    const headers = { Authorization: `Bearer ${localStorage.getItem('token')}` };
+    const params = new HttpParams().set('range', range);
+
+    return this.http.get<{ id: number; nombre: string }[]>(`${this.baseUrl}/tipos`, {
+      headers,
+      params
+    });
+  }
 }

@@ -13,7 +13,10 @@ import { Router } from '@angular/router';
   imports: [CommonModule, MatTableModule, MatIconModule, MatTooltipModule, MatButtonModule],
   template: `
     <div class="header-section">
-      <h2 class="section-title">Titulares Mineros</h2>
+      <h2 class="section-title">
+        <mat-icon>person</mat-icon> <!-- Added icon for consistency -->
+        Titulares Mineros
+      </h2>
       <button mat-raised-button color="primary" (click)="createTitular()" class="create-btn">
         <mat-icon>add</mat-icon>
         Nuevo Titular
@@ -79,84 +82,7 @@ import { Router } from '@angular/router';
       </button>
     </div>
   `,
-  styles: [`
-    .header-section {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-    }
-    .create-btn {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .full-width-table { 
-      width: 100%; 
-      background: #fff; 
-      border-radius: 8px; 
-      box-shadow: 0 2px 8px rgba(65, 103, 89, 0.08); 
-    }
-    th.mat-mdc-header-cell, .mat-mdc-table .mat-mdc-header-cell {
-      background: #416759 !important;
-      color: #fff !important;
-      font-weight: 700;
-      font-size: 1.08rem;
-      border-bottom: 2px solid #335248;
-      letter-spacing: 0.02em;
-      text-transform: none;
-    }
-    tr.mat-header-row {
-      height: 48px;
-    }
-    td.mat-mdc-cell {
-      color: #222;
-      font-size: 1.01rem;
-      border-bottom: 1px solid #e8f0ec;
-    }
-    th, td { 
-      color: #222; 
-    }
-    .section-title { 
-      color: #222; 
-      font-weight: 700; 
-      margin-bottom: 18px; 
-      font-size: 1.35rem; 
-      letter-spacing: 0.01em; 
-    }
-    .estado-badge {
-      padding: 4px 8px;
-      border-radius: 12px;
-      font-size: 0.85rem;
-      font-weight: 500;
-    }
-    .estado-activo {
-      background-color: #d4edda;
-      color: #155724;
-    }
-    .estado-inactivo {
-      background-color: #f8d7da;
-      color: #721c24;
-    }
-    .estado-suspendido {
-      background-color: #fff3cd;
-      color: #856404;
-    }
-    .delete-btn {
-      color: #d32f2f;
-    }
-    .no-data {
-      text-align: center;
-      padding: 40px;
-      background: #fff;
-      border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(65, 103, 89, 0.08);
-    }
-    .no-data p {
-      margin-bottom: 16px;
-      color: #666;
-    }
-  `]
+  styleUrls: ['./titular-list.component.scss']
 })
 export class TitularesMinerosComponent implements OnInit {
   titulares: TitularMinero[] = [];

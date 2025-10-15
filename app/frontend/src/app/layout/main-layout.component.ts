@@ -43,6 +43,10 @@ import { APP_VERSION } from '../core/api.constants';
             <mat-icon matListItemIcon>warning</mat-icon>
             <span matListItemTitle>Alertas</span>
           </a>
+          <a mat-list-item routerLink="/notificaciones" routerLinkActive="active">
+            <mat-icon matListItemIcon>notifications_active</mat-icon>
+            <span matListItemTitle>Notificaciones</span>
+          </a>
           <mat-divider></mat-divider>
           <mat-list-item [matMenuTriggerFor]="maestrosMenu" *ngIf="userRole === 'Administrador'">
             <mat-icon matListItemIcon>menu_book</mat-icon>

@@ -1,0 +1,89 @@
+/* Consolidación de estilos en un único archivo */
+:host {
+  display: block;
+  width: 100%; /* Ajuste para ocupar toda la vista */
+  margin: 0 auto;
+  padding: 16px;
+  background-color: #ffffff; /* Updated to match other sections */
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.header-section {
+  display: flex;
+  justify-content: space-between; /* Align button to the far right */
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.section-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #333;
+}
+
+.create-btn {
+  margin-left: auto; /* Ensure button is aligned to the far right */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #1976d2; /* Consistent blue color */
+  color: white;
+  border-radius: 4px;
+  padding: 8px 16px;
+  font-size: 1rem;
+  font-weight: bold;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s ease;
+}
+
+.create-btn:hover {
+  background-color: #1565c0; /* Darker blue for hover */
+}
+
+.action-btn {
+  background-color: #4caf50; /* Verde consistente con Titulares Mineros */
+  color: white;
+  border-radius: 4px;
+  padding: 8px 16px;
+  font-size: 1rem;
+  font-weight: bold;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s ease;
+}
+
+.action-btn:hover {
+  background-color: #43a047; /* Verde más oscuro para hover */
+}
+
+.full-width-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #f9f9f9; /* Fondo claro consistente con otras áreas */
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+mat-header-cell {
+  font-weight: bold;
+  background-color: #1976d2; /* Consistent blue color */
+  color: white;
+  padding: 12px;
+}
+
+mat-cell {
+  padding: 12px;
+  color: #333;
+}
+
+mat-row {
+  background-color: transparent; /* Match default Angular Material styles */
+}
+
+mat-row:nth-child(even) {
+  background-color: transparent; /* Remove alternate row color */
+}
+
+mat-row:hover {
+  background-color: rgba(0, 0, 0, 0.04); /* Default hover effect */
+}
