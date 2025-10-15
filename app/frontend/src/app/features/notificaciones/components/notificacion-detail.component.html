@@ -89,7 +89,7 @@
           <!-- Observaciones -->
           <ng-container *ngSwitchCase="2">
             <div class="tab-content">
-              <app-observaciones-tab [idTransaccion]="notificacion.IdTransaccion" *ngIf="notificacion.IdTransaccion"></app-observaciones-tab>
+              <app-observaciones-tab [idTransaccion]="notificacion.IdTransaccion" tipoPadre="notificacion" [idPadre]="notificacion?.IdNotificacion" *ngIf="notificacion.IdTransaccion"></app-observaciones-tab>
               <div *ngIf="!notificacion.IdTransaccion" class="empty-state">
                 <mat-icon>note_add</mat-icon>
                 <h3>No se puede cargar observaciones</h3>

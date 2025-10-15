@@ -79,6 +79,8 @@ import { MatButtonModule } from '@angular/material/button';
 export class ObservacionesTabComponent implements OnInit, OnChanges {
   observaciones: Observacion[] = [];
   @Input() idTransaccion: number | null = null;
+  @Input() tipoPadre: string = 'expediente'; // tipo de entidad padre
+  @Input() idPadre: number | null = null; // ID de la entidad padre
   totalObservaciones = 0;
   pageSize = 5;
   currentPage = 0;
@@ -126,14 +128,12 @@ export class ObservacionesTabComponent implements OnInit, OnChanges {
   }
 
   onCrearObservacion(obs: Observacion) {
+    console.log('Observación creada recibida en tab:', obs);
     this.editando = false;
     this.observacionEdit = null;
-    this.observacionesService.createObservacion(obs).subscribe({
-      next: (resp) => {
-        this.loadObservaciones(this.currentPage, this.pageSize);
-        this.mostrarFormulario = false;
-      }
-    });
+    // Solo recargar la lista, la observación ya fue creada por el componente
+    this.loadObservaciones(this.currentPage, this.pageSize);
+    this.mostrarFormulario = false;
   }
 
   onEditarObservacion(obs: Observacion) {

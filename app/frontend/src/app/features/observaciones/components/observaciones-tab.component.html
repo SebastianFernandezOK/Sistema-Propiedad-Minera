@@ -11,7 +11,7 @@
     Cerrar
   </button>
   <div *ngIf="mostrarFormulario && !editando">
-    <app-observacion-create [idTransaccion]="idTransaccion" (create)="onCrearObservacion($event)" (cancelar)="mostrarFormulario = false; editando = false; observacionEdit = null;"></app-observacion-create>
+    <app-observacion-create [idTransaccion]="idTransaccion" [tipoPadre]="tipoPadre" [idPadre]="idPadre" (create)="onCrearObservacion($event)" (cancelar)="mostrarFormulario = false; editando = false; observacionEdit = null;"></app-observacion-create>
   </div>
   <div *ngIf="mostrarFormulario && editando">
     <app-observacion-edit [observacion]="observacionEdit" (update)="onActualizarObservacion($event)" (cancelar)="mostrarFormulario = false; editando = false; observacionEdit = null;"></app-observacion-edit>

@@ -6,6 +6,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { ReactiveFormsModule } from '@angular/forms';
 import { Observacion } from '../models/observacion.model';
+import { ObservacionesService } from '../services/observaciones.service';
 import { trigger, transition, style, animate } from '@angular/animations';
 
 @Component({
@@ -40,11 +41,16 @@ import { trigger, transition, style, animate } from '@angular/animations';
 })
 export class ObservacionCreateComponent {
   @Input() idTransaccion: number | null = null;
+  @Input() tipoPadre: string = 'expediente'; // tipo de entidad padre
+  @Input() idPadre: number | null = null; // ID de la entidad padre
   @Output() create = new EventEmitter<Observacion>();
   @Output() cancelar = new EventEmitter<void>();
   form: FormGroup;
 
-  constructor(private fb: FormBuilder) {
+  constructor(
+    private fb: FormBuilder,
+    private observacionesService: ObservacionesService
+  ) {
     this.form = this.fb.group({
       Descripcion: ['', Validators.required],
       Observaciones: ['']
@@ -88,8 +94,27 @@ export class ObservacionCreateComponent {
     };
     
     console.log('Creando observación válida:', value);
-    this.create.emit(value);
-    this.form.reset();
+    console.log('Tipo de padre:', this.tipoPadre);
+    console.log('ID de padre:', this.idPadre);
+    
+    // Usar el método específico según el tipo de padre
+    let createObservable;
+    if (this.tipoPadre === 'notificacion' && this.idPadre) {
+      createObservable = this.observacionesService.createObservacionForNotificacion(this.idPadre, value);
+    } else {
+      createObservable = this.observacionesService.createObservacion(value);
+    }
+    
+    createObservable.subscribe({
+      next: (resp) => {
+        console.log('Observación creada exitosamente:', resp);
+        this.create.emit(resp);
+        this.form.reset();
+      },
+      error: (err) => {
+        console.error('[ObservacionCreate] Error al crear observación:', err);
+      }
+    });
   }
 
   volver() {

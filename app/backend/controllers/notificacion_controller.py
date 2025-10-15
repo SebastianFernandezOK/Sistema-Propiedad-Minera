@@ -6,6 +6,7 @@ from backend.database.connection import get_db
 from typing import List
 from backend.schemas.alerta_schema import AlertaCreate, AlertaOut
 from backend.models.alerta_model import Alerta
+from backend.schemas.observaciones_schema import ObservacionesCreate, ObservacionesOut
 
 
 
@@ -99,3 +100,34 @@ def create_alerta_for_notificacion(
     alerta_obj = alerta_service.create_alerta(alerta)
 
     return alerta_obj
+
+@router.post("/{id}/observaciones", response_model=ObservacionesOut)
+def create_observacion_for_notificacion(
+    id: int, observacion: ObservacionesCreate, db: Session = Depends(get_db)
+):
+    print(f"[DEBUG] Creando observación para notificación ID: {id}")
+    print(f"[DEBUG] Datos de observación recibidos: {observacion}")
+    
+    service = NotificacionService(db)
+    notificacion = service.get_notificacion(id)
+    print(f"[DEBUG] Notificación obtenida: {notificacion}")
+    
+    if not notificacion:
+        raise HTTPException(status_code=404, detail="Notificación no encontrada")
+
+    # Asignar el IdTransaccion de la notificación a la observación
+    id_transaccion = notificacion.get('IdTransaccion') if isinstance(notificacion, dict) else getattr(notificacion, 'IdTransaccion', None)
+    print(f"[DEBUG] IdTransaccion extraído: {id_transaccion}")
+    
+    if not id_transaccion:
+        raise HTTPException(status_code=400, detail=f"La notificación no tiene IdTransaccion válido. Notificación: {notificacion}")
+    
+    print(f"[DEBUG] Asignando IdTransaccion {id_transaccion} a la observación")
+    observacion.IdTransaccion = id_transaccion
+
+    # Crear la observación en la base de datos usando el servicio
+    from backend.services.observaciones_service import ObservacionesService
+    observacion_service = ObservacionesService(db)
+    observacion_obj = observacion_service.create_observacion(observacion)
+
+    return observacion_obj

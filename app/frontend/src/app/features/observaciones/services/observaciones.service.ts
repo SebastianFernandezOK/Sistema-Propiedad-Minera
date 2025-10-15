@@ -33,6 +33,10 @@ export class ObservacionesService {
     return this.http.post<Observacion>(this.apiUrl, observacion);
   }
 
+  createObservacionForNotificacion(idNotificacion: number, observacion: Observacion) {
+    return this.http.post<Observacion>(`${API_BASE_URL}/notificaciones/${idNotificacion}/observaciones`, observacion);
+  }
+
   updateObservacion(id: number, observacion: Observacion) {
     return this.http.put<Observacion>(`${this.apiUrl}/${id}`, observacion);
   }
