@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from backend.services.transaccion_service import TransaccionService
 from backend.schemas.transaccion_schema import TransaccionCreate, TransaccionUpdate, TransaccionOut
 from backend.database.connection import get_db
-from typing import List
+from typing import List, Dict, Any
 from backend.services.auth_jwt import get_current_user
 
 router = APIRouter(
@@ -61,3 +61,25 @@ def delete_transaccion(id: int, db: Session = Depends(get_db), current_user: int
     if not obj:
         raise HTTPException(status_code=404, detail="Transaccion not found")
     return obj
+
+@router.get("/informacion/{tabla}/{id_transaccion}", response_model=List[Dict[str, Any]])
+def get_informacion_transaccion(
+    tabla: str, 
+    id_transaccion: int, 
+    db: Session = Depends(get_db), 
+    current_user: int = Depends(get_current_user)
+):
+    """
+    Ejecuta el procedure InformacionTransaccion para obtener información específica
+    de una transacción en una tabla determinada.
+    
+    Parameters:
+    - tabla: Nombre de la tabla (ej: 'Expediente', 'Acta', 'PropiedadMinera')
+    - id_transaccion: ID de la transacción a consultar
+    """
+    service = TransaccionService(db)
+    try:
+        result = service.get_informacion_transaccion(tabla, id_transaccion)
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error ejecutando procedure: {str(e)}")

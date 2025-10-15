@@ -11,7 +11,7 @@ class Alerta(Base):
     IdTransaccion = Column(Integer, nullable=True)
     IdTipoAlerta = Column(Integer, nullable=True)
     IdEstado = Column(Integer, ForeignKey('EstadoAlerta.IdEstado'), nullable=True)
-    Asunto = Column(String(50), nullable=True)
+    Asunto = Column(String(100), nullable=True)
     Mensaje = Column(String(5000), nullable=True)
     Medio = Column(String(50), nullable=True)
     IdPeriodicidad = Column(Integer, nullable=False)

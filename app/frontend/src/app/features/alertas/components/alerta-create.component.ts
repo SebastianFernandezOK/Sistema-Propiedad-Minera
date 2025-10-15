@@ -1,4 +1,5 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, OnInit, OnChanges } from '@angular/core';
+import { Location } from '@angular/common';
 import { AlertaService } from '../services/alerta.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -16,6 +17,7 @@ import type { PeriodicidadAlerta } from '../../periodicidad-alerta/models/period
 import { trigger, transition, style, animate } from '@angular/animations';
 import { DateFormatDirective } from '../../../shared/directives/date-format.directive';
 import { SharedDatepickerModule } from '../../../shared/shared-datepicker.module';
+import { TransaccionService, TransaccionInfo } from '../../transacciones/services/transaccion.service';
 
 @Component({
   selector: 'app-alerta-create',
@@ -113,7 +115,7 @@ import { SharedDatepickerModule } from '../../../shared/shared-datepicker.module
     ])
   ]
 })
-export class AlertaCreateComponent {
+export class AlertaCreateComponent implements OnInit, OnChanges {
   @Input() idTransaccion: number | null = null;
   @Input() alerta: any = null;
   @Input() editando: boolean = false;
@@ -125,6 +127,7 @@ export class AlertaCreateComponent {
   tiposAlerta: any[] = [];
   estadosAlerta: EstadoAlerta[] = [];
   periodicidades: PeriodicidadAlerta[] = [];
+  transaccionInfo: TransaccionInfo[] = [];
   
   // Opciones para el menú desplegable de Medio
   opcionesMedio = [
@@ -137,7 +140,9 @@ export class AlertaCreateComponent {
     private alertaService: AlertaService, 
     private tipoAlertaService: TipoAlertaService, 
     private estadoAlertaService: EstadoAlertaService,
-    private periodicidadAlertaService: PeriodicidadAlertaService
+    private periodicidadAlertaService: PeriodicidadAlertaService,
+    private transaccionService: TransaccionService,
+    private location: Location
   ) {
     this.form = this.fb.group({
       IdTipoAlerta: [null, Validators.required],
@@ -151,7 +156,9 @@ export class AlertaCreateComponent {
       FechaInicio: [null],
       FechaFin: [null],
       Destinatarios: ['', Validators.required],
-      Obs: ['']
+      Obs: [''],
+      AudFecha: [new Date().toISOString()] // Fecha actual automáticamente
+
     });
   }
 
@@ -176,6 +183,8 @@ export class AlertaCreateComponent {
     
     if (this.idTransaccion) {
       this.form.addControl('IdTransaccion', this.fb.control(this.idTransaccion));
+      // Cargar información de la transacción
+      this.cargarInformacionTransaccion();
     }
     if (this.editando && this.alerta) {
       this.form.patchValue({
@@ -207,7 +216,8 @@ export class AlertaCreateComponent {
         FechaInicio: this.alerta.FechaInicio,
         FechaFin: this.alerta.FechaFin,
         Destinatarios: this.alerta.Destinatarios,
-        Obs: this.alerta.Obs
+        Obs: this.alerta.Obs,
+        AudFecha: this.alerta.AudFecha || new Date().toISOString() // Usar fecha existente o actual
       });
     } else {
       // Cuando no se está editando, mantener valores por defecto
@@ -223,9 +233,118 @@ export class AlertaCreateComponent {
         FechaInicio: null,
         FechaFin: null,
         Destinatarios: '',
-        Obs: ''
+        Obs: '',
+        AudFecha: new Date().toISOString() // Fecha actual por defecto
       });
     }
+  }
+
+  /**
+   * Carga la información completa de la transacción para usar en el formateo del asunto
+   */
+  private async cargarInformacionTransaccion(): Promise<void> {
+    if (!this.idTransaccion) return;
+    
+    try {
+      this.transaccionInfo = await this.transaccionService.getInformacionCompletaTransaccion(this.idTransaccion);
+      console.log('Información de transacción cargada:', this.transaccionInfo);
+    } catch (error) {
+      console.error('Error cargando información de transacción:', error);
+      this.transaccionInfo = [];
+    }
+  }
+
+  /**
+   * Formatea el asunto de la alerta según el patrón:
+   * {Asunto ingresado por el usuario} ({Tabla} {Detalle})
+   * Respeta el límite de 50 caracteres de la BD
+   */
+  private formatearAsunto(asuntoUsuario: string): string {
+    if (!this.transaccionInfo || this.transaccionInfo.length === 0) {
+      return this.truncarAsunto(asuntoUsuario); // Truncar por seguridad
+    }
+
+    const info = this.transaccionInfo[0]; // Tomar la primera (principal)
+    const tabla = info.Tabla || '';
+    const detalle = info.Detalle || '';
+    
+    // Formatear con paréntesis: "Asunto (Tabla Detalle)"
+    let asuntoCompleto = `${asuntoUsuario} (${tabla} ${detalle})`.trim();
+    
+    // Truncar si excede el límite de la BD (50 caracteres)
+    return this.truncarAsunto(asuntoCompleto);
+  }
+
+  /**
+   * Trunca el asunto a máximo 50 caracteres (límite de la BD)
+   * Si es necesario truncar, agrega "..." al final
+   */
+  private truncarAsunto(asunto: string): string {
+    const LIMITE_CARACTERES = 50;
+    
+    if (asunto.length <= LIMITE_CARACTERES) {
+      return asunto;
+    }
+    
+    // Truncar y agregar puntos suspensivos
+    return asunto.substring(0, LIMITE_CARACTERES - 3) + '...';
+  }
+
+  /**
+   * Genera la URL actual donde se está creando la alerta
+   * Usa el servicio nativo Location de Angular
+   */
+  private generarUrlContexto(): string {
+    const baseUrl = window.location.origin;
+    const currentPath = this.location.path();
+    
+    return `${baseUrl}${currentPath}`;
+  }
+
+  /**
+   * Formatea el mensaje agregando la jerarquía de transacciones y la URL al final
+   * Patrón: {Mensaje usuario}\n\nAlerta generada en /{Tabla2}{Detalle2}/{Tabla1}{Detalle1}/{Tabla}{Detalle}\nURL: [link]
+   */
+  private formatearMensaje(mensajeUsuario: string): string {
+    if (!this.transaccionInfo || this.transaccionInfo.length === 0) {
+      return mensajeUsuario; // Si no hay info, usar solo el mensaje del usuario
+    }
+
+    const info = this.transaccionInfo[0]; // Información principal
+    
+    // Construir la ruta jerárquica
+    const rutaJerarquia = this.construirRutaJerarquia(info);
+    
+    // Generar la URL actual usando Location service
+    const urlContexto = this.generarUrlContexto();
+    // Agregar la ruta y la URL al final del mensaje
+    return `<strong>${mensajeUsuario}.</strong> <br/> Alerta generada en ${rutaJerarquia}<br/><a href="${urlContexto}" target="_blank">Link de alerta.</a>`;
+  }
+
+  /**
+   * Construye la ruta jerárquica desde la raíz hasta la transacción actual
+   * Ejemplo: /PropiedadMinera Punilla Oeste II/Expediente 109-M-08/Acta Por incumplimiento...
+   */
+  private construirRutaJerarquia(info: TransaccionInfo): string {
+    const segmentos: string[] = [];
+    
+    // Nivel 2 (raíz) - si existe
+    if (info.Tabla2 && info.Detalle2) {
+      segmentos.push(`${info.Tabla2} ${info.Detalle2}`);
+    }
+    
+    // Nivel 1 (intermedio) - si existe
+    if (info.Tabla1 && info.Detalle1) {
+      segmentos.push(`${info.Tabla1} ${info.Detalle1}`);
+    }
+    
+    // Nivel 0 (actual) - siempre existe
+    if (info.Tabla && info.Detalle) {
+      segmentos.push(`${info.Tabla} ${info.Detalle}`);
+    }
+    
+    // Construir la ruta con separadores "/"
+    return segmentos.join(' -> ');
   }
 
   onSubmit() {
@@ -240,11 +359,26 @@ export class AlertaCreateComponent {
       return;
     }
     
+    // Obtener el valor del formulario y formatear asunto y mensaje
+    const formValue = this.form.value;
+    const asuntoFormateado = this.formatearAsunto(formValue.Asunto);
+    const mensajeFormateado = this.formatearMensaje(formValue.Mensaje);
+    
     const value: AlertaCreate = {
-      ...this.form.value,
-      IdTransaccion: this.idTransaccion
+      ...formValue,
+      Asunto: asuntoFormateado, // Usar el asunto formateado
+      Mensaje: mensajeFormateado, // Usar el mensaje formateado
+      IdTransaccion: this.idTransaccion,
+      AudFecha: new Date().toISOString() // Establecer fecha actual en cada submit
     };
     
+    console.log('Asunto original:', formValue.Asunto);
+    console.log('Asunto formateado:', asuntoFormateado);
+    console.log('Mensaje original:', formValue.Mensaje);
+    console.log('Mensaje formateado:', mensajeFormateado);
+    console.log('URL del contexto:', this.generarUrlContexto());
+    console.log('AudFecha establecida:', value.AudFecha);
+    console.log('Longitud del asunto:', asuntoFormateado.length);
     console.log('Valor a enviar:', value);
     
     if (this.editando && this.alerta && this.alerta.idAlerta) {
@@ -253,7 +387,11 @@ export class AlertaCreateComponent {
         next: (resp) => {
           console.log('Alerta editada exitosamente:', resp);
           this.create.emit(resp);
-          this.form.reset();
+          this.form.reset({
+            IdEstado: 1,
+            Medio: 'Email',
+            AudFecha: new Date().toISOString()
+          });
         },
         error: (err) => {
           console.error('[AlertaCreate] Error al editar alerta:', err);
@@ -276,7 +414,11 @@ export class AlertaCreateComponent {
         next: (resp) => {
           console.log('Alerta creada exitosamente:', resp);
           this.create.emit(resp);
-          this.form.reset();
+          this.form.reset({
+            IdEstado: 1,
+            Medio: 'Email',
+            AudFecha: new Date().toISOString()
+          });
         },
         error: (err) => {
           console.error('[AlertaCreate] Error al crear alerta:', err);

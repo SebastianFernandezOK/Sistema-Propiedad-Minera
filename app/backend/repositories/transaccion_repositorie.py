@@ -1,7 +1,8 @@
 from sqlalchemy.orm import Session
+from sqlalchemy import text
 from backend.models.transaccion_model import Transaccion
 from backend.schemas.transaccion_schema import TransaccionCreate, TransaccionUpdate
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 
 class TransaccionRepositorie:
     def __init__(self, db: Session):
@@ -39,3 +40,22 @@ class TransaccionRepositorie:
         self.db.delete(db_obj)
         self.db.commit()
         return True
+
+    def get_informacion_transaccion(self, tabla: str, id_transaccion: int) -> List[Dict[str, Any]]:
+        """
+        Ejecuta el procedure InformacionTransaccion para obtener información de transacciones
+        """
+        try:
+            # Ejecutar el stored procedure
+            sql = text("EXEC InformacionTransaccion :tabla, :id_transaccion")
+            result = self.db.execute(sql, {"tabla": tabla, "id_transaccion": id_transaccion})
+            
+            # Convertir resultados a lista de diccionarios
+            columns = result.keys()
+            rows = result.fetchall()
+            
+            return [dict(zip(columns, row)) for row in rows]
+        except Exception as e:
+            # En caso de error, retornar lista vacía y loggear el error si es necesario
+            print(f"Error ejecutando procedure InformacionTransaccion: {e}")
+            return []
