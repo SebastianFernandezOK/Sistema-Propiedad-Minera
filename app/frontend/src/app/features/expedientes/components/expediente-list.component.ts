@@ -136,7 +136,7 @@ import { Expediente, ExpedienteFilter } from '../models/expediente.model';
               <tr mat-row *matRowDef="let row; columns: displayedColumns;" 
                   (click)="verDetalle(row.IdExpediente)" 
                   class="clickable-row"
-                  matTooltip="Haga clic para ver el detalle">
+                  matTooltip="">
               </tr>
             </table>
           </div>

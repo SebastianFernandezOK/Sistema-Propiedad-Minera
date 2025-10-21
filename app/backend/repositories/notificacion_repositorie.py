@@ -90,7 +90,7 @@ class NotificacionRepositorie:
             "pages": (total + limit - 1) // limit  # Cálculo de páginas totales
         }
 
-    def create(self, notificacion: NotificacionCreate) -> Notificacion:
+    def create(self, notificacion: NotificacionCreate) -> dict:
         notificacion_dict = notificacion.dict()
         print(f"[REPO DEBUG] Datos para crear notificación: {notificacion_dict}")
         
@@ -102,20 +102,42 @@ class NotificacionRepositorie:
         self.db.refresh(db_obj)
         
         print(f"[REPO DEBUG] Después de commit/refresh - IdTransaccion: {getattr(db_obj, 'IdTransaccion', 'NO_EXISTE')}")
-        return db_obj
+        
+        # Obtener el nombre del titular si existe
+        titular_nombre = None
+        if db_obj.Titular:
+            titular = self.db.query(TitularMinero).filter(TitularMinero.IdTitular == db_obj.Titular).first()
+            titular_nombre = titular.Nombre if titular else None
+        
+        # Retornar el mismo formato que el método get
+        return {
+            'IdNotificacion': db_obj.IdNotificacion,
+            'Emision': db_obj.Emision,
+            'Plazo': db_obj.Plazo,
+            'CodExp': db_obj.CodExp,
+            'TitularId': db_obj.Titular,
+            'Titular': titular_nombre or 'No especificado' if db_obj.Titular else None,
+            'Funcionario': db_obj.Funcionario,
+            'IdTransaccion': db_obj.IdTransaccion
+        }
 
-    def update(self, id_notificacion: int, notificacion: NotificacionUpdate) -> Optional[Notificacion]:
-        db_obj = self.get(id_notificacion)
+    def update(self, id_notificacion: int, notificacion: NotificacionUpdate) -> Optional[dict]:
+        # Primero obtener el objeto para actualizar
+        db_obj = self.db.query(Notificacion).filter(Notificacion.IdNotificacion == id_notificacion).first()
         if not db_obj:
             return None
+        
+        # Actualizar los campos
         for field, value in notificacion.dict(exclude_unset=True).items():
             setattr(db_obj, field, value)
         self.db.commit()
         self.db.refresh(db_obj)
-        return db_obj
+        
+        # Retornar el mismo formato que get()
+        return self.get(id_notificacion)
 
     def delete(self, id_notificacion: int) -> bool:
-        db_obj = self.get(id_notificacion)
+        db_obj = self.db.query(Notificacion).filter(Notificacion.IdNotificacion == id_notificacion).first()
         if not db_obj:
             return False
         self.db.delete(db_obj)
