@@ -26,34 +26,34 @@ class NotificacionService:
         try:
             # PASO 1: Crear la notificación PRIMERO
             nueva_notificacion = self.repo.create(notificacion)
-            print(f"[DEBUG] Notificación creada con ID: {nueva_notificacion.IdNotificacion}")
+            print(f"[DEBUG] Notificación creada con ID: {nueva_notificacion['IdNotificacion']}")
             
             # PASO 2: Si hay código de expediente, crear la transacción con el ID correcto
             id_transaccion_creada = None
-            if notificacion.CodExp and nueva_notificacion.IdNotificacion:
+            if notificacion.CodExp and nueva_notificacion['IdNotificacion']:
                 print(f"[DEBUG] Código de expediente encontrado: {notificacion.CodExp}")
                 # Crear la transacción CON el IdRegistro correcto desde el inicio
-                id_transaccion_creada = self._crear_transaccion_para_notificacion(notificacion.CodExp, nueva_notificacion.IdNotificacion)
+                id_transaccion_creada = self._crear_transaccion_para_notificacion(notificacion.CodExp, nueva_notificacion['IdNotificacion'])
                 print(f"[DEBUG] Transacción creada con ID: {id_transaccion_creada}")
                 
-                # PASO 3: Actualizar la notificación con el IdTransaccion
+                # PASO 3: Si se creó una transacción, obtener los datos actualizados
                 if id_transaccion_creada:
-                    print(f"[DEBUG] Actualizando notificación {nueva_notificacion.IdNotificacion} con IdTransaccion: {id_transaccion_creada}")
+                    print(f"[DEBUG] Actualizando notificación {nueva_notificacion['IdNotificacion']} con IdTransaccion: {id_transaccion_creada}")
                     
                     # Actualizar directamente en la base de datos
                     query = text("UPDATE Notificacion SET IdTransaccion = :id_transaccion WHERE IdNotificacion = :id_notificacion")
                     result = self.db.execute(query, {
                         "id_transaccion": id_transaccion_creada, 
-                        "id_notificacion": nueva_notificacion.IdNotificacion
+                        "id_notificacion": nueva_notificacion['IdNotificacion']
                     })
                     self.db.commit()
                     print(f"[DEBUG] Filas afectadas: {result.rowcount}")
                     
-                    # Refrescar el objeto desde la base de datos
-                    self.db.refresh(nueva_notificacion)
-                    print(f"[DEBUG] Notificación actualizada - IdTransaccion: {nueva_notificacion.IdTransaccion}")
+                    # Obtener los datos actualizados
+                    nueva_notificacion = self.repo.get(nueva_notificacion['IdNotificacion'])
+                    print(f"[DEBUG] Notificación actualizada - IdTransaccion: {nueva_notificacion['IdTransaccion']}")
             
-            print(f"[SUCCESS] Notificación completada - ID: {nueva_notificacion.IdNotificacion}, IdTransaccion: {nueva_notificacion.IdTransaccion}")
+            print(f"[SUCCESS] Notificación completada - ID: {nueva_notificacion['IdNotificacion']}, IdTransaccion: {nueva_notificacion.get('IdTransaccion')}")
             return nueva_notificacion
             
         except Exception as e:
