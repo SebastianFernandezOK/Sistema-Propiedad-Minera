@@ -74,7 +74,7 @@ import { EstadoAlerta } from '../models/estado-alerta.model';
           </ng-container>
           <ng-container matColumnDef="Mensaje">
             <th mat-header-cell *matHeaderCellDef>Mensaje</th>
-            <td mat-cell *matCellDef="let alerta">{{ alerta.Mensaje }}</td>
+            <td mat-cell *matCellDef="let alerta" [innerHTML]="alerta.Mensaje"></td>
           </ng-container>
           <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
           <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
