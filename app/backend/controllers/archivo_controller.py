@@ -13,7 +13,7 @@ import logging
 from backend.services.auth_jwt import get_current_user
 
 router = APIRouter(prefix="/archivos", tags=["archivos"])
-BASE_UPLOAD_DIR = r"C:\Sistemas\Fuentes\Sistema-Propiedad-Minera\app\backend\uploads"
+BASE_UPLOAD_DIR = r"C:\Users\SebastianCarlosFerna\Documents\Sistema-Propiedad-Minera\app\backend\uploads"
 os.makedirs(BASE_UPLOAD_DIR, exist_ok=True)
 
 # Endpoint genérico para subir archivos por entidad
@@ -26,7 +26,7 @@ def upload_archivo_entidad(
     aud_usuario: int = Form(1),
     db: Session = Depends(get_db)
 ):
-    entidades_permitidas = ["expediente", "acta", "resolucion", "propiedad-minera"]
+    entidades_permitidas = ["expediente", "acta", "resolucion", "propiedad-minera", "notificacion"]
     if entidad not in entidades_permitidas:
         raise HTTPException(status_code=400, detail=f"Entidad '{entidad}' no permitida. Entidades válidas: {entidades_permitidas}")
     try:
@@ -54,6 +54,21 @@ def upload_archivo_entidad(
             if not propiedad:
                 raise HTTPException(status_code=404, detail="Propiedad minera no encontrada para ese IdTransaccion")
             return _upload_archivo_propiedad_minera(propiedad.IdTransaccion, file, descripcion, aud_usuario, db, propiedad.Nombre)
+        elif entidad == "notificacion":
+            try:
+                from backend.models.notificacion_model import Notificacion
+                print(f"[DEBUG] Buscando notificación con IdTransaccion: {id_entidad}")
+                notificacion = db.query(Notificacion).filter_by(IdTransaccion=id_entidad).first()
+                print(f"[DEBUG] Notificación encontrada: {notificacion}")
+                if not notificacion:
+                    print(f"[DEBUG] No se encontró notificación con IdTransaccion: {id_entidad}")
+                    raise HTTPException(status_code=404, detail="Notificación no encontrada para ese IdTransaccion")
+                print(f"[DEBUG] CodExp de la notificación: {notificacion.CodExp}")
+                return _upload_archivo_notificacion(notificacion.IdTransaccion, file, descripcion, aud_usuario, db, notificacion.CodExp)
+            except Exception as e:
+                print(f"[ERROR] Error en notificacion: {str(e)}")
+                print(f"[ERROR] Tipo de error: {type(e)}")
+                raise HTTPException(status_code=500, detail=f"Error al procesar notificación: {str(e)}")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error al subir archivo: {str(e)}")
 
@@ -223,6 +238,62 @@ def _upload_archivo_propiedad_minera(id_transaccion: int, file: UploadFile, desc
             os.remove(temp_file_path)
         raise HTTPException(status_code=500, detail=f"Error al crear registro en BD: {str(e)}")
 
+def _upload_archivo_notificacion(id_transaccion: int, file: UploadFile, descripcion: Optional[str], aud_usuario: int, db: Session, cod_exp_notificacion: Optional[str]):
+    print(f"[DEBUG] Iniciando upload para notificación - IdTransaccion: {id_transaccion}, CodExp: {cod_exp_notificacion}")
+    archivo_service = ArchivoService(db)
+    notificacion_folder = os.path.join(BASE_UPLOAD_DIR, "notificaciones")
+    print(f"[DEBUG] Carpeta de notificaciones: {notificacion_folder}")
+    os.makedirs(notificacion_folder, exist_ok=True)
+    descripcion_n = (cod_exp_notificacion or "NOTIFICACION").replace(" ", "_")
+    print(f"[DEBUG] Descripción procesada: {descripcion_n}")
+    file_extension = os.path.splitext(file.filename)[1] if file.filename else ""
+    original_name_without_ext = os.path.splitext(file.filename)[0] if file.filename else "archivo"
+    temp_nombre = f"{descripcion_n}_{original_name_without_ext}{file_extension}"
+    print(f"[DEBUG] Nombre temporal: {temp_nombre}")
+    temp_file_path = os.path.join(notificacion_folder, temp_nombre)
+    print(f"[DEBUG] Ruta temporal del archivo: {temp_file_path}")
+    
+    with open(temp_file_path, "wb") as buffer:
+        buffer.write(file.file.read())
+    print(f"[DEBUG] Archivo escrito temporalmente en: {temp_file_path}")
+    
+    try:
+        argentina_tz = pytz.timezone('America/Argentina/San_Juan')
+        fecha_local = datetime.now(argentina_tz)
+        archivo_data = ArchivoCreate(
+            IdTransaccion=id_transaccion,
+            Nombre=temp_nombre,
+            Descripcion=descripcion,
+            Tipo="notificacion",
+            Link="/uploads/notificaciones/",
+            AudFecha=fecha_local,
+            AudUsuario=aud_usuario
+        )
+        print(f"[DEBUG] Datos del archivo a crear en BD: {archivo_data}")
+        archivo_creado = archivo_service.create_archivo(archivo_data)
+        print(f"[DEBUG] Archivo creado en BD con ID: {archivo_creado.IdArchivo}")
+        
+        nuevo_nombre = f"{archivo_creado.IdArchivo}_{descripcion_n}_{original_name_without_ext}{file_extension}"
+        if len(nuevo_nombre) > 255:
+            max_name_length = 255 - len(file_extension)
+            nuevo_nombre = nuevo_nombre[:max_name_length] + file_extension
+        
+        nuevo_file_path = os.path.join(notificacion_folder, nuevo_nombre)
+        print(f"[DEBUG] Renombrando archivo de {temp_file_path} a {nuevo_file_path}")
+        os.rename(temp_file_path, nuevo_file_path)
+        print(f"[DEBUG] Archivo renombrado exitosamente")
+        
+        archivo_creado.Nombre = nuevo_nombre
+        archivo_creado.Link = f"/uploads/notificaciones/{nuevo_nombre}"
+        db.commit()
+        db.refresh(archivo_creado)
+        print(f"[DEBUG] Archivo guardado exitosamente: {nuevo_file_path}")
+        return archivo_creado
+    except Exception as e:
+        if os.path.exists(temp_file_path):
+            os.remove(temp_file_path)
+        raise HTTPException(status_code=500, detail=f"Error al crear registro en BD: {str(e)}")
+
 # Endpoint genérico para obtener archivos por entidad con paginación
 @router.get("/{entidad}/{id_entidad}", response_model=ArchivosPaginatedResponse)
 def get_archivos_entidad(
@@ -232,7 +303,7 @@ def get_archivos_entidad(
     limit: int = 10, 
     db: Session = Depends(get_db)
 ):
-    entidades_permitidas = ["expediente", "acta", "resolucion", "propiedad-minera"]
+    entidades_permitidas = ["expediente", "acta", "resolucion", "propiedad-minera", "notificacion"]
     if entidad not in entidades_permitidas:
         raise HTTPException(status_code=400, detail=f"Entidad '{entidad}' no permitida")
     if page < 1:
